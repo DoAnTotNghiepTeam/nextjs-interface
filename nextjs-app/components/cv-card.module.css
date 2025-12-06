@@ -1,0 +1,99 @@
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.previewContainer {
+  position: relative;
+  height: 300px;
+  overflow: hidden;
+}
+
+.previewWrapper {
+  transform: scale(0.3);
+  transform-origin: top left;
+  width: 333.33%;
+  height: 333.33%;
+  pointer-events: none;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.card:hover .overlay {
+  opacity: 1;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.editButton,
+.deleteButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.editButton {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.editButton:hover {
+  background-color: #2563eb;
+  transform: scale(1.1);
+}
+
+.deleteButton {
+  background-color: #ef4444;
+  color: white;
+}
+
+.deleteButton:hover {
+  background-color: #dc2626;
+  transform: scale(1.1);
+}
+
+.info {
+  padding: 16px;
+}
+
+.name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.date {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}

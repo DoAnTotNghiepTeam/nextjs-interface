@@ -1,0 +1,176 @@
+/* ===================== */
+/* Card & Layout         */
+/* ===================== */
+
+.card {
+  max-width: 1200px;
+  margin: 2rem auto;
+  background-color: #ffffff;
+  border-radius: 1.5rem;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  font-family: "Inter", sans-serif;
+  color: #333;
+  transition: all 0.3s ease;
+  display: flex;
+  gap: 2rem;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+}
+
+.detailColumn {
+  flex: 2;
+  min-width: 0; /* fix overflow */
+}
+
+.timelineColumn {
+  flex: 1;
+  min-width: 280px;
+  background: #f9fafb;
+  border-left: 1px solid #e5e7eb;
+  padding-left: 1.5rem;
+  border-radius: 1rem;
+}
+
+/* ===================== */
+/* Titles & Text         */
+/* ===================== */
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #1e3a8a;
+  border-bottom: 2px solid #e0e7ff;
+  padding-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #1e40af;
+}
+
+.textSuccess {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.textDanger {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* ===================== */
+/* Grid & Buttons        */
+/* ===================== */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  color: white;
+  font-weight: 600;
+  padding: 0.65rem 1.3rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  width: fit-content;
+}
+
+.btn:hover {
+  background: linear-gradient(90deg, #1e40af, #2563eb);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+/* ===================== */
+/* Timeline + History    */
+/* ===================== */
+
+.historyList {
+  margin-top: 0.5rem;
+  padding-left: 1rem;
+  list-style-type: disc;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.historyList li {
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.timelineColumn h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+/* ===================== */
+/* Applicant Info Grid   */
+/* ===================== */
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.infoItem strong {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6b7280; /* màu xám label */
+  font-weight: 600;
+}
+
+.infoItem span {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* Cover letter */
+.coverLetter {
+  margin: 1rem 0;
+  padding: 1rem 1.25rem;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 0.75rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #92400e;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
+}

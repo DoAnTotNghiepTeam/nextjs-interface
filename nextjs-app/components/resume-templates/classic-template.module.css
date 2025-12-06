@@ -1,0 +1,606 @@
+.classicResumeRoot {
+  font-family: var(--font-family, "Inter", sans-serif);
+  display: flex;
+  flex-direction: row;
+  background: #f7f7fa;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  color: #0f172a;
+  word-break: break-word;
+}
+
+/* Compact adjustments for preview sidebar */
+.classicCompact {
+  /* Thu nhỏ tổng thể để hiển thị đủ trong khung preview */
+  transform: scale(0.78);
+  transform-origin: top center;
+  display: inline-block;
+  margin: 0 auto;
+  width: 100%;
+  overflow: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.classicCompact .classicResumeRoot {
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  max-width: 100%;
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+.classicCompact .classicResumeMain {
+  overflow: visible;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+.classicCompact .classicResumeSubSectionTitle,
+.classicCompact .classicResumeSubSection div {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  max-width: 100%;
+  white-space: normal;
+}
+.classicCompact .classicResumeSidebar {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 20px 16px;
+  overflow: visible;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  box-sizing: border-box;
+}
+.classicCompact .classicResumeInfoList {
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+.classicCompact .classicResumeInfoList li {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+  overflow: hidden;
+}
+.classicCompact .classicResumeSectionTitle {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+  overflow: visible;
+}
+.classicCompact .classicResumeAvatar {
+  width: 80px;
+  height: 80px;
+  border-width: 2px;
+  margin: 0 auto 12px auto;
+}
+/* Đảm bảo layout 2 cột trong compact mode */
+
+.classicCompact {
+  /* Allow responsive stacking: remove min-width, allow wrapping */
+  min-width: 0;
+}
+
+.classicCompact .classicResumeRoot {
+  /* Allow flex to wrap for responsive layout */
+  flex-wrap: wrap;
+  /* Responsive: stack columns vertically on small screens */
+}
+
+@media (max-width: 600px) {
+  .classicCompact .classicResumeRoot {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+  .classicCompact .classicResumeSidebar,
+  .classicCompact .classicResumeMain {
+    max-width: 100%;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* Compact mode với font size adjustments */
+.classicCompact.fontSizeSmall .classicResumeName {
+  font-size: 1.2rem;
+}
+.classicCompact.fontSizeMedium .classicResumeName {
+  font-size: 1.5rem;
+}
+.classicCompact.fontSizeLarge .classicResumeName {
+  font-size: 1.8rem;
+}
+
+.classicCompact.fontSizeSmall .classicResumeSectionTitle {
+  font-size: 0.8rem;
+}
+.classicCompact.fontSizeMedium .classicResumeSectionTitle {
+  font-size: 1rem;
+}
+.classicCompact.fontSizeLarge .classicResumeSectionTitle {
+  font-size: 1.1rem;
+}
+
+.classicCompact.fontSizeSmall .classicResumeSummary {
+  font-size: 0.75rem;
+}
+.classicCompact.fontSizeMedium .classicResumeSummary {
+  font-size: 0.9rem;
+}
+.classicCompact.fontSizeLarge .classicResumeSummary {
+  font-size: 1rem;
+}
+
+.classicCompact.fontSizeSmall .classicResumeInfoList li,
+.classicCompact.fontSizeSmall .classicResumeSkillList li,
+.classicCompact.fontSizeSmall .classicResumeCertList li {
+  font-size: 0.75rem;
+}
+.classicCompact.fontSizeMedium .classicResumeInfoList li,
+.classicCompact.fontSizeMedium .classicResumeSkillList li,
+.classicCompact.fontSizeMedium .classicResumeCertList li {
+  font-size: 0.9rem;
+}
+.classicCompact.fontSizeLarge .classicResumeInfoList li,
+.classicCompact.fontSizeLarge .classicResumeSkillList li,
+.classicCompact.fontSizeLarge .classicResumeCertList li {
+  font-size: 1rem;
+}
+
+.classicCompact.fontSizeSmall .classicResumeSubSectionTitle {
+  font-size: 0.8rem;
+}
+.classicCompact.fontSizeMedium .classicResumeSubSectionTitle {
+  font-size: 0.95rem;
+}
+.classicCompact.fontSizeLarge .classicResumeSubSectionTitle {
+  font-size: 1rem;
+}
+
+.classicCompact.fontSizeSmall .classicResumeMeta {
+  font-size: 0.7rem;
+}
+.classicCompact.fontSizeMedium .classicResumeMeta {
+  font-size: 0.8rem;
+}
+.classicCompact.fontSizeLarge .classicResumeMeta {
+  font-size: 0.9rem;
+}
+
+.classicCompact .classicResumeMain {
+  padding: 20px 16px 20px 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+.classicResumeSidebar {
+  background: linear-gradient(
+    135deg,
+    var(--sidebar-primary, #7b9acc) 0%,
+    var(--sidebar-secondary, #b6c6e6) 100%
+  );
+  color: #0f172a;
+  width: 270px;
+  min-width: 270px;
+  max-width: 270px;
+  padding: var(--sidebar-padding, 32px 24px);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--sidebar-gap, 32px);
+}
+
+.classicResumeAvatar {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #fff;
+  margin: 0 auto var(--avatar-margin-bottom, 24px) auto;
+  background: #fff;
+}
+
+.classicResumeSectionTitle {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid rgba(15, 23, 42, 0.08);
+}
+
+/* Tăng tương phản tiêu đề trong sidebar khi dùng nền sáng */
+.classicResumeSidebar .classicResumeSectionTitle {
+  color: var(--sidebar-text-color, #0f172a);
+}
+
+.classicResumeSection {
+  margin-bottom: var(--section-margin-bottom, 24px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap, 10px);
+}
+
+.classicResumeMain {
+  flex: 1;
+  padding: var(--main-padding, 40px 40px 40px 32px);
+  background: #fff;
+}
+
+.classicResumeName {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.25em;
+}
+
+.classicResumeJobTitle {
+  color: var(--accent-color, #b85c3b);
+  font-weight: 600;
+  margin-bottom: 0.5em;
+}
+
+.classicResumeSummary {
+  margin-bottom: var(--summary-margin-bottom, 1.5em);
+  color: #0f172a;
+}
+
+.classicResumeInfoList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px 0;
+  color: #0f172a;
+}
+
+.classicResumeInfoList li {
+  display: flex;
+  align-items: center;
+  gap: var(--info-gap, 8px);
+  margin-bottom: var(--info-margin-bottom, 8px);
+  font-size: 0.98rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: inherit;
+}
+
+.classicResumeSubSection {
+  margin-bottom: var(--subsection-margin-bottom, 0);
+  padding: var(--subsection-padding, 12px 14px);
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+.classicResumeSubSectionTitle {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.classicResumeMeta {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.classicResumeSkillList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--skill-gap, 6px);
+}
+
+.classicResumeSkillList li {
+  font-size: 0.98rem;
+  color: #0f172a;
+}
+
+.classicResumeCertList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cert-gap, 6px);
+}
+
+.classicResumeCertList li {
+  font-size: 0.98rem;
+  color: #0f172a;
+}
+
+/* Font Size Adjustments - Chi tiết cho từng phần tử */
+.fontSizeSmall {
+  /* Tên chính */
+  --name-size: 1.5rem;
+  --job-title-size: 0.9rem;
+  --summary-size: 0.85rem;
+
+  /* Tiêu đề section */
+  --section-title-size: 0.95rem;
+  --subsection-title-size: 0.9rem;
+
+  /* Nội dung */
+  --content-size: 0.8rem;
+  --meta-size: 0.75rem;
+  --info-size: 0.8rem;
+
+  /* Sidebar */
+  --sidebar-title-size: 0.95rem;
+  --sidebar-content-size: 0.8rem;
+  --sidebar-meta-size: 0.75rem;
+}
+
+.fontSizeMedium {
+  /* Tên chính */
+  --name-size: 2rem;
+  --job-title-size: 1rem;
+  --summary-size: 0.95rem;
+
+  /* Tiêu đề section */
+  --section-title-size: 1.1rem;
+  --subsection-title-size: 1rem;
+
+  /* Nội dung */
+  --content-size: 0.98rem;
+  --meta-size: 0.85rem;
+  --info-size: 0.98rem;
+
+  /* Sidebar */
+  --sidebar-title-size: 1.1rem;
+  --sidebar-content-size: 0.98rem;
+  --sidebar-meta-size: 0.85rem;
+}
+
+.fontSizeLarge {
+  /* Tên chính */
+  --name-size: 2.5rem;
+  --job-title-size: 1.1rem;
+  --summary-size: 1.05rem;
+
+  /* Tiêu đề section */
+  --section-title-size: 1.25rem;
+  --subsection-title-size: 1.1rem;
+
+  /* Nội dung */
+  --content-size: 1.1rem;
+  --meta-size: 0.95rem;
+  --info-size: 1.1rem;
+
+  /* Sidebar */
+  --sidebar-title-size: 1.25rem;
+  --sidebar-content-size: 1.1rem;
+  --sidebar-meta-size: 0.95rem;
+}
+
+/* Áp dụng kích thước chữ cho các phần tử */
+.fontSizeSmall .classicResumeName,
+.fontSizeMedium .classicResumeName,
+.fontSizeLarge .classicResumeName {
+  font-size: var(--name-size);
+}
+
+.fontSizeSmall .classicResumeJobTitle,
+.fontSizeMedium .classicResumeJobTitle,
+.fontSizeLarge .classicResumeJobTitle {
+  font-size: var(--job-title-size);
+}
+
+.fontSizeSmall .classicResumeSummary,
+.fontSizeMedium .classicResumeSummary,
+.fontSizeLarge .classicResumeSummary {
+  font-size: var(--summary-size);
+}
+
+.fontSizeSmall .classicResumeSectionTitle,
+.fontSizeMedium .classicResumeSectionTitle,
+.fontSizeLarge .classicResumeSectionTitle {
+  font-size: var(--section-title-size);
+}
+
+.fontSizeSmall .classicResumeSubSectionTitle,
+.fontSizeMedium .classicResumeSubSectionTitle,
+.fontSizeLarge .classicResumeSubSectionTitle {
+  font-size: var(--subsection-title-size);
+}
+
+.fontSizeSmall .classicResumeInfoList li,
+.fontSizeMedium .classicResumeInfoList li,
+.fontSizeLarge .classicResumeInfoList li {
+  font-size: var(--info-size);
+}
+
+.fontSizeSmall .classicResumeMeta,
+.fontSizeMedium .classicResumeMeta,
+.fontSizeLarge .classicResumeMeta {
+  font-size: var(--meta-size);
+}
+
+.fontSizeSmall .classicResumeSkillList li,
+.fontSizeMedium .classicResumeSkillList li,
+.fontSizeLarge .classicResumeSkillList li {
+  font-size: var(--content-size);
+}
+
+.fontSizeSmall .classicResumeCertList li,
+.fontSizeMedium .classicResumeCertList li,
+.fontSizeLarge .classicResumeCertList li {
+  font-size: var(--content-size);
+}
+
+/* Áp dụng cho sidebar */
+.fontSizeSmall .classicResumeSidebar .classicResumeSectionTitle,
+.fontSizeMedium .classicResumeSidebar .classicResumeSectionTitle,
+.fontSizeLarge .classicResumeSidebar .classicResumeSectionTitle {
+  font-size: var(--sidebar-title-size);
+}
+
+.fontSizeSmall .classicResumeSidebar .classicResumeInfoList li,
+.fontSizeMedium .classicResumeSidebar .classicResumeInfoList li,
+.fontSizeLarge .classicResumeSidebar .classicResumeInfoList li {
+  font-size: var(--sidebar-content-size);
+}
+
+.fontSizeSmall .classicResumeSidebar .classicResumeSubSectionTitle,
+.fontSizeMedium .classicResumeSidebar .classicResumeSubSectionTitle,
+.fontSizeLarge .classicResumeSidebar .classicResumeSubSectionTitle {
+  font-size: var(--sidebar-content-size);
+}
+
+.fontSizeSmall .classicResumeSidebar .classicResumeMeta,
+.fontSizeMedium .classicResumeSidebar .classicResumeMeta,
+.fontSizeLarge .classicResumeSidebar .classicResumeMeta {
+  font-size: var(--sidebar-meta-size);
+}
+
+.fontSizeSmall .classicResumeSidebar .classicResumeSkillList li,
+.fontSizeMedium .classicResumeSidebar .classicResumeSkillList li,
+.fontSizeLarge .classicResumeSidebar .classicResumeSkillList li {
+  font-size: var(--sidebar-content-size);
+}
+
+.fontSizeSmall .classicResumeSidebar .classicResumeCertList li,
+.fontSizeMedium .classicResumeSidebar .classicResumeCertList li,
+.fontSizeLarge .classicResumeSidebar .classicResumeCertList li {
+  font-size: var(--sidebar-content-size);
+}
+
+/* Color Scheme Classes */
+.colorSchemeBlue {
+  --sidebar-primary: #3b82f6;
+  --sidebar-secondary: #93c5fd;
+  --accent-color: #1e40af;
+  --sidebar-text-color: #0f172a;
+}
+
+.colorSchemeGreen {
+  --sidebar-primary: #10b981;
+  --sidebar-secondary: #6ee7b7;
+  --accent-color: #047857;
+  --sidebar-text-color: #0f172a;
+}
+
+.colorSchemePurple {
+  --sidebar-primary: #8b5cf6;
+  --sidebar-secondary: #c4b5fd;
+  --accent-color: #7c3aed;
+  --sidebar-text-color: #0f172a;
+}
+
+.colorSchemeRed {
+  --sidebar-primary: #ef4444;
+  --sidebar-secondary: #fca5a5;
+  --accent-color: #dc2626;
+  --sidebar-text-color: #0f172a;
+}
+
+.colorSchemeOrange {
+  --sidebar-primary: #f97316;
+  --sidebar-secondary: #fdba74;
+  --accent-color: #ea580c;
+  --sidebar-text-color: #0f172a;
+}
+
+.colorSchemeGray {
+  --sidebar-primary: #6b7280;
+  --sidebar-secondary: #d1d5db;
+  --accent-color: #4b5563;
+  --sidebar-text-color: #0f172a;
+}
+
+/* Spacing Classes */
+.spacingCompact {
+  /* Sidebar spacing */
+  --sidebar-padding: 24px 20px;
+  --sidebar-gap: 20px;
+  --avatar-margin-bottom: 16px;
+
+  /* Section spacing */
+  --section-margin-bottom: 16px;
+  --section-gap: 6px;
+
+  /* Main content spacing */
+  --main-padding: 24px 24px 24px 20px;
+  --summary-margin-bottom: 1em;
+
+  /* Info spacing */
+  --info-gap: 6px;
+  --info-margin-bottom: 6px;
+
+  /* Subsection spacing */
+  --subsection-margin-bottom: 0;
+  --subsection-padding: 8px 10px;
+
+  /* List spacing */
+  --skill-gap: 4px;
+  --cert-gap: 4px;
+}
+
+.spacingNormal {
+  /* Sidebar spacing */
+  --sidebar-padding: 32px 24px;
+  --sidebar-gap: 32px;
+  --avatar-margin-bottom: 24px;
+
+  /* Section spacing */
+  --section-margin-bottom: 24px;
+  --section-gap: 10px;
+
+  /* Main content spacing */
+  --main-padding: 40px 40px 40px 32px;
+  --summary-margin-bottom: 1.5em;
+
+  /* Info spacing */
+  --info-gap: 8px;
+  --info-margin-bottom: 8px;
+
+  /* Subsection spacing */
+  --subsection-margin-bottom: 0;
+  --subsection-padding: 12px 14px;
+
+  /* List spacing */
+  --skill-gap: 6px;
+  --cert-gap: 6px;
+}
+
+.spacingRelaxed {
+  /* Sidebar spacing */
+  --sidebar-padding: 40px 28px;
+  --sidebar-gap: 40px;
+  --avatar-margin-bottom: 32px;
+
+  /* Section spacing */
+  --section-margin-bottom: 32px;
+  --section-gap: 14px;
+
+  /* Main content spacing */
+  --main-padding: 48px 48px 48px 40px;
+  --summary-margin-bottom: 2em;
+
+  /* Info spacing */
+  --info-gap: 10px;
+  --info-margin-bottom: 10px;
+
+  /* Subsection spacing */
+  --subsection-margin-bottom: 0;
+  --subsection-padding: 16px 18px;
+
+  /* List spacing */
+  --skill-gap: 8px;
+  --cert-gap: 8px;
+}

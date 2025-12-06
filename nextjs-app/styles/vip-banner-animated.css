@@ -1,0 +1,12 @@
+/* Animation cho banner VIP: chuyển động lên/xuống/trái/phải liên tục */
+.vip-banner-animated {
+  animation: vipBannerMove 3s infinite alternate;
+}
+
+@keyframes vipBannerMove {
+  0%   { transform: translateY(0) translateX(0); }
+  25%  { transform: translateY(-10px) translateX(10px); }
+  50%  { transform: translateY(10px) translateX(-10px); }
+  75%  { transform: translateY(-10px) translateX(-10px); }
+  100% { transform: translateY(0) translateX(0); }
+}

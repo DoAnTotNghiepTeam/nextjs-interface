@@ -1,0 +1,228 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+}
+
+.modal-container {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column; /* header - body - footer theo cột */
+  overflow: hidden;
+}
+
+/* ===== HEADER ===== */
+.modal-header {
+  background: #e8f1fd; /* xanh dương nhạt */
+  padding: 20px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  position: relative;
+  flex-shrink: 0; /* giữ header cố định */
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  color: #6b7280;
+}
+
+.modal-success {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.modal-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 32px;
+}
+
+.modal-title {
+  font-size: 22px;
+  font-weight: bold;
+  color: #1d4ed8; /* xanh đậm */
+  margin-bottom: 10px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-outline {
+  border: 1px solid #2563eb;
+  color: #2563eb;
+  background: #fff;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-outline:hover {
+  background: #dbeafe;
+}
+
+/* ===== BODY ===== */
+.modal-body {
+  padding: 20px;
+  overflow-y: auto; /* cuộn riêng phần body */
+  flex: 1;
+}
+
+.modal-jobs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.modal-jobs-header h3 {
+  font-size: 16px;
+  color: #111;
+}
+
+.modal-jobs-header h3 span {
+  color: #2563eb;
+  font-weight: bold;
+}
+
+.btn-see-all {
+  border: 1px solid #2563eb;
+  color: #2563eb;
+  background: #fff;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-see-all:hover {
+  background: #dbeafe;
+}
+
+/* ===== JOB LIST ===== */
+.job-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.job-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s;
+  background: #fff;
+}
+
+.job-card:hover {
+  border-color: #2563eb;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
+}
+
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 8px;
+}
+
+.job-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px; /* nếu muốn vẫn bo góc khung chứa */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* tránh ảnh tràn ra ngoài */
+  flex-shrink: 0;
+}
+
+.job-logo img {
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+}
+
+.job-like {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  color: #6b7280;
+  transition: all 0.2s;
+}
+
+.job-like:hover {
+  background: #f3f4f6;
+}
+
+/* Khi like (thêm class .active) */
+.job-like.active {
+  color: #ef4444; /* đỏ */
+}
+
+/* ===== JOB INFO ===== */
+.job-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
+  margin-bottom: 4px;
+}
+
+.job-company {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.job-tags {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+
+.job-tags span {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+.job-logo-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}

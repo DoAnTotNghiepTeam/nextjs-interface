@@ -1,0 +1,84 @@
+/* Compact preview styles for sidebar/small preview */
+.compactPreview {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 1.5px solid #e5e7eb;
+  padding: 12px 6px 12px 6px;
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 0;
+  font-size: 13px;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  word-break: break-word;
+  max-height: 520px;
+  transition: box-shadow 0.2s;
+}
+
+/* Đảm bảo mọi thành phần con đều co giãn tốt và không tràn */
+.compactPreview * {
+  box-sizing: border-box;
+  line-height: 1.5 !important;
+  word-break: break-word;
+}
+
+.compactPreview:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.13);
+}
+
+/* .compactPreview * {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  word-break: break-word;
+} */
+
+.compactPreview h1,
+.compactPreview h2,
+.compactPreview h3 {
+  font-size: 14px !important;
+  margin-bottom: 6px !important;
+  word-break: break-word;
+}
+
+.compactPreview section {
+  margin-bottom: 12px !important;
+}
+.saveButton {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 1rem;
+  z-index: 100;
+  margin-bottom: 1rem;
+}
+
+.saveButton:hover {
+  background-color: #2563eb;
+}
+
+.saveButton:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.saveButtonContainer {
+  display: flex;
+  justify-content: flex-end;
+  background-color: white;
+  padding: 0.5rem 0;
+  margin-bottom: 1rem;
+}

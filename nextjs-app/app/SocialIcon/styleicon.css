@@ -1,0 +1,164 @@
+/* CSS cho icon */
+.icon {
+    position: fixed;
+    right: 14px;
+    bottom: 140px;
+    display: flex;
+    flex-direction: column;
+    /* align-items: flex-end; */
+    /* gap: 10px; */
+    /* z-index: 9999;
+    font-size: 30px; */
+}
+
+/* ---------------- ZALO ---------------- */
+/* .zalo {
+    position: relative;
+    width: 70px;
+    height: 70px;
+}
+
+.icon .zalo img {
+    background-color: #87CEEB;
+    height: 40px;
+    width: 40px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    border-radius: 50%;
+    animation: rung 1s infinite;
+} */
+
+/* .nen1 {
+    position: absolute;
+    width: 58px;
+    height: 58px;
+    background-color: #87CEEB;
+    border-radius: 50%;
+    /* z-index: 1; */
+/* } */ */
+
+/* .vien2 {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+        background-color: #2196F3;
+    border-radius: 50%;
+    top: -10px;
+    left: -10px;
+    animation: zoom 1s infinite;
+    z-index: 0;
+} */
+
+/* ---------------- ĐIỆN THOẠI ---------------- */
+.dienthoai {
+    position: relative;
+    width: 70px;
+    height: 70px;
+}
+
+.nen2 {
+    position: absolute;
+    width: 58px;
+    height: 58px;
+        background-color: #87CEEB;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.dienthoai i {
+    position: absolute;
+    z-index: 2;
+    top:11px;
+    left: 8px;
+    color: #fff;
+    font-size: 40px;
+    animation: rung 1s infinite;
+}
+
+/* .vien {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+        background-color: #00CCFF;
+    border-radius: 50%;
+    top: -10px;
+    left: -10px;
+    animation: zoom 1s infinite;
+    z-index: 0;
+} */
+
+/* ---------------- MESSAGE ---------------- */
+.message {
+    position: relative;
+    width: 70px;
+    height: 70px;
+}
+
+.icon .message i {
+    color: #fff;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+        font-size: 40px;
+        z-index: 2;
+        animation: rung 1s infinite;
+}
+
+.vien3 {
+    position: absolute;
+    width: 58px;
+    height: 58px;
+    background-color: #87CEEB;
+    border-radius: 50%;
+    top: 0;
+    left: 0;
+    animation: rung 1s infinite;
+    z-index: 1;
+}
+
+/* ---------------- ANIMATION ---------------- */
+@keyframes zoom {
+    0% {
+        transform: scale(0.5);
+    }
+
+    100% {
+        transform: scale(1.2);
+    }
+}
+
+@keyframes rung {
+
+    0%,
+    20%,
+    40%,
+    60%,
+    80%,
+    100% {
+        transform: rotate(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: rotate(-20deg);  /* độ rùn hetta  */
+    }
+}
+
+@keyframes icon-zalo {
+
+    0%,
+    50%,
+    100% {
+        transform: scale(1);
+    }
+
+    25%,
+    75% {
+        transform: scale(1.1);
+    }
+}

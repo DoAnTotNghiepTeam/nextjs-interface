@@ -1,0 +1,42 @@
+.tabList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tabItem {
+  margin-bottom: 12px;
+}
+
+.tabButton {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  background-color: #f9fafb;
+  transition: all 0.2s ease;
+  text-align: left;
+  border: none;
+}
+
+.tabButton:hover {
+  background-color: #e5e7eb; /* xám nhạt */
+}
+
+.tabButtonActive {
+  background-color: #2563eb; /* xanh */
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive nhỏ */
+@media (max-width: 768px) {
+  .tabButton {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+}

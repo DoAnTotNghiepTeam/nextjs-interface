@@ -1,0 +1,164 @@
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  line-height: 1.4;
+  position: relative;
+}
+
+.modal-title .job-title {
+  color: #2563eb;
+  font-weight: 800;
+}
+
+/* Select Resume */
+.custom-select {
+  appearance: none;
+  background-color: #f9fafb;
+  background-image: url("data:image/svg+xml,%3Csvg fill='none' stroke='%236b7280' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 16px;
+  padding: 0.7rem 1rem;
+  padding-right: 2.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.custom-select:hover {
+  border-color: #2563eb;
+}
+
+.custom-select:focus {
+  border-color: #2563eb;
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+  outline: none;
+}
+
+/* Upload label */
+.upload-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e3a8a;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.3px;
+  position: relative;
+  padding-left: 4px;
+}
+
+/* Upload box */
+.upload-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 2rem 1rem;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  background: #f9fafb;
+  transition: all 0.25s ease;
+}
+
+.upload-box:hover {
+  border-color: #2563eb;
+  background: #f3f4f6;
+  color: #2563eb;
+}
+
+.upload-box svg {
+  margin-bottom: 0.5rem;
+  color: #9ca3af;
+  transition: all 0.25s ease;
+}
+
+.upload-box:hover svg {
+  color: #2563eb;
+  transform: scale(1.1);
+}
+
+/* Preview */
+.upload-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: #1e3a8a;
+  font-weight: 500;
+}
+
+.upload-preview button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #ef4444;
+  transition: color 0.2s;
+}
+
+.upload-preview button:hover {
+  color: #b91c1c;
+}
+
+/* Cover letter */
+.cover-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e3a8a;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.3px;
+  position: relative;
+  padding-left: 4px;
+}
+/* ModalTitle.module.css */
+
+.modal-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-align: center;
+  margin-bottom: 1.2rem;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+.modal-title::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #4f46e5, #6366f1);
+  margin: 0.6rem auto 0;
+  border-radius: 2px;
+}
+
+.job-title {
+  color: #4f46e5;
+  font-weight: 800;
+  background: linear-gradient(90deg, #4f46e5, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
