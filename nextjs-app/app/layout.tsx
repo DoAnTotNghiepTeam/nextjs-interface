@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
 };
 
-//  moqia Cap nhat
+//  test quá trình cập nhật 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
