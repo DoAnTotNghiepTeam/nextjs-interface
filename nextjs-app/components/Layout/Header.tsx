@@ -16,12 +16,15 @@ interface HeaderProps {
 const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
   const t = useTranslations();
 
+  // --- SỬA ĐỔI 1: Lấy thêm 'status' để kiểm tra trạng thái loading ---
+  const { data: session, status } = useSession();
+  // ------------------------------------------------------------------
+
   const [scroll, setScroll] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const { data: session } = useSession();
   const [avatarSrc, setAvatarSrc] = useState<string>("");
   const [avatarReady, setAvatarReady] = useState<boolean>(false);
   const [balance, setBalance] = useState<string>("");
@@ -43,6 +46,9 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
 
   // Load avatar from backend when session changes
   useEffect(() => {
+    // Chỉ chạy khi đã xác thực xong để tránh gọi API lỗi
+    if (status !== "authenticated") return;
+
     const loadUserInfo = async () => {
       const userId = (session as any)?.user?.id;
       const token = (session as any)?.accessToken;
@@ -66,18 +72,16 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
       }
     };
     loadUserInfo();
-  }, [session]);
+  }, [session, status]); // Thêm status vào dependency
 
   useEffect(() => {
     const handleCustom = async (evt: CustomEvent) => {
-      // Update immediately if payload is provided (base64/new url)
       if (evt?.detail) {
         const val = String(evt.detail);
         setAvatarSrc(val.startsWith("http") ? `${val}?t=${Date.now()}` : val);
         setAvatarReady(true);
         return;
       }
-      // Re-fetch from backend when avatar updated elsewhere
       const userId = (session as any)?.user?.id;
       const token = (session as any)?.accessToken;
       if (!userId) return;
@@ -92,7 +96,7 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
         );
         setAvatarReady(true);
         setBalance(user?.balance || "0");
-      } catch { }
+      } catch {}
     };
     window.addEventListener("avatar-updated", handleCustom as any);
     return () => {
@@ -149,21 +153,21 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
             <div className="header-nav">
               <nav className="nav-main-menu">
                 <ul className="main-menu">
-                  {/* chưa log */}
-                  {!session?.user && (
+                  
+                  {/* --- SỬA ĐỔI 2: Dùng check status thay vì !session.user --- */}
+                  {/* Menu cho khách (chưa login) - Chỉ hiện khi chắc chắn là unauthenticated */}
+                  {status === "unauthenticated" && (
                     <>
                       <li>
                         <Link href="/">
                           <span>Home</span>
                         </Link>
                       </li>
-
                       <li>
                         <Link href="/jobs-grid">
                           <span>Find a Job</span>
                         </Link>
                       </li>
-
                       <li>
                         <Link href="/companies-grid">
                           <span>Recruiters</span>
@@ -174,13 +178,11 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                           <span>About Us</span>
                         </Link>
                       </li>
-
                       <li>
                         <Link href="/blog-grid-2">
                           <span>Blog</span>
                         </Link>
                       </li>
-
                       <li>
                         <Link href="/page-contact">
                           <span>Contact</span>
@@ -190,44 +192,38 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                   )}
 
                   {/* log với roles user */}
-                  {session?.user && role?.includes("Users") && (
+                  {status === "authenticated" && session?.user && role?.includes("Users") && (
                     <>
                       <li>
                         <Link href="/">
                           <span>Home</span>
                         </Link>
                       </li>
-
                       <li>
                         <Link href="/jobs-grid">
                           <span>Find a Job</span>
                         </Link>
                       </li>
-
                       <li>
                         <Link href="/companies-grid">
                           <span>Recruiters</span>
                         </Link>
                       </li>
-
                       <li>
                         <Link href="/candidate-profile">
                           <span>Candidates Profile</span>
                         </Link>
                       </li>
-
                       <li>
                         <Link href="/page-about">
                           <span>About Us</span>
                         </Link>
                       </li>
-
                       <li>
                         <Link href="/blog-grid-2">
                           <span>Blog</span>
                         </Link>
                       </li>
-
                       <li>
                         <Link href="/page-contact">
                           <span>Contact</span>
@@ -236,39 +232,34 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                     </>
                   )}
 
-                  {/* login với role  là Employer */}
-                  {session?.user && role?.includes("Employers") && (
+                  {/* login với role là Employer */}
+                  {status === "authenticated" && session?.user && role?.includes("Employers") && (
                     <>
                       <li>
                         <Link href="/">
                           <span>Home</span>
                         </Link>
                       </li>
-
                       <li>
                         <Link href="/jobs-grid">
                           <span> Manager Job</span>
                         </Link>
                       </li>
-
                       <li>
                         <Link href="/companies-grid">
                           <span>Manager Recruiters</span>
                         </Link>
                       </li>
-
                       <li>
                         <Link href="/page-about">
                           <span>About Us</span>
                         </Link>
                       </li>
-
                       <li>
                         <Link href="/blog-grid-2">
                           <span>Blog</span>
                         </Link>
                       </li>
-
                       <li>
                         <Link href="/page-contact">
                           <span>Contact</span>
@@ -277,8 +268,8 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                     </>
                   )}
 
-                  {/* log voi role  admin */}
-                  {session?.user && role?.includes("Administrators") && (
+                  {/* log voi role admin */}
+                  {status === "authenticated" && session?.user && role?.includes("Administrators") && (
                     <>
                       <>
                         <li>
@@ -286,19 +277,16 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                             <span>Home</span>
                           </Link>
                         </li>
-
                         <li>
                           <Link href="/jobs-grid">
                             <span>Find a Job</span>
                           </Link>
                         </li>
-
                         <li>
                           <Link href="/companies-grid">
                             <span>Recruiters</span>
                           </Link>
                         </li>
-
                         <li className="has-children">
                           <Link href="/candidates-grid">
                             <span>Candidates</span>
@@ -316,19 +304,16 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                             </li>
                           </ul>
                         </li>
-
                         <li>
                           <Link href="/page-about">
                             <span>About Us</span>
                           </Link>
                         </li>
-
                         <li>
                           <Link href="/blog-grid-2">
                             <span>Blog</span>
                           </Link>
                         </li>
-
                         <li>
                           <Link href="/page-contact">
                             <span>Contact</span>
@@ -342,10 +327,22 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
             </div>
 
             {/* Right side */}
-            <div className="header-right" >
-              <div className="block-signin" style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <div className="header-right">
+              <div
+                className="block-signin"
+                style={{ display: "flex", alignItems: "center" }}
+              >
                 <PreferencesForm />
-                {session?.user ? (
+                
+                {/* --- SỬA ĐỔI 3: Xử lý 3 trạng thái: Loading, Authenticated, Unauthenticated --- */}
+                
+                {/* 1. Đang Loading: Ẩn hoặc hiện khung trống để không bị giật */}
+                {status === "loading" ? (
+                    <div style={{ width: 50, height: 50 }}></div> // Giữ chỗ tránh nhảy layout
+                ) : 
+                
+                /* 2. Đã Login: Hiện Avatar và Menu User */
+                status === "authenticated" && session?.user ? (
                   <div
                     style={{
                       display: "flex",
@@ -377,7 +374,7 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                       <Link
                         href="#"
                         onClick={(e) => {
-                          e.preventDefault(); // không chuyển trang
+                          e.preventDefault();
                           handleOpen2();
                         }}
                         style={{
@@ -387,6 +384,7 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                           textDecoration: "none",
                           background: "transparent",
                           padding: "4px 8px",
+                          whiteSpace: "nowrap",
                         }}
                       >
                         <div style={{ lineHeight: 1.2 }}>
@@ -419,6 +417,8 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                           background: "rgba(245,248,255,0.7)",
                           borderRadius: 16,
                           boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                          marginLeft: 16,
+                          marginRight: 50,
                         }}
                       >
                         <span
@@ -431,16 +431,17 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                         >
                           Hi, {session.user.username}
                         </span>
-                        <span style={{
-                          fontSize: 11,
-                          color: "#43a047",
-                          fontWeight: 600,
-                          letterSpacing: 1,
-                          display: "inline"
-                        }}>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: "#43a047",
+                            fontWeight: 600,
+                            letterSpacing: 1,
+                            display: "inline",
+                          }}
+                        >
                           {Number(balance).toLocaleString("vi-VN")} VNĐ
                         </span>
-
                       </div>
                     )}
 
@@ -580,29 +581,29 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                           <LogOut size={20} />
                           <span>Logout</span>
                         </button>
-                        {/* CSS đơn giản cho hover và nút logout */}
                         <style>{`
-      .dropdown-link:hover {
-        background: #e6f0fa;
-        color: #1976d2;
-      }
-      .btn-logout:hover {
-        background: #d32f2f;
-      }
-    `}</style>
+                          .dropdown-link:hover {
+                            background: #e6f0fa;
+                            color: #1976d2;
+                          }
+                          .btn-logout:hover {
+                            background: #d32f2f;
+                          }
+                        `}</style>
                       </div>
                     )}
                   </div>
                 ) : (
+                  
+                  /* 3. Chưa Login (và không loading): Hiện nút Register/Sign in */
                   <>
-
                     <Link href="/page-register">
-                      <span className="text-link-bd-btom hover-up">
+                      <span className="hover-up" style={{ textDecoration: "none" }}>
                         Register
                       </span>
                     </Link>
                     <Link href="/page-signin">
-                      <span className="btn btn-default btn-shadow ml-40 hover-up">
+                      <span className="btn btn-default btn-shadow ml-40 hover-up" style={{ whiteSpace: "nowrap" }}>
                         Sign in
                       </span>
                     </Link>

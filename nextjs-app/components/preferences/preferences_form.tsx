@@ -58,18 +58,21 @@ const PreferencesForm = ({ noLabel }: { noLabel?: boolean }) => {
                   }
                 }}
               >
+
+                {/* cấu hình cho lá cỡ chuyển đổi ngôn ngữ */}
                 <SelectTrigger style={{ 
                   border: "none", 
                   boxShadow: "none", 
                   background: "none", 
-                  padding: "8px", 
+                  padding: "6px", 
                   fontWeight: 500, 
                   fontSize: 16,
-                  minWidth: "44px",
-                  minHeight: "44px",
+                  width: "70px",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center"
+                  justifyContent: "center",
+                  objectFit: "cover",
+                  marginRight : 20,
                 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {pref.language && (
@@ -84,13 +87,13 @@ const PreferencesForm = ({ noLabel }: { noLabel?: boolean }) => {
                             : ""
                         }
                         alt={pref.language}
-                        // tùy chỉnh width và height cho lá cờ 
-                        style={{ width: 130, height: 24, objectFit: "cover" }}
                       />
                     )}
                   </div>
                 </SelectTrigger>
-                <SelectContent style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.08)", border: "none", background: "#f8f9fa", minWidth: 140, padding: 0 }}>
+                {/*điều chỉnh các ngôn ngữ trong khung chọn chuyển qua các ngôn ngữ khác */}
+                <SelectContent style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.08)", border: "none", background: "#f8f9fa", minWidth: 140, zIndex: 9999,padding: 0 , marginTop : 10}}>
+                 {/* end điều chỉnh */}
                   <SelectGroup>
                     <SelectItem
                       value="en"

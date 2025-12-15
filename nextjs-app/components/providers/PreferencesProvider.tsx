@@ -1,43 +1,71 @@
 "use client";
 
+import { useRouter } from "next/navigation"; // <--- QUAN TRỌNG: Import từ next/navigation
 import {
   Language,
   PreferencesContext,
   Theme,
-} from "../../lib/contexts/PreferenceContext";
+} from "../../lib/contexts/PreferenceContext"; // Sửa đường dẫn import cho đúng với project của bạn
 import { useTheme } from "next-themes";
 import { ReactNode, useEffect, useState } from "react";
 
 const PreferencesProvider = ({ children }: { children: ReactNode }) => {
+  const router = useRouter(); // <--- Khởi tạo router
   const storedTheme = useTheme();
-  const [language, setLanguage] = useState<Language>("en");
+  
+  const [language, setLanguageState] = useState<Language>("en");
   const [theme, setTheme] = useState<Theme>(
     (storedTheme.theme as Theme) || "system"
   );
   const [isInitialized, setIsInitialized] = useState(false);
-  const [initialLanguage, setInitialLanguage] = useState<Language>("en");
+
+  // --- HÀM XỬ LÝ CHÍNH ---
+  const setLanguage = async (newLang: Language) => {
+    if (newLang === language) return;
+
+    // 1. Cập nhật state nội bộ ngay lập tức để UI (như lá cờ) đổi ngay
+    setLanguageState(newLang);
+
+    try {
+      // 2. Gọi API để set cookie phía server
+      await fetch("/api/preferences", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ locale: newLang }),
+      });
+
+      // 3. Refresh mềm: Yêu cầu server render lại nội dung mới
+      // Trình duyệt KHÔNG load lại hoàn toàn, user không thấy bị chớp trang
+      router.refresh();
+      
+    } catch (error) {
+      console.error("Failed to update locale:", error);
+      // Nếu lỗi thì có thể revert state lại ngôn ngữ cũ nếu muốn
+    }
+  };
 
   const value = {
     language,
     theme,
-    setLanguage,
+    setLanguage, // Truyền hàm setLanguage đã sửa xuống dưới
     setTheme,
   };
 
-  // Initialize language from cookie on mount
+  // --- CÁC USE EFFECT KHỞI TẠO ---
+
+  // 1. Load ngôn ngữ từ cookie khi F5 hoặc vào trang lần đầu
   useEffect(() => {
     async function initializeLanguage() {
       try {
         const response = await fetch("/api/preferences");
         const data = await response.json();
         if (data.locale) {
-          setLanguage(data.locale as Language);
-          setInitialLanguage(data.locale as Language);
+          setLanguageState(data.locale as Language);
         }
       } catch {
-        // Fallback to default language
-        setLanguage("en");
-        setInitialLanguage("en");
+        setLanguageState("en");
       } finally {
         setIsInitialized(true);
       }
@@ -46,30 +74,7 @@ const PreferencesProvider = ({ children }: { children: ReactNode }) => {
     initializeLanguage();
   }, []);
 
-  // Update cookie when language changes (but not on initial load)
-  useEffect(() => {
-    if (!isInitialized || language === initialLanguage) return;
-
-    async function updateLocale() {
-      try {
-        await fetch("/api/preferences", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ locale: language }),
-        });
-
-        // Refresh the page to apply new locale
-        window.location.reload();
-      } catch (error) {
-        console.error("Failed to update locale:", error);
-      }
-    }
-
-    updateLocale();
-  }, [language, isInitialized, initialLanguage]);
-
+  // 2. Đồng bộ theme
   useEffect(() => {
     storedTheme.setTheme(theme);
   }, [theme, storedTheme]);
