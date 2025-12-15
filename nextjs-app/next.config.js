@@ -1,3 +1,5 @@
+const createNextIntlPlugin = require('next-intl/plugin');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -9,20 +11,21 @@ const nextConfig = {
   },
   webpack: (config, { isServer, dev }) => {
     config.resolve.fallback = { fs: false, path: false };
-    
+
     // Disable source maps in development
     if (dev) {
       config.devtool = false;
     }
-    
+
     return config;
   },
-  // Disable source maps in production
   productionBrowserSourceMaps: false,
-  // Disable CSS source maps
   sassOptions: {
     sourceMap: false,
   },
-}
+};
 
-module.exports = nextConfig
+
+const withNextIntl = createNextIntlPlugin('./i8n/request.ts');
+
+module.exports = withNextIntl(nextConfig);

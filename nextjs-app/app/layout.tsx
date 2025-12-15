@@ -7,6 +7,8 @@ import type { Metadata } from "next";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Toaster } from "sonner";
+import { NextIntlClientProvider } from "next-intl";
+import PreferencesProvider from "@/components/providers/PreferencesProvider";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -20,7 +22,7 @@ export const metadata: Metadata = {
   },
 };
 
-//  test quá trình cập nhật 
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -36,13 +38,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet' />
       </head>
       <body className={`${plusJakartaSans.className}`}>
-        <NextAuthProvider>
-          {children}
-      
-          
-        </NextAuthProvider>
-         <ToastContainer position="top-right" autoClose={4000} />
-          <Toaster position="top-right" />
+        <NextIntlClientProvider>
+          <PreferencesProvider>
+
+            <NextAuthProvider>
+              {children}
+            </NextAuthProvider>
+          </PreferencesProvider>
+        </NextIntlClientProvider>
+
+        <ToastContainer position="top-right" autoClose={4000} />
+        <Toaster position="top-right" />
       </body>
     </html>
   );

@@ -4,6 +4,9 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Settings, KeyRound, LogOut } from "lucide-react";
 import CompanyRegistrationModal from "../Company/company-registration-modal";
+import PreferencesForm from "../preferences/preferences_form";
+import { useTranslations } from "next-intl";
+
 
 interface HeaderProps {
   handleOpen: () => void;
@@ -12,6 +15,8 @@ interface HeaderProps {
 }
 
 const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
+   const t = useTranslations();
+
   const [scroll, setScroll] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -165,21 +170,6 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                           <span>Recruiters</span>
                         </Link>
                       </li>
-
-                      {/* <li className="has-children">
-                        <Link href="/candidates-grid">
-                          <span>Candidates</span>
-                        </Link>
-                        <ul className="sub-menu">
-                          {/* <li><Link href="/page-resume"><span>Create Cv</span></Link></li> */}
-                      {/* <li>
-                            <Link href="/candidate-profile">
-                              <span>Candidate Profile</span>
-                            </Link>
-                          </li>
-                        </ul>
-                      </li> */}
-
                       <li>
                         <Link href="/page-about">
                           <span>About Us</span>
@@ -200,7 +190,7 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                     </>
                   )}
 
-                  {/* log với user */}
+                  {/* log với roles user */}
                   {session?.user && role?.includes("Users") && (
                     <>
                       <li>
@@ -225,18 +215,6 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                         <Link href="/candidate-profile">
                           <span>Candidates Profile</span>
                         </Link>
-                        {/* <ul className="sub-menu">
-                          {/* <li>
-                            <Link href="/page-resume">
-                              <span>Create Cv</span>
-                            </Link>
-                          </li> */}
-                        {/* <li>
-                            <Link href="/candidate-profile">
-                              <span>Candidate Profile</span>
-                            </Link>
-                          </li>
-                        </ul> */}
                       </li>
 
                       <li>
@@ -259,7 +237,7 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                     </>
                   )}
 
-                  {/* Nếu là Employer */}
+                  {/* login với role  là Employer */}
                   {session?.user && role?.includes("Employers") && (
                     <>
                       <li>
@@ -280,12 +258,6 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                         </Link>
                       </li>
 
-                      {/* <li>
-                        <Link href="/candidates-grid">
-                          <span>Manager Candidates</span>
-                        </Link>
-                      </li> */}
-
                       <li>
                         <Link href="/page-about">
                           <span>About Us</span>
@@ -306,7 +278,7 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                     </>
                   )}
 
-                  {/* log voi admin */}
+                  {/* log voi role  admin */}
                   {session?.user && role?.includes("Administrators") && (
                     <>
                       <>
@@ -371,15 +343,19 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
             </div>
 
             {/* Right side */}
-            <div className="header-right">
-              <div className="block-signin">
+            <div className="header-right" >
+              <div className="block-signin" style={{ display: "flex", alignItems: "center", gap: "18px", height: "100%" }}>
+                {/* hiển thị lá cờ  bên trái avatar user*/}
+                {/* <PreferencesForm /> */}
+                {/* end hiển thị cờ  */}
+
                 {session?.user ? (
                   <div
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "9px",
                       position: "relative",
+                      marginRight: "73px"
                     }}
                     ref={dropdownRef}
                   >
@@ -571,7 +547,7 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                                 }}
                               >
                                 <Settings size={18} />
-                                <span>Quản lý tài khoản</span>
+                                <span>Account Management</span>
                               </span>
                             </Link>
                           </li>
@@ -617,7 +593,7 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                           onClick={handleLogout}
                         >
                           <LogOut size={20} />
-                          <span>Đăng xuất</span>
+                          <span>Logout</span>
                         </button>
                         {/* CSS đơn giản cho hover và nút logout */}
                         <style>{`
@@ -634,6 +610,10 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                   </div>
                 ) : (
                   <>
+                    <div style={{ minWidth: 100 }}>
+                      <PreferencesForm />
+                    </div>
+
                     <Link href="/page-register">
                       <span className="text-link-bd-btom hover-up">
                         Register

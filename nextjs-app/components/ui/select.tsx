@@ -43,12 +43,6 @@ function SelectTrigger({
       {...props}
     >
       <span className="flex-1 flex items-center text-[15px]">{children}</span>
-      <SelectPrimitive.Icon asChild>
-        <ChevronDownIcon
-          className="w-3.5 h-3.5 opacity-50 ml-auto"
-          style={{ fontSize: "14px", width: "14px", height: "14px" }}
-        />
-      </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   );
 }
@@ -115,11 +109,6 @@ function SelectItem({
       )}
       {...props}
     >
-      <span className="absolute right-2 flex size-3.5 items-center justify-center">
-        <SelectPrimitive.ItemIndicator>
-          <CheckIcon className="size-4" />
-        </SelectPrimitive.ItemIndicator>
-      </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
     </SelectPrimitive.Item>
   );
