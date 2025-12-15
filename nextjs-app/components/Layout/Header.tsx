@@ -7,7 +7,6 @@ import CompanyRegistrationModal from "../Company/company-registration-modal";
 import PreferencesForm from "../preferences/preferences_form";
 import { useTranslations } from "next-intl";
 
-
 interface HeaderProps {
   handleOpen: () => void;
   handleRemove: () => void;
@@ -15,7 +14,7 @@ interface HeaderProps {
 }
 
 const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
-   const t = useTranslations();
+  const t = useTranslations();
 
   const [scroll, setScroll] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -344,18 +343,14 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
 
             {/* Right side */}
             <div className="header-right" >
-              <div className="block-signin" style={{ display: "flex", alignItems: "center", gap: "18px", height: "100%" }}>
-                {/* hiển thị lá cờ  bên trái avatar user*/}
-                {/* <PreferencesForm /> */}
-                {/* end hiển thị cờ  */}
-
+              <div className="block-signin" style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <PreferencesForm />
                 {session?.user ? (
                   <div
                     style={{
                       display: "flex",
                       alignItems: "center",
                       position: "relative",
-                      marginRight: "73px"
                     }}
                     ref={dropdownRef}
                   >
@@ -436,16 +431,6 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                         >
                           Hi, {session.user.username}
                         </span>
-                        {/* <span style={{
-                          fontSize: 11,
-                          color: "#888",
-                          fontWeight: 500,
-                          marginBottom: 2,
-                          marginRight: 6,
-                          display: "inline"
-                        }}>
-                          Balance:
-                        </span> */}
                         <span style={{
                           fontSize: 11,
                           color: "#43a047",
@@ -610,9 +595,6 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                   </div>
                 ) : (
                   <>
-                    <div style={{ minWidth: 100 }}>
-                      <PreferencesForm />
-                    </div>
 
                     <Link href="/page-register">
                       <span className="text-link-bd-btom hover-up">

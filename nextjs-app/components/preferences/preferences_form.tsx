@@ -58,8 +58,20 @@ const PreferencesForm = ({ noLabel }: { noLabel?: boolean }) => {
                   }
                 }}
               >
-                <SelectTrigger style={{ border: "none", boxShadow: "none", background: "none", padding: "8px 18px", fontWeight: 500, fontSize: 16 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <SelectTrigger style={{ 
+                  border: "none", 
+                  boxShadow: "none", 
+                  background: "none", 
+                  padding: "8px", 
+                  fontWeight: 500, 
+                  fontSize: 16,
+                  minWidth: "44px",
+                  minHeight: "44px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {pref.language && (
                       <img
                         src={
@@ -72,7 +84,8 @@ const PreferencesForm = ({ noLabel }: { noLabel?: boolean }) => {
                             : ""
                         }
                         alt={pref.language}
-                        style={{ width: 22, height: 16, objectFit: "cover" }}
+                        // tùy chỉnh width và height cho lá cờ 
+                        style={{ width: 130, height: 24, objectFit: "cover" }}
                       />
                     )}
                   </div>
