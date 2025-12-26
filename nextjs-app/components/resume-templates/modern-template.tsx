@@ -24,96 +24,110 @@ export function ModernTemplate({
   const fontFamily =
     fontOptions.find((f) => f.value === customization.font)?.family ||
     '"Inter", Arial, sans-serif';
+  
+  // Use custom color if available, otherwise use scheme color
+  const primaryColor = customization.customColor || colorScheme.primary;
+  const secondaryColor = customization.customColor 
+    ? adjustColorBrightness(customization.customColor, -20) 
+    : colorScheme.secondary;
+
+  const fontSize = customization.fontSize ?? DEFAULT_CUSTOMIZATION.fontSize;
+  const spacing = customization.spacing ?? DEFAULT_CUSTOMIZATION.spacing;
+  
+  // Get background pattern
+  const getBackgroundStyle = () => {
+    const pattern = customization.backgroundPattern;
+    if (!pattern || pattern === 'none') return { background: '#ffffff' };
+    
+    const patterns: Record<string, string> = {
+      gradient1: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
+      gradient2: 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)',
+      gradient3: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+      gradient4: 'linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%)',
+      gradient5: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)',
+      gradient6: 'linear-gradient(135deg, #fed7aa 0%, #fdba74 100%)',
+      gradient7: 'linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%)',
+      gradient8: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)',
+      gradient9: 'linear-gradient(180deg, #dbeafe 0%, #93c5fd 100%)',
+    };
+    return { background: patterns[pattern] || '#ffffff' };
+  };
+  
+  // Helper function to adjust color brightness
+  function adjustColorBrightness(color: string, percent: number): string {
+    const num = parseInt(color.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = (num >> 16) + amt;
+    const G = (num >> 8 & 0x00FF) + amt;
+    const B = (num & 0x0000FF) + amt;
+    return '#' + (
+      0x1000000 +
+      (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+      (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+      (B < 255 ? (B < 1 ? 0 : B) : 255)
+    ).toString(16).slice(1);
+  }
 
   const today = new Date().toISOString().slice(0, 10);
+  
+  // Convert fontSize number (1-8) to size multiplier
+  const getFontSizeMultiplier = () => {
+    // fontSize: 1=smallest (0.7x), 4=medium (1x), 8=largest (1.6x)
+    const fontSize = customization.fontSize ?? DEFAULT_CUSTOMIZATION.fontSize;
+    return 0.7 + ((fontSize - 1) * 0.9) / 7;
+  };
+  
   const getSizeStyles = (type: "text" | "heading" | "title" | "name") => {
-    const sizeMap = {
-      small: {
-        text: isCompact ? "0.65rem" : "0.75rem",
-        heading: isCompact ? "0.8rem" : "0.875rem",
-        title: isCompact ? "1rem" : "1.125rem",
-        name: isCompact ? "1.2rem" : "1.5rem",
-      },
-      medium: {
-        text: isCompact ? "0.75rem" : "0.875rem",
-        heading: isCompact ? "0.9rem" : "1rem",
-        title: isCompact ? "1.1rem" : "1.25rem",
-        name: isCompact ? "1.4rem" : "1.875rem",
-      },
-      large: {
-        text: isCompact ? "0.85rem" : "1rem",
-        heading: isCompact ? "1rem" : "1.125rem",
-        title: isCompact ? "1.2rem" : "1.5rem",
-        name: isCompact ? "1.7rem" : "2.25rem",
-      },
+    const multiplier = getFontSizeMultiplier();
+    const baseSizes = {
+      text: isCompact ? 0.75 : 0.875,
+      heading: isCompact ? 0.9 : 1,
+      title: isCompact ? 1.1 : 1.25,
+      name: isCompact ? 1.4 : 1.875,
     };
-    return { fontSize: sizeMap[customization.fontSize][type] };
+    return { fontSize: `${baseSizes[type] * multiplier}rem` };
   };
 
   const getSpacingStyles = () => {
-    const spacingMap = {
-      compact: {
-        // Main container spacing
-        containerPadding: isCompact ? "0.5rem" : "1.5rem",
-        sectionMargin: isCompact ? "0.25rem" : "1rem",
-        headerPadding: isCompact ? "0.5rem" : "1rem",
-        headerMargin: isCompact ? "0.25rem" : "1rem",
+    // Convert spacing number (1.0-2.0) to spacing multiplier
+    const spacingMultiplier = customization.spacing ?? DEFAULT_CUSTOMIZATION.spacing;
+    
+    const baseSpacing = {
+      // Main container spacing
+      containerPadding: isCompact ? 0.75 : 2,
+      sectionMargin: isCompact ? 0.5 : 1.5,
+      headerPadding: isCompact ? 0.75 : 1.5,
+      headerMargin: isCompact ? 0.5 : 1.5,
 
-        // Section content spacing
-        sectionGap: isCompact ? "0.125rem" : "0.5rem",
-        itemGap: isCompact ? "0.125rem" : "0.25rem",
-        itemPadding: isCompact ? "0.25rem" : "0.5rem",
+      // Section content spacing
+      sectionGap: isCompact ? 0.25 : 1,
+      itemGap: isCompact ? 0.25 : 0.5,
+      itemPadding: isCompact ? 0.5 : 1,
 
-        // Header spacing
-        headerGap: isCompact ? "0.5rem" : "1rem",
-        avatarMargin: isCompact ? "0.5rem" : "1rem",
+      // Header spacing
+      headerGap: isCompact ? 0.75 : 1.5,
+      avatarMargin: isCompact ? 0.75 : 1.5,
 
-        // Text spacing
-        textMargin: isCompact ? "0.125rem" : "0.25rem",
-        titleMargin: isCompact ? "0.125rem" : "0.5rem",
-      },
-      normal: {
-        // Main container spacing
-        containerPadding: isCompact ? "0.75rem" : "2rem",
-        sectionMargin: isCompact ? "0.5rem" : "1.5rem",
-        headerPadding: isCompact ? "0.75rem" : "1.5rem",
-        headerMargin: isCompact ? "0.5rem" : "1.5rem",
-
-        // Section content spacing
-        sectionGap: isCompact ? "0.25rem" : "1rem",
-        itemGap: isCompact ? "0.25rem" : "0.5rem",
-        itemPadding: isCompact ? "0.5rem" : "1rem",
-
-        // Header spacing
-        headerGap: isCompact ? "0.75rem" : "1.5rem",
-        avatarMargin: isCompact ? "0.75rem" : "1.5rem",
-
-        // Text spacing
-        textMargin: isCompact ? "0.25rem" : "0.5rem",
-        titleMargin: isCompact ? "0.25rem" : "0.75rem",
-      },
-      relaxed: {
-        // Main container spacing
-        containerPadding: isCompact ? "1rem" : "2.5rem",
-        sectionMargin: isCompact ? "0.75rem" : "2rem",
-        headerPadding: isCompact ? "1rem" : "2rem",
-        headerMargin: isCompact ? "0.75rem" : "2rem",
-
-        // Section content spacing
-        sectionGap: isCompact ? "0.375rem" : "1.5rem",
-        itemGap: isCompact ? "0.375rem" : "0.75rem",
-        itemPadding: isCompact ? "0.75rem" : "1.5rem",
-
-        // Header spacing
-        headerGap: isCompact ? "1rem" : "2rem",
-        avatarMargin: isCompact ? "1rem" : "2rem",
-
-        // Text spacing
-        textMargin: isCompact ? "0.375rem" : "0.75rem",
-        titleMargin: isCompact ? "0.375rem" : "1rem",
-      },
+      // Text spacing
+      textMargin: isCompact ? 0.25 : 0.5,
+      titleMargin: isCompact ? 0.25 : 0.75,
     };
-    return spacingMap[customization.spacing];
+    
+    // Apply multiplier to all spacing values
+    const multiplier = (spacingMultiplier - 1.0) / 1.0; // 0 to 1 range
+    return {
+      containerPadding: `${baseSpacing.containerPadding * (1 + multiplier * 0.5)}rem`,
+      sectionMargin: `${baseSpacing.sectionMargin * (1 + multiplier * 0.5)}rem`,
+      headerPadding: `${baseSpacing.headerPadding * (1 + multiplier * 0.5)}rem`,
+      headerMargin: `${baseSpacing.headerMargin * (1 + multiplier * 0.5)}rem`,
+      sectionGap: `${baseSpacing.sectionGap * (1 + multiplier * 0.5)}rem`,
+      itemGap: `${baseSpacing.itemGap * (1 + multiplier * 0.5)}rem`,
+      itemPadding: `${baseSpacing.itemPadding * (1 + multiplier * 0.5)}rem`,
+      headerGap: `${baseSpacing.headerGap * (1 + multiplier * 0.5)}rem`,
+      avatarMargin: `${baseSpacing.avatarMargin * (1 + multiplier * 0.5)}rem`,
+      textMargin: `${baseSpacing.textMargin * (1 + multiplier * 0.5)}rem`,
+      titleMargin: `${baseSpacing.titleMargin * (1 + multiplier * 0.5)}rem`,
+    };
   };
 
   const spacingStyle = getSpacingStyles();
@@ -127,8 +141,9 @@ export function ModernTemplate({
 
   return (
     <div
-      className={`bg-white print-safe`}
+      className={`print-safe`}
       style={{
+        ...getBackgroundStyle(),
         color: "rgb(17 24 39)",
         padding: spacingStyle.containerPadding,
         fontFamily: fontFamily,
@@ -150,7 +165,7 @@ export function ModernTemplate({
       <div
         className="rounded-lg print-safe d-flex align-items-center"
         style={{
-          backgroundColor: colorScheme.primary,
+          backgroundColor: primaryColor,
           padding: spacingStyle.headerPadding,
           marginBottom: spacingStyle.headerMargin,
           fontFamily: fontFamily,
@@ -192,7 +207,7 @@ export function ModernTemplate({
             />
             <AvatarFallback
               style={{
-                backgroundColor: colorScheme.secondary,
+                backgroundColor: secondaryColor,
                 color: "white",
                 width: "100%",
                 height: "100%",
@@ -289,7 +304,7 @@ export function ModernTemplate({
                 marginBottom: spacingStyle.titleMargin,
                 paddingBottom: "0.25rem",
                 borderBottom: "2px solid",
-                borderColor: colorScheme.primary,
+                borderColor: primaryColor,
                 borderRadius: "4px",
                 fontFamily: fontFamily,
               }}
@@ -300,6 +315,10 @@ export function ModernTemplate({
               style={{
                 fontSize: getSizeStyles("text").fontSize,
                 fontFamily: fontFamily,
+                wordBreak: "break-word",
+                overflowWrap: "break-word",
+                whiteSpace: "pre-wrap",
+                lineHeight: spacing,
               }}
             >
               {data.personalInfo.summary}
@@ -316,7 +335,7 @@ export function ModernTemplate({
                 marginBottom: spacingStyle.titleMargin,
                 paddingBottom: "0.25rem",
                 borderBottom: "2px solid",
-                borderColor: colorScheme.primary,
+                borderColor: primaryColor,
                 fontFamily: fontFamily,
               }}
             >
@@ -337,7 +356,7 @@ export function ModernTemplate({
                         className="font-semibold print-safe"
                         style={{
                           ...getSizeStyles("text"),
-                          color: colorScheme.secondary,
+                          color: secondaryColor,
                           fontFamily: fontFamily,
                         }}
                       >
@@ -368,7 +387,14 @@ export function ModernTemplate({
                   </div>
                   {exp.description && (
                     <p
-                      style={{ ...getSizeStyles("text"), marginTop: "0.25rem" }}
+                      style={{ 
+                        ...getSizeStyles("text"), 
+                        marginTop: "0.25rem",
+                        wordBreak: "break-word",
+                        overflowWrap: "break-word",
+                        whiteSpace: "pre-wrap",
+                        lineHeight: spacing,
+                      }}
                     >
                       {exp.description}
                     </p>
@@ -388,7 +414,7 @@ export function ModernTemplate({
                 marginBottom: spacingStyle.titleMargin,
                 paddingBottom: "0.25rem",
                 borderBottom: "2px solid",
-                borderColor: colorScheme.primary,
+                borderColor: primaryColor,
                 fontFamily: fontFamily,
               }}
             >
@@ -409,7 +435,7 @@ export function ModernTemplate({
                         className="font-semibold print-safe"
                         style={{
                           ...getSizeStyles("text"),
-                          color: colorScheme.secondary,
+                          color: secondaryColor,
                           fontFamily: fontFamily,
                         }}
                       >
@@ -464,7 +490,7 @@ export function ModernTemplate({
                 marginBottom: spacingStyle.titleMargin,
                 paddingBottom: "0.25rem",
                 borderBottom: "2px solid",
-                borderColor: colorScheme.primary,
+                borderColor: primaryColor,
                 fontFamily: fontFamily,
               }}
             >
@@ -493,7 +519,7 @@ export function ModernTemplate({
                       display: "inline-block",
                       width: isCompact ? "0.5rem" : "0.75rem",
                       height: isCompact ? "0.5rem" : "0.75rem",
-                      backgroundColor: colorScheme.primary,
+                      backgroundColor: primaryColor,
                       borderRadius: "2px",
                       marginRight: "8px",
                       verticalAlign: "middle",
@@ -520,11 +546,11 @@ export function ModernTemplate({
                 marginBottom: spacingStyle.titleMargin,
                 paddingBottom: "0.25rem",
                 borderBottom: "2px solid",
-                borderColor: colorScheme.primary,
+                borderColor: primaryColor,
                 fontFamily: fontFamily,
               }}
             >
-              ACTIVITIES
+              PERSONAL PROJECT
             </h2>
             <div
               style={{
@@ -541,7 +567,7 @@ export function ModernTemplate({
                         className="font-semibold print-safe"
                         style={{
                           ...getSizeStyles("text"),
-                          color: colorScheme.secondary,
+                          color: secondaryColor,
                           fontFamily: fontFamily,
                         }}
                       >
@@ -576,6 +602,10 @@ export function ModernTemplate({
                         ...getSizeStyles("text"),
                         marginTop: "0.25rem",
                         fontFamily: fontFamily,
+                        wordBreak: "break-word",
+                        overflowWrap: "break-word",
+                        whiteSpace: "pre-wrap",
+                        lineHeight: spacing,
                       }}
                     >
                       {activity.description}
@@ -596,7 +626,7 @@ export function ModernTemplate({
                 marginBottom: spacingStyle.titleMargin,
                 paddingBottom: "0.25rem",
                 borderBottom: "2px solid",
-                borderColor: colorScheme.primary,
+                borderColor: primaryColor,
                 fontFamily: fontFamily,
               }}
             >
@@ -617,7 +647,7 @@ export function ModernTemplate({
                         className="font-semibold print-safe"
                         style={{
                           ...getSizeStyles("text"),
-                          color: colorScheme.secondary,
+                          color: secondaryColor,
                           fontFamily: fontFamily,
                         }}
                       >
@@ -649,6 +679,10 @@ export function ModernTemplate({
                         ...getSizeStyles("text"),
                         marginTop: "0.25rem",
                         fontFamily: fontFamily,
+                        wordBreak: "break-word",
+                        overflowWrap: "break-word",
+                        whiteSpace: "pre-wrap",
+                        lineHeight: spacing,
                       }}
                     >
                       {award.description}

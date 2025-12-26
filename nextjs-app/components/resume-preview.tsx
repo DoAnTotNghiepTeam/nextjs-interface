@@ -7,6 +7,8 @@ import type { ResumeData } from "./resume-builder";
 import type { CustomizationOptions } from "./customization-panel";
 import { ModernTemplate } from "./resume-templates/modern-template";
 import { ClassicTemplate } from "./resume-templates/classic-template";
+import { SidebarTemplate } from "./resume-templates/sidebar-template";
+import { ProfessionalTemplate } from "./resume-templates/professional-template";
 import { mapFormToApi, resumeApi } from "@/lib/api";
 import styles from "./resume-preview.module.css";
 
@@ -24,8 +26,8 @@ interface ResumePreviewProps {
 const defaultCustomization: CustomizationOptions = {
   font: "inter",
   colorScheme: "blue",
-  spacing: "normal",
-  fontSize: "medium",
+  spacing: 1.5,
+  fontSize: 4,
 };
 
 export function ResumePreview({
@@ -107,6 +109,10 @@ ResumePreviewProps) {
     const tpl = (template || "modern").toLowerCase();
     const normalized = tpl.includes("classic")
       ? "classic"
+      : tpl.includes("sidebar")
+      ? "sidebar"
+      : tpl.includes("professional")
+      ? "professional"
       : tpl.includes("modern")
       ? "modern"
       : "modern";
@@ -114,6 +120,22 @@ ResumePreviewProps) {
       case "classic":
         return (
           <ClassicTemplate
+            data={data}
+            customization={customization}
+            isCompact={isCompact}
+          />
+        );
+      case "sidebar":
+        return (
+          <SidebarTemplate
+            data={data}
+            customization={customization}
+            isCompact={isCompact}
+          />
+        );
+      case "professional":
+        return (
+          <ProfessionalTemplate
             data={data}
             customization={customization}
             isCompact={isCompact}

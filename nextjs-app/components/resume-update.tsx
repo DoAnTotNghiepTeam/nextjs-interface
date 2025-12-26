@@ -23,6 +23,7 @@ import {
   Palette,
   FileText,
   Download,
+  Brush,
   Menu,
   Eye,
 } from "lucide-react";
@@ -37,6 +38,7 @@ import { TemplateSelector } from "./template-selector";
 import {
   CustomizationPanel,
   type CustomizationOptions,
+  DEFAULT_CUSTOMIZATION,
 } from "./customization-panel";
 import { PDFExport } from "./pdf-export";
 import { useToast } from "@/hooks/use-toast";
@@ -44,6 +46,8 @@ import styles from "./resume-builder.module.css";
 
 export interface ResumeData {
   id: number;
+  template?: string;
+  resumeLink?: string;
   personalInfo: {
     fullName: string;
     email: string;
@@ -51,6 +55,14 @@ export interface ResumeData {
     jobTitle: string; // Changed from address to jobTitle
     summary: string;
     profileImage?: string;
+  };
+  customization?: {
+    font?: string;
+    colorScheme?: string;
+    customColor?: string;
+    spacing?: number;
+    fontSize?: number;
+    backgroundPattern?: string;
   };
   experience: Array<{
     id: string;
@@ -86,6 +98,86 @@ export interface ResumeData {
     description: string;
   }>;
 }
+
+export const defaultResumeData: ResumeData = {
+  id: 1,
+  personalInfo: {
+    fullName: "Nguyễn Văn A",
+    email: "nguyenvana@example.com",
+    phone: "0123 456 789",
+    jobTitle: "Frontend Developer",
+    summary:
+      "Lập trình viên Frontend với hơn 2 năm kinh nghiệm phát triển ứng dụng web sử dụng React, TypeScript và TailwindCSS. Có khả năng phân tích yêu cầu, tối ưu hiệu suất và xây dựng giao diện người dùng hiện đại. Luôn học hỏi công nghệ mới và cải thiện chất lượng sản phẩm.",
+    profileImage: "", // hoặc để undefined
+  },
+
+  experience: [
+    {
+      id: "exp-1",
+      company: "Công ty TNHH Công Nghệ ABC",
+      position: "Frontend Developer",
+      startDate: "2023-01",
+      endDate: "2024-12",
+      description:
+        "- Phát triển và tối ưu giao diện cho hệ thống quản lý nhân sự.\n- Sử dụng React, Zustand, TailwindCSS để tạo UI linh hoạt, dễ mở rộng.\n- Hợp tác với backend để tích hợp API, cải thiện tốc độ tải trang 35%.",
+    },
+    {
+      id: "exp-2",
+      company: "Công ty Phần Mềm XYZ",
+      position: "Intern Frontend Developer",
+      startDate: "2022-06",
+      endDate: "2022-12",
+      description:
+        "- Tham gia xây dựng module dashboard thống kê.\n- Học và áp dụng React Hooks, REST API.\n- Viết unit test cơ bản bằng Jest.",
+    },
+  ],
+
+  education: [
+    {
+      id: "edu-1",
+      institution: "Đại học Công nghệ Thông tin – ĐHQG TP.HCM",
+      degree: "Cử nhân",
+      field: "Công nghệ thông tin",
+      startDate: "2019-09",
+      endDate: "2023-06",
+      gpa: "3.2/4.0",
+    },
+  ],
+
+  skills: [
+    "React",
+    "TypeScript",
+    "JavaScript",
+    "HTML/CSS",
+    "TailwindCSS",
+    "REST API",
+    "Git/GitHub",
+  ],
+
+  activities: [
+    {
+      id: "act-1",
+      title: "Thành viên CLB Lập Trình",
+      organization: "UIT Developer Club",
+      startDate: "2020-01",
+      endDate: "2022-12",
+      description:
+        "- Tham gia tổ chức workshop về HTML, CSS, React.\n- Hỗ trợ mentoring cho các bạn sinh viên năm nhất.",
+    },
+  ],
+
+  awards: [
+    {
+      id: "awd-1",
+      title: "Giải Ba Lập Trình Web",
+      issuer: "Cuộc thi UIT Code Challenge",
+      date: "2022-11",
+      description:
+        "Xây dựng website bán sách với ReactJS, tối ưu giao diện và trải nghiệm người dùng.",
+    },
+  ],
+};
+
 interface ResumeDataWithTemplate extends ResumeData {
   template: string;
 }
@@ -146,13 +238,13 @@ const steps = [
   { id: "skills", title: "Skills", component: SkillsStep, fields: ["skills"] },
   {
     id: "activities",
-    title: "Activities",
+    title: "Personal Projects",
     component: ActivitiesStep,
     fields: ["activities"],
   },
   {
     id: "awards",
-    title: "Awards",
+    title: "Awards & Certifications",
     component: AwardsStep,
     fields: ["awards"],
   },
@@ -180,33 +272,83 @@ export function ResumeUpdate({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [customization, setCustomization] = useState<CustomizationOptions>({
-    font: "inter",
-    colorScheme: "blue",
-    spacing: "normal",
-    fontSize: "medium",
+    font: DEFAULT_CUSTOMIZATION.font,
+    colorScheme: DEFAULT_CUSTOMIZATION.colorScheme,
+    spacing: DEFAULT_CUSTOMIZATION.spacing,
+    fontSize: DEFAULT_CUSTOMIZATION.fontSize,
+    backgroundPattern: DEFAULT_CUSTOMIZATION.backgroundPattern,
   });
+  
+  // Debug: Log customization whenever it changes
+  useEffect(() => {
+    console.log("[RESUME-UPDATE CUSTOMIZATION STATE CHANGED]:", customization);
+  }, [customization]);
+  
   const { toast } = useToast();
 
+  // const methods = useForm<ResumeData>({
+  //   mode: "onChange",
+  //   defaultValues: initialData
+  //     ? { ...initialData, id: initialData.id }
+  //     : {
+  //         id: undefined,
+  //         personalInfo: {
+  //           fullName: "",
+  //           email: "",
+  //           phone: "",
+  //           jobTitle: "",
+  //           summary: "",
+  //         },
+  //         experience: [],
+  //         education: [],
+  //         skills: [],
+  //         activities: [],
+  //         awards: [],
+  //       },
+  // });
+
   const methods = useForm<ResumeData>({
-    mode: "onChange",
-    defaultValues: initialData
-      ? { ...initialData, id: initialData.id }
-      : {
-          id: undefined,
-          personalInfo: {
-            fullName: "",
-            email: "",
-            phone: "",
-            jobTitle: "",
-            summary: "",
-          },
-          experience: [],
-          education: [],
-          skills: [],
-          activities: [],
-          awards: [],
-        },
-  });
+  mode: "onChange",
+  defaultValues: defaultResumeData, // ⭐ THÊM DÒNG NÀY
+});
+
+  const getMergedData = () => {
+  const current = methods.watch();
+
+  return {
+    ...defaultResumeData,
+    ...current,
+    personalInfo: {
+      ...defaultResumeData.personalInfo,
+      ...current.personalInfo,
+    },
+    experience:
+      current.experience?.length > 0
+        ? current.experience
+        : defaultResumeData.experience,
+
+    education:
+      current.education?.length > 0
+        ? current.education
+        : defaultResumeData.education,
+
+    skills:
+      current.skills?.length > 0
+        ? current.skills
+        : defaultResumeData.skills,
+
+    activities:
+      current.activities?.length > 0
+        ? current.activities
+        : defaultResumeData.activities,
+
+    awards:
+      current.awards?.length > 0
+        ? current.awards
+        : defaultResumeData.awards,
+  };
+};
+
   // Reset form when initialData changes (for edit)
   // Reset form only when initialData changes and after mount
   useEffect(() => {
@@ -238,6 +380,10 @@ export function ResumeUpdate({
         if ((initialData as ResumeDataWithTemplate)?.template) {
           setSelectedTemplate((initialData as ResumeDataWithTemplate).template);
         }
+        // Load customization if exists
+        if ((initialData as any)?.customization) {
+          setCustomization((initialData as any).customization);
+        }
       } else {
         // Create new: always reset to empty
         methods.reset({
@@ -264,8 +410,21 @@ export function ResumeUpdate({
     handleSubmit,
     trigger,
     watch,
+    setValue,
     formState: { errors },
   } = methods;
+
+  // Sync customization state with form
+  useEffect(() => {
+    if (customization) {
+      setValue('customization', customization);
+    }
+  }, [customization, setValue]);
+
+  // Sync template with form
+  useEffect(() => {
+    setValue('template', selectedTemplate);
+  }, [selectedTemplate, setValue]);
 
   const autoSave = async () => {
     if (!mounted) return;
@@ -375,12 +534,26 @@ export function ResumeUpdate({
   };
 
   const onSubmit = async (data: ResumeData) => {
+    console.log("\n========== RESUME-UPDATE SUBMIT DEBUG START ==========");
     console.log("[ResumeUpdate] Submit id:", data.id);
+    console.log("[1] Data from form:", JSON.stringify(data, null, 2));
+    console.log("[2] Data has customization?:", data.customization);
+    console.log("[3] Data has template?:", data.template);
+    console.log("========== RESUME-UPDATE SUBMIT DEBUG END ==========\n");
+    
     try {
+      // Ensure customization and template are set (should already be from useEffect)
+      if (!data.customization) {
+        data.customization = customization || DEFAULT_CUSTOMIZATION;
+      }
+      if (!data.template) {
+        data.template = selectedTemplate || 'modern';
+      }
+      
       // 1. Tạo PDF từ dữ liệu CV
       const { blob } = await (
         await import("@/lib/pdf-service")
-      ).PDFService.generatePDFBlob(data, selectedTemplate, customization);
+      ).PDFService.generatePDFBlob(data, data.template, data.customization);
       // 2. Upload PDF lên Firebase Storage
       const userIdForPath =
         userId ||
@@ -391,8 +564,9 @@ export function ResumeUpdate({
       const FirebaseStorageService = (await import("@/lib/firebase-storage"))
         .FirebaseStorageService;
       const pdfUrl = await FirebaseStorageService.uploadPDF(blob, storagePath);
-      // 3. Gửi link PDF về backend
+      // 3. Gửi link PDF và customization về backend
       const apiData = { ...mapFormToApi(data), resumeLink: pdfUrl };
+      
       if (data.id) {
         await resumeApi.updateMyResume(data.id, apiData);
         if (onSave) onSave({ ...data, id: data.id });
@@ -550,7 +724,7 @@ export function ResumeUpdate({
                   {completedSteps.includes(currentStep) && (
                     <Badge className={styles.completedBadge}>
                       <Check className="h-3 w-3 mr-1" />
-                      <span className={styles.hiddenOnMobile}>Hoàn thành</span>
+                      <span className={styles.hiddenOnMobile}>Complete</span>
                     </Badge>
                   )}
                 </div>
@@ -628,7 +802,7 @@ export function ResumeUpdate({
               <div className={styles.previewContainer}>
                 <div className={styles.previewContent}>
                   <ResumePreview
-                    data={watch()}
+                    data={getMergedData()}
                     template={selectedTemplate}
                     customization={customization}
                     isCompact
@@ -689,16 +863,16 @@ function DesktopSidebar({
           <Palette className="h-3 w-3" />
           Design
         </TabsTrigger>
-        <TabsTrigger value="export" className={styles.tabsTrigger}>
-          <Download className="h-3 w-3" />
-          Export
+        <TabsTrigger value="customize" className={styles.tabsTrigger}>
+          <Brush  className="h-3 w-3" />
+          Customize
         </TabsTrigger>
       </TabsList>
 
       <TabsContent value="steps" className="mt-4">
         <Card className={styles.previewCard}>
           <CardHeader className={styles.cardHeader}>
-            <CardTitle className="text-base">Các bước</CardTitle>
+            <CardTitle className="text-base">Steps</CardTitle>
           </CardHeader>
           <CardContent className={styles.stepsList}>
             {steps.map((step, index) => (
@@ -723,10 +897,10 @@ function DesktopSidebar({
               selectedTemplate={selectedTemplate}
               onTemplateChange={setSelectedTemplate}
             />
-            <CustomizationPanel
+            {/* <CustomizationPanel
               options={customization}
               onOptionsChange={setCustomization}
-            />
+            /> */}
           </CardContent>
         </Card>
       </TabsContent>
@@ -742,6 +916,12 @@ function DesktopSidebar({
           </CardContent>
         </Card>
       </TabsContent>
+      <TabsContent value="customize" className="p-4">
+      <CustomizationPanel
+         options={customization}
+          onOptionsChange={setCustomization}
+      />
+</TabsContent>
     </Tabs>
   );
 }
@@ -770,10 +950,13 @@ function MobileSidebar({
         <TabsTrigger value="export">
           <Download className="h-4 w-4" />
         </TabsTrigger>
+         <TabsTrigger value="customize">
+          <Brush className="h-4 w-4" />
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="steps" className="mt-4 space-y-2">
-        <h3 className="font-medium text-sm mb-3">Các bước</h3>
+        <h3 className="font-medium text-sm mb-3">Steps</h3>
         <div className={styles.stepsList}>
           {steps.map((step, index) => (
             <StepButton
@@ -810,6 +993,12 @@ function MobileSidebar({
           customization={customization}
         />
       </TabsContent>
+      <TabsContent value="customize" className="p-4">
+        <CustomizationPanel
+          options={CustomizationPanel1}
+          onOptionsChange={CustomizationPanel1}
+        />
+</TabsContent>
     </Tabs>
   );
 }

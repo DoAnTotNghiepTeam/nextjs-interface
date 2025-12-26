@@ -1,5 +1,7 @@
 .classicResumeRoot {
   font-family: var(--font-family, "Inter", sans-serif);
+  --font-size-multiplier: 1;
+  --spacing-multiplier: 1;
   display: flex;
   flex-direction: row;
   background: #f7f7fa;
@@ -12,31 +14,36 @@
 
 /* Compact adjustments for preview sidebar */
 .classicCompact {
-  /* Thu nhỏ tổng thể để hiển thị đủ trong khung preview */
-  transform: scale(0.78);
-  transform-origin: top center;
-  display: inline-block;
-  margin: 0 auto;
+  zoom: 0.45;
   width: 100%;
-  overflow: hidden;
-  max-width: 100%;
+  height: 100%;
+  padding: 20px;
   box-sizing: border-box;
 }
+
 .classicCompact .classicResumeRoot {
   display: flex;
-  flex-direction: column;
-  overflow: visible;
-  max-width: 100%;
+  flex-direction: row;
+  overflow: hidden;
   box-sizing: border-box;
   width: 100%;
   height: auto;
   min-height: 0;
+  flex-wrap: nowrap;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 .classicCompact .classicResumeMain {
+  padding: 28px 24px;
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  box-sizing: border-box;
   overflow: visible;
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
+  background: #ffffff;
 }
 .classicCompact .classicResumeSubSectionTitle,
 .classicCompact .classicResumeSubSection div {
@@ -47,16 +54,18 @@
   white-space: normal;
 }
 .classicCompact .classicResumeSidebar {
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  padding: 20px 16px;
+  width: 200px;
+  min-width: 200px;
+  max-width: 200px;
+  padding: 24px 16px;
   overflow: visible;
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
+
 .classicCompact .classicResumeInfoList {
   overflow: hidden;
   word-wrap: break-word;
@@ -78,109 +87,42 @@
   overflow: visible;
 }
 .classicCompact .classicResumeAvatar {
-  width: 80px;
-  height: 80px;
-  border-width: 2px;
-  margin: 0 auto 12px auto;
-}
-/* Đảm bảo layout 2 cột trong compact mode */
-
-.classicCompact {
-  /* Allow responsive stacking: remove min-width, allow wrapping */
-  min-width: 0;
+  width: 100px;
+  height: 100px;
+  border-width: 3px;
+  margin: 0 auto 16px auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.classicCompact .classicResumeRoot {
-  /* Allow flex to wrap for responsive layout */
-  flex-wrap: wrap;
-  /* Responsive: stack columns vertically on small screens */
+/* Compact mode - use CSS variables for font sizes */
+.classicCompact .classicResumeName {
+  font-size: calc(1.5rem * var(--font-size-multiplier, 1));
 }
 
-@media (max-width: 600px) {
-  .classicCompact .classicResumeRoot {
-    flex-direction: column;
-    flex-wrap: nowrap;
-  }
-  .classicCompact .classicResumeSidebar,
-  .classicCompact .classicResumeMain {
-    max-width: 100%;
-    min-width: 0;
-    width: 100%;
-    box-sizing: border-box;
-  }
+.classicCompact .classicResumeSectionTitle {
+  font-size: calc(1rem * var(--font-size-multiplier, 1));
 }
 
-/* Compact mode với font size adjustments */
-.classicCompact.fontSizeSmall .classicResumeName {
-  font-size: 1.2rem;
-}
-.classicCompact.fontSizeMedium .classicResumeName {
-  font-size: 1.5rem;
-}
-.classicCompact.fontSizeLarge .classicResumeName {
-  font-size: 1.8rem;
+.classicCompact .classicResumeSummary {
+  font-size: calc(0.9rem * var(--font-size-multiplier, 1));
 }
 
-.classicCompact.fontSizeSmall .classicResumeSectionTitle {
-  font-size: 0.8rem;
-}
-.classicCompact.fontSizeMedium .classicResumeSectionTitle {
-  font-size: 1rem;
-}
-.classicCompact.fontSizeLarge .classicResumeSectionTitle {
-  font-size: 1.1rem;
+.classicCompact .classicResumeInfoList li,
+.classicCompact .classicResumeSkillList li,
+.classicCompact .classicResumeCertList li {
+  font-size: calc(0.9rem * var(--font-size-multiplier, 1));
 }
 
-.classicCompact.fontSizeSmall .classicResumeSummary {
-  font-size: 0.75rem;
-}
-.classicCompact.fontSizeMedium .classicResumeSummary {
-  font-size: 0.9rem;
-}
-.classicCompact.fontSizeLarge .classicResumeSummary {
-  font-size: 1rem;
+.classicCompact .classicResumeSubSectionTitle {
+  font-size: calc(0.85rem * var(--font-size-multiplier, 1));
 }
 
-.classicCompact.fontSizeSmall .classicResumeInfoList li,
-.classicCompact.fontSizeSmall .classicResumeSkillList li,
-.classicCompact.fontSizeSmall .classicResumeCertList li {
-  font-size: 0.75rem;
-}
-.classicCompact.fontSizeMedium .classicResumeInfoList li,
-.classicCompact.fontSizeMedium .classicResumeSkillList li,
-.classicCompact.fontSizeMedium .classicResumeCertList li {
-  font-size: 0.9rem;
-}
-.classicCompact.fontSizeLarge .classicResumeInfoList li,
-.classicCompact.fontSizeLarge .classicResumeSkillList li,
-.classicCompact.fontSizeLarge .classicResumeCertList li {
-  font-size: 1rem;
+.classicCompact .classicResumeMeta {
+  font-size: calc(0.75rem * var(--font-size-multiplier, 1));
 }
 
-.classicCompact.fontSizeSmall .classicResumeSubSectionTitle {
-  font-size: 0.8rem;
-}
-.classicCompact.fontSizeMedium .classicResumeSubSectionTitle {
-  font-size: 0.95rem;
-}
-.classicCompact.fontSizeLarge .classicResumeSubSectionTitle {
-  font-size: 1rem;
-}
-
-.classicCompact.fontSizeSmall .classicResumeMeta {
-  font-size: 0.7rem;
-}
-.classicCompact.fontSizeMedium .classicResumeMeta {
-  font-size: 0.8rem;
-}
-.classicCompact.fontSizeLarge .classicResumeMeta {
-  font-size: 0.9rem;
-}
-
-.classicCompact .classicResumeMain {
-  padding: 20px 16px 20px 16px;
-  flex: 1;
-  min-width: 0;
+.classicCompact .classicResumePosition {
+  font-size: calc(0.8rem * var(--font-size-multiplier, 1));
 }
 
 .classicResumeSidebar {
@@ -193,11 +135,11 @@
   width: 270px;
   min-width: 270px;
   max-width: 270px;
-  padding: var(--sidebar-padding, 32px 24px);
+  padding: calc(32px * var(--spacing-multiplier, 1)) calc(24px * var(--spacing-multiplier, 1));
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: var(--sidebar-gap, 32px);
+  gap: calc(32px * var(--spacing-multiplier, 1));
 }
 
 .classicResumeAvatar {
@@ -206,18 +148,37 @@
   border-radius: 50%;
   object-fit: cover;
   border: 4px solid #fff;
-  margin: 0 auto var(--avatar-margin-bottom, 24px) auto;
+  margin: 0 auto calc(16px * var(--spacing-multiplier, 1)) auto;
   background: #fff;
 }
 
-.classicResumeSectionTitle {
+/* Tên và title trong sidebar */
+.classicResumeSidebarName {
+  font-size: calc(1.3rem * var(--font-size-multiplier, 1));
   font-weight: bold;
-  font-size: 1.1rem;
-  margin-bottom: 10px;
+  color: #0f172a;
+  text-align: center;
+  margin-bottom: calc(8px * var(--spacing-multiplier, 1));
+  line-height: 1.3;
+}
+
+.classicResumeSidebarTitle {
+  font-size: calc(0.95rem * var(--font-size-multiplier, 1));
+  color: #0f172a;
+  text-align: center;
+  margin-bottom: calc(20px * var(--spacing-multiplier, 1));
+  font-weight: 500;
+}
+
+.classicResumeSectionTitle {
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin-bottom: 14px;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  padding-bottom: 6px;
-  border-bottom: 2px solid rgba(15, 23, 42, 0.08);
+  letter-spacing: 1.2px;
+  padding-bottom: 8px;
+  border-bottom: 2.5px solid rgba(15, 23, 42, 0.12);
+  color: var(--accent-color, #0f172a);
 }
 
 /* Tăng tương phản tiêu đề trong sidebar khi dùng nền sáng */
@@ -226,49 +187,54 @@
 }
 
 .classicResumeSection {
-  margin-bottom: var(--section-margin-bottom, 24px);
+  margin-bottom: calc(24px * var(--spacing-multiplier, 1));
   display: flex;
   flex-direction: column;
-  gap: var(--section-gap, 10px);
+  gap: calc(10px * var(--spacing-multiplier, 1));
 }
 
 .classicResumeMain {
   flex: 1;
-  padding: var(--main-padding, 40px 40px 40px 32px);
+  padding: calc(40px * var(--spacing-multiplier, 1)) calc(40px * var(--spacing-multiplier, 1)) calc(40px * var(--spacing-multiplier, 1)) calc(32px * var(--spacing-multiplier, 1));
   background: #fff;
 }
 
 .classicResumeName {
-  font-size: 2rem;
+  font-size: calc(2rem * var(--font-size-multiplier, 1));
   font-weight: bold;
   color: #333;
-  margin-bottom: 0.25em;
+  margin-bottom: calc(0.25em * var(--spacing-multiplier, 1));
 }
 
 .classicResumeJobTitle {
   color: var(--accent-color, #b85c3b);
   font-weight: 600;
-  margin-bottom: 0.5em;
+  margin-bottom: calc(0.5em * var(--spacing-multiplier, 1));
 }
 
 .classicResumeSummary {
-  margin-bottom: var(--summary-margin-bottom, 1.5em);
+  margin-bottom: calc(1.5em * var(--spacing-multiplier, 1));
   color: #0f172a;
+  font-size: calc(0.98rem * var(--font-size-multiplier, 1));
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  line-height: 1.6;
 }
 
 .classicResumeInfoList {
   list-style: none;
   padding: 0;
-  margin: 0 0 16px 0;
+  margin: 0 0 calc(16px * var(--spacing-multiplier, 1)) 0;
   color: #0f172a;
 }
 
 .classicResumeInfoList li {
   display: flex;
   align-items: center;
-  gap: var(--info-gap, 8px);
-  margin-bottom: var(--info-margin-bottom, 8px);
-  font-size: 0.98rem;
+  gap: calc(8px * var(--spacing-multiplier, 1));
+  margin-bottom: calc(8px * var(--spacing-multiplier, 1));
+  font-size: calc(0.98rem * var(--font-size-multiplier, 1));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -276,23 +242,27 @@
 }
 
 .classicResumeSubSection {
-  margin-bottom: var(--subsection-margin-bottom, 0);
-  padding: var(--subsection-padding, 12px 14px);
-  background: transparent;
-  border: none;
-  border-radius: 12px;
-  box-shadow: none;
+  margin-bottom: calc(16px * var(--spacing-multiplier, 1));
+  padding: calc(14px * var(--spacing-multiplier, 1)) calc(16px * var(--spacing-multiplier, 1));
+  background: #fafbfc;
+  border-left: 3px solid var(--accent-color, #3b82f6);
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
 .classicResumeSubSectionTitle {
   font-weight: 600;
-  margin-bottom: 4px;
+  font-size: calc(1.05rem * var(--font-size-multiplier, 1));
   color: #0f172a;
-  line-height: 1.35;
+  margin-bottom: calc(4px * var(--spacing-multiplier, 1));
+  line-height: 1.4;
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .classicResumeMeta {
-  font-size: 0.85rem;
+  font-size: calc(0.85rem * var(--font-size-multiplier, 1));
   color: #64748b;
 }
 
@@ -302,12 +272,44 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--skill-gap, 6px);
+  gap: calc(10px * var(--spacing-multiplier, 1));
 }
 
 .classicResumeSkillList li {
-  font-size: 0.98rem;
+  font-size: calc(0.95rem * var(--font-size-multiplier, 1));
   color: #0f172a;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.skillName {
+  font-weight: 500;
+}
+
+.skillDots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.dotFilled,
+.dotEmpty {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.dotFilled {
+  background-color: #0f172a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dotEmpty {
+  background-color: rgba(15, 23, 42, 0.15);
+  border: 1.5px solid rgba(15, 23, 42, 0.25);
 }
 
 .classicResumeCertList {
@@ -316,168 +318,51 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--cert-gap, 6px);
+  gap: calc(8px * var(--spacing-multiplier, 1));
 }
 
 .classicResumeCertList li {
-  font-size: 0.98rem;
+  font-size: calc(0.92rem * var(--font-size-multiplier, 1));
   color: #0f172a;
 }
 
-/* Font Size Adjustments - Chi tiết cho từng phần tử */
-.fontSizeSmall {
-  /* Tên chính */
-  --name-size: 1.5rem;
-  --job-title-size: 0.9rem;
-  --summary-size: 0.85rem;
-
-  /* Tiêu đề section */
-  --section-title-size: 0.95rem;
-  --subsection-title-size: 0.9rem;
-
-  /* Nội dung */
-  --content-size: 0.8rem;
-  --meta-size: 0.75rem;
-  --info-size: 0.8rem;
-
-  /* Sidebar */
-  --sidebar-title-size: 0.95rem;
-  --sidebar-content-size: 0.8rem;
-  --sidebar-meta-size: 0.75rem;
+.certDate {
+  font-size: calc(0.85rem * var(--font-size-multiplier, 1));
+  color: #64748b;
+  margin-top: 2px;
 }
 
-.fontSizeMedium {
-  /* Tên chính */
-  --name-size: 2rem;
-  --job-title-size: 1rem;
-  --summary-size: 0.95rem;
-
-  /* Tiêu đề section */
-  --section-title-size: 1.1rem;
-  --subsection-title-size: 1rem;
-
-  /* Nội dung */
-  --content-size: 0.98rem;
-  --meta-size: 0.85rem;
-  --info-size: 0.98rem;
-
-  /* Sidebar */
-  --sidebar-title-size: 1.1rem;
-  --sidebar-content-size: 0.98rem;
-  --sidebar-meta-size: 0.85rem;
+/* Job header layout */
+.classicResumeJobHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: calc(8px * var(--spacing-multiplier, 1));
+  gap: 6px;
 }
 
-.fontSizeLarge {
-  /* Tên chính */
-  --name-size: 2.5rem;
-  --job-title-size: 1.1rem;
-  --summary-size: 1.05rem;
-
-  /* Tiêu đề section */
-  --section-title-size: 1.25rem;
-  --subsection-title-size: 1.1rem;
-
-  /* Nội dung */
-  --content-size: 1.1rem;
-  --meta-size: 0.95rem;
-  --info-size: 1.1rem;
-
-  /* Sidebar */
-  --sidebar-title-size: 1.25rem;
-  --sidebar-content-size: 1.1rem;
-  --sidebar-meta-size: 0.95rem;
+.classicResumePosition {
+  font-weight: 600;
+  color: #0f172a;
+  text-align: left;
+  align-self: flex-end;
+  font-size: calc(0.95rem * var(--font-size-multiplier, 1));
 }
 
-/* Áp dụng kích thước chữ cho các phần tử */
-.fontSizeSmall .classicResumeName,
-.fontSizeMedium .classicResumeName,
-.fontSizeLarge .classicResumeName {
-  font-size: var(--name-size);
+.classicResumeDescription {
+  margin-top: calc(8px * var(--spacing-multiplier, 1));
+  color: #334155;
+  font-size: calc(0.92rem * var(--font-size-multiplier, 1));
+  line-height: 1.6;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 
-.fontSizeSmall .classicResumeJobTitle,
-.fontSizeMedium .classicResumeJobTitle,
-.fontSizeLarge .classicResumeJobTitle {
-  font-size: var(--job-title-size);
-}
-
-.fontSizeSmall .classicResumeSummary,
-.fontSizeMedium .classicResumeSummary,
-.fontSizeLarge .classicResumeSummary {
-  font-size: var(--summary-size);
-}
-
-.fontSizeSmall .classicResumeSectionTitle,
-.fontSizeMedium .classicResumeSectionTitle,
-.fontSizeLarge .classicResumeSectionTitle {
-  font-size: var(--section-title-size);
-}
-
-.fontSizeSmall .classicResumeSubSectionTitle,
-.fontSizeMedium .classicResumeSubSectionTitle,
-.fontSizeLarge .classicResumeSubSectionTitle {
-  font-size: var(--subsection-title-size);
-}
-
-.fontSizeSmall .classicResumeInfoList li,
-.fontSizeMedium .classicResumeInfoList li,
-.fontSizeLarge .classicResumeInfoList li {
-  font-size: var(--info-size);
-}
-
-.fontSizeSmall .classicResumeMeta,
-.fontSizeMedium .classicResumeMeta,
-.fontSizeLarge .classicResumeMeta {
-  font-size: var(--meta-size);
-}
-
-.fontSizeSmall .classicResumeSkillList li,
-.fontSizeMedium .classicResumeSkillList li,
-.fontSizeLarge .classicResumeSkillList li {
-  font-size: var(--content-size);
-}
-
-.fontSizeSmall .classicResumeCertList li,
-.fontSizeMedium .classicResumeCertList li,
-.fontSizeLarge .classicResumeCertList li {
-  font-size: var(--content-size);
-}
-
-/* Áp dụng cho sidebar */
-.fontSizeSmall .classicResumeSidebar .classicResumeSectionTitle,
-.fontSizeMedium .classicResumeSidebar .classicResumeSectionTitle,
-.fontSizeLarge .classicResumeSidebar .classicResumeSectionTitle {
-  font-size: var(--sidebar-title-size);
-}
-
-.fontSizeSmall .classicResumeSidebar .classicResumeInfoList li,
-.fontSizeMedium .classicResumeSidebar .classicResumeInfoList li,
-.fontSizeLarge .classicResumeSidebar .classicResumeInfoList li {
-  font-size: var(--sidebar-content-size);
-}
-
-.fontSizeSmall .classicResumeSidebar .classicResumeSubSectionTitle,
-.fontSizeMedium .classicResumeSidebar .classicResumeSubSectionTitle,
-.fontSizeLarge .classicResumeSidebar .classicResumeSubSectionTitle {
-  font-size: var(--sidebar-content-size);
-}
-
-.fontSizeSmall .classicResumeSidebar .classicResumeMeta,
-.fontSizeMedium .classicResumeSidebar .classicResumeMeta,
-.fontSizeLarge .classicResumeSidebar .classicResumeMeta {
-  font-size: var(--sidebar-meta-size);
-}
-
-.fontSizeSmall .classicResumeSidebar .classicResumeSkillList li,
-.fontSizeMedium .classicResumeSidebar .classicResumeSkillList li,
-.fontSizeLarge .classicResumeSidebar .classicResumeSkillList li {
-  font-size: var(--sidebar-content-size);
-}
-
-.fontSizeSmall .classicResumeSidebar .classicResumeCertList li,
-.fontSizeMedium .classicResumeSidebar .classicResumeCertList li,
-.fontSizeLarge .classicResumeSidebar .classicResumeCertList li {
-  font-size: var(--sidebar-content-size);
+.classicResumeDescription > div {
+  margin-bottom: calc(4px * var(--spacing-multiplier, 1));
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Color Scheme Classes */
@@ -521,86 +406,4 @@
   --sidebar-secondary: #d1d5db;
   --accent-color: #4b5563;
   --sidebar-text-color: #0f172a;
-}
-
-/* Spacing Classes */
-.spacingCompact {
-  /* Sidebar spacing */
-  --sidebar-padding: 24px 20px;
-  --sidebar-gap: 20px;
-  --avatar-margin-bottom: 16px;
-
-  /* Section spacing */
-  --section-margin-bottom: 16px;
-  --section-gap: 6px;
-
-  /* Main content spacing */
-  --main-padding: 24px 24px 24px 20px;
-  --summary-margin-bottom: 1em;
-
-  /* Info spacing */
-  --info-gap: 6px;
-  --info-margin-bottom: 6px;
-
-  /* Subsection spacing */
-  --subsection-margin-bottom: 0;
-  --subsection-padding: 8px 10px;
-
-  /* List spacing */
-  --skill-gap: 4px;
-  --cert-gap: 4px;
-}
-
-.spacingNormal {
-  /* Sidebar spacing */
-  --sidebar-padding: 32px 24px;
-  --sidebar-gap: 32px;
-  --avatar-margin-bottom: 24px;
-
-  /* Section spacing */
-  --section-margin-bottom: 24px;
-  --section-gap: 10px;
-
-  /* Main content spacing */
-  --main-padding: 40px 40px 40px 32px;
-  --summary-margin-bottom: 1.5em;
-
-  /* Info spacing */
-  --info-gap: 8px;
-  --info-margin-bottom: 8px;
-
-  /* Subsection spacing */
-  --subsection-margin-bottom: 0;
-  --subsection-padding: 12px 14px;
-
-  /* List spacing */
-  --skill-gap: 6px;
-  --cert-gap: 6px;
-}
-
-.spacingRelaxed {
-  /* Sidebar spacing */
-  --sidebar-padding: 40px 28px;
-  --sidebar-gap: 40px;
-  --avatar-margin-bottom: 32px;
-
-  /* Section spacing */
-  --section-margin-bottom: 32px;
-  --section-gap: 14px;
-
-  /* Main content spacing */
-  --main-padding: 48px 48px 48px 40px;
-  --summary-margin-bottom: 2em;
-
-  /* Info spacing */
-  --info-gap: 10px;
-  --info-margin-bottom: 10px;
-
-  /* Subsection spacing */
-  --subsection-margin-bottom: 0;
-  --subsection-padding: 16px 18px;
-
-  /* List spacing */
-  --skill-gap: 8px;
-  --cert-gap: 8px;
 }

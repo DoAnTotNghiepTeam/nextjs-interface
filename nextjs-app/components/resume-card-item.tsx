@@ -6,8 +6,11 @@ import { Card, CardContent } from "@/components/ui/card";
 // import { useState } from "react";
 import type { ResumeData } from "./resume-builder";
 import type { CustomizationOptions } from "./customization-panel";
+import { DEFAULT_CUSTOMIZATION } from "./customization-panel";
 import { ModernTemplate } from "./resume-templates/modern-template";
 import { ClassicTemplate } from "./resume-templates/classic-template";
+import { SidebarTemplate } from "./resume-templates/sidebar-template";
+import { ProfessionalTemplate } from "./resume-templates/professional-template";
 
 import styles from "./resume-preview.module.css";
 // import { mapFormToApi, resumeApi } from "@/lib/api";
@@ -22,10 +25,11 @@ interface ResumePreviewProps {
 }
 
 const defaultCustomization: CustomizationOptions = {
-  font: "inter",
-  colorScheme: "blue",
-  spacing: "normal",
-  fontSize: "medium",
+  font: DEFAULT_CUSTOMIZATION.font,
+  colorScheme: DEFAULT_CUSTOMIZATION.colorScheme,
+  spacing: DEFAULT_CUSTOMIZATION.spacing,
+  fontSize: DEFAULT_CUSTOMIZATION.fontSize,
+  backgroundPattern: DEFAULT_CUSTOMIZATION.backgroundPattern,
 };
 
 export function ResumeCardItem({
@@ -78,6 +82,24 @@ export function ResumeCardItem({
       case "classic-template":
         return (
           <ClassicTemplate
+            data={data}
+            customization={customization}
+            isCompact={isCompact}
+          />
+        );
+      case "sidebar":
+      case "sidebar-template":
+        return (
+          <SidebarTemplate
+            data={data}
+            customization={customization}
+            isCompact={isCompact}
+          />
+        );
+      case "professional":
+      case "professional-template":
+        return (
+          <ProfessionalTemplate
             data={data}
             customization={customization}
             isCompact={isCompact}

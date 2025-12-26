@@ -17,16 +17,30 @@ export const resumeTemplates: ResumeTemplate[] = [
   {
     id: "modern",
     name: "Modern",
-    description: "Thiết kế hiện đại với accent colors",
+    description: "Modern design with accent colors",
     preview: "/modern-resume-template.png",
     category: "modern",
   },
   {
     id: "classic",
     name: "Classic",
-    description: "Thiết kế truyền thống, chuyên nghiệp",
+    description: "Traditional and professional layout",
     preview: "/classic-resume-template.png",
     category: "classic",
+  },
+  {
+    id: "sidebar",
+    name: "Sidebar",
+    description: "Professional layout with left sidebar",
+    preview: "https://good-resume.com/wp-content/uploads/2018/08/Free-Standard-Resume-Template-in-DOCX-DOC-Format.jpg",
+    category: "modern",
+  },
+  {
+    id: "professional",
+    name: "Professional",
+    description: "Professional layout with dark left sidebar",
+    preview: "https://tuyendung3s.com/upload/images/background-cv-la-gi.png",
+    category: "modern",
   },
 ];
 
@@ -50,7 +64,7 @@ export function TemplateSelector({
             marginLeft: 10,
           }}
         >
-          Chọn mẫu thiết kế
+          Choose a Template
         </h3>
         <p
           style={{
@@ -59,7 +73,7 @@ export function TemplateSelector({
             marginLeft: 10,
           }}
         >
-          Chọn một mẫu thiết kế phù hợp với phong cách của bạn
+          Select a resume template that matches your style
         </p>
       </div>
 

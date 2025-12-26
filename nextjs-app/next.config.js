@@ -5,7 +5,7 @@ const nextConfig = {
     styledComponents: true,
   },
   images: {
-    domains: ['localhost'],
+    domains: ['localhost', 'good-resume.com', 'i.imgur.com', 'tuyendung3s.com'],
   },
   webpack: (config, { isServer, dev }) => {
     config.resolve.fallback = { fs: false, path: false };

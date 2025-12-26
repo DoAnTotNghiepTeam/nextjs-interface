@@ -51,10 +51,10 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 
 
-import FloatingChatWithEmployer from "@/components/FloatingChatWithEmployer";
-import type { FloatingChatHandle } from "@/components/FloatingChatWithEmployer";
+import MultiChatWidget from "@/components/MultiChatWidget";
 import { JobPostingResponseDTO, Resume } from "@/types/applicant";
 import { applicantService } from "@/features/applicants/services/applicant.service";
+import { initializeChatConversation } from "@/lib/chat-helper";
 
 
 export default function JobDetails2() {
@@ -159,6 +159,21 @@ const hours = Math.floor(minutes / 60);
       }
     })();
   }, [job?.employerId]);
+
+  // Initialize chat conversation when job and session are available
+  useEffect(() => {
+    if (job?.employerId && session?.user?.id) {
+      initializeChatConversation(
+        String(job.employerId),
+        session.user.id,
+        job.employer?.name || company?.companyName || job.employerName,
+        session?.user?.fullName ?? session?.user?.name
+      ).catch(error => {
+        console.error("Failed to initialize chat:", error);
+      });
+    }
+  }, [job?.employerId, session?.user?.id, company?.companyName, job?.employer?.name, job?.employerName, session?.user?.fullName, session?.user?.name]);
+
   return (
     <>
       <Layout>
@@ -600,16 +615,11 @@ const hours = Math.floor(minutes / 60);
             </div>
           </section>
         </div>
-      {/* Hiển thị chat nổi ở góc phải dưới nếu đã đăng nhập và có employerId */}
-      {job?.employerId && session?.user?.id && (
-        <FloatingChatWithEmployer
-          ref={chatRef}
-          employerId={String(job.employerId)}
+      {/* Hiển thị chat widget để chat với tất cả employers */}
+      {session?.user?.id && (
+        <MultiChatWidget
           applicantId={session.user.id}
-          // Only pass applicantName when the session actually contains it. If undefined, the chat component
-          // will avoid writing a placeholder into Firestore and the admin-side fallback can populate the real name.
           applicantName={session?.user?.fullName ?? session?.user?.name ?? undefined}
-          employerName={job.employer?.name || company?.companyName || job.employerName}
         />
       )}
     </Layout>

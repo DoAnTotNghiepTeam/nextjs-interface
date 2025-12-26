@@ -251,7 +251,8 @@ export function CVDashboard() {
               {/* Hiển thị ViewCv ở chế độ chỉ xem */}
               <ViewCv
                 data={previewResume}
-                template={(previewResume)?.template || "modern"}
+                template={previewResume?.template || "modern"}
+                customization={previewResume?.customization}
                 isCompact={false}
               />
             </div>

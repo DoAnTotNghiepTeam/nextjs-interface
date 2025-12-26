@@ -4,8 +4,10 @@
 // import { useState } from "react";
 import type { ResumeData } from "./resume-builder";
 import type { CustomizationOptions } from "./customization-panel";
+import { DEFAULT_CUSTOMIZATION } from "./customization-panel";
 import { ModernTemplate } from "./resume-templates/modern-template";
 import { ClassicTemplate } from "./resume-templates/classic-template";
+import { SidebarTemplate } from "./resume-templates/sidebar-template";
 // import { mapFormToApi, resumeApi } from "@/lib/api";
 
 interface viewCvProps {
@@ -18,10 +20,11 @@ interface viewCvProps {
 }
 
 const defaultCustomization: CustomizationOptions = {
-  font: "inter",
-  colorScheme: "blue",
-  spacing: "normal",
-  fontSize: "medium",
+  font: DEFAULT_CUSTOMIZATION.font,
+  colorScheme: DEFAULT_CUSTOMIZATION.colorScheme,
+  spacing: DEFAULT_CUSTOMIZATION.spacing,
+  fontSize: DEFAULT_CUSTOMIZATION.fontSize,
+  backgroundPattern: DEFAULT_CUSTOMIZATION.backgroundPattern,
 };
 
 export function ViewCv({
@@ -75,6 +78,14 @@ viewCvProps) {
       case "classic":
         return (
           <ClassicTemplate
+            data={data}
+            customization={customization}
+            isCompact={isCompact}
+          />
+        );
+      case "sidebar":
+        return (
+          <SidebarTemplate
             data={data}
             customization={customization}
             isCompact={isCompact}
