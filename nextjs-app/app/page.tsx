@@ -80,21 +80,30 @@ export default function Home() {
   return (
     <>
       <Layout>
-        <div className="bg-homepage1" />
-        <section className="section-box">
-          <div className="banner-hero hero-1">
+        <section className="section-box" style={{
+          position: 'relative',
+          minHeight: '700px',
+          backgroundImage: 'url(assets/imgs/page/homepage1/bannefull2.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          marginTop: 0,
+          paddingTop: '75px'
+        }}>
+          <div className="banner-hero hero-1" style={{ background: 'transparent' }}>
             <div className="banner-inner">
               <div className="row">
                 <div className="col-xl-8 col-lg-12">
                   <div className="block-banner">
-                    <h1 className="heading-banner wow animate__animated animate__fadeInUp">
-                      {t('App_Page.the')}<span className="color-brand-2">{t('App_Page.easiest-way')}</span>
+                    <h1 className="heading-banner wow animate__animated animate__fadeInUp" style={{ color: 'black', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
+                      {t('App_Page.the')}<span style={{ color: '#3C65F5' }}>{t('App_Page.easiest-way')}</span>
                       <br className="d-none d-lg-block" />
                       {t('App_Page.to-get-your-new-job')}
                     </h1>
                     <div
                       className="banner-description mt-20 wow animate__animated animate__fadeInUp"
                       data-wow-delay=".1s"
+                      style={{ color: 'black', textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}
                     >
                       {t('App_Page.each-month-more-than-3-million-job-seekers-turn-to')}{" "}
                       <br className="d-none d-lg-block" />
@@ -178,74 +187,10 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div className="col-xl-4 col-lg-12 d-none d-xl-block col-md-6">
-                  {/* Banner VIP logic: nếu có banner active thì thay thế block này */}
-                  {vipBanner ? (
-
-                    <div className="banner-imgs">
-                      <motion.div
-                        className="gradient-frame"
-                        initial={{ y: 0, x: 0 }}
-                        animate={{
-                          y: [0, -10, 0, 20, 0],
-                          x: [0, 10, 0, -10, 0]
-                        }}
-                        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                      >
-                        <div className="gradient-frame-inner">
-                          <motion.img
-                            src={vipBanner.bannerImage}
-                            alt={vipBanner.bannerTitle || "Banner"}
-                            style={{ width: "100%", borderRadius: "12px", maxHeight: "320px", objectFit: "contain" }}
-                            initial={{ y: 0, x: 0 }}
-                            animate={{
-                              y: [0, -20, 0, 30, 0],
-                              x: [0, 15, 0, -20, 0]
-                            }}
-                            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                          />
-                        </div>
-                      </motion.div>
-                    </div>
-
-                  ) : (
-                    <div className="banner-imgs">
-                      <div className="block-1 shape-1">
-                        <img
-                          className="img-responsive"
-                          alt="jobBox"
-                          src="assets/imgs/page/homepage1/banner1.png"
-                        />
-                      </div>
-                      <div className="block-2 shape-2">
-                        <img
-                          className="img-responsive"
-                          alt="jobBox"
-                          src="assets/imgs/page/homepage1/banner2.png"
-                        />
-                      </div>
-                      <div className="block-3 shape-3">
-                        <img
-                          className="img-responsive"
-                          alt="jobBox"
-                          src="assets/imgs/page/homepage1/icon-top-banner.png"
-                        />
-                      </div>
-                      <div className="block-4 shape-3">
-                        <img
-                          className="img-responsive"
-                          alt="jobBox"
-                          src="assets/imgs/page/homepage1/icon-bottom-banner.png"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           </div>
         </section>
-        <div className="mt-100" />
         <section className="section-box mt-80">
           <div className="section-box wow animate__animated animate__fadeIn">
             <div className="container">
@@ -405,16 +350,6 @@ export default function Home() {
                   </div>
                 ) : (
                   <div className="box-image-job">
-                    <img
-                      className="img-job-1"
-                      alt="jobBox"
-                      src="assets/imgs/page/homepage1/img-chart.png"
-                    />
-                    <img
-                      className="img-job-2"
-                      alt="jobBox"
-                      src="assets/imgs/page/homepage1/controlcard.png"
-                    />
                     <figure className="wow animate__animated animate__fadeIn">
                       <img
                         alt="jobBox"
