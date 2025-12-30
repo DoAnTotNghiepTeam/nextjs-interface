@@ -271,15 +271,6 @@ export default function Home() {
                   <br /> &amp; <span className="color-brand-1">Explore</span>{" "}
                   Opportunities
                 </div>
-                <div className="text-3">
-                  <div
-                    className="btn btn-apply btn-apply-icon"
-                    data-bs-toggle="modal"
-                    data-bs-target="#ModalApplyJobForm"
-                  >
-                    Apply now
-                  </div>
-                </div>
               </div>
             )}
           </div>

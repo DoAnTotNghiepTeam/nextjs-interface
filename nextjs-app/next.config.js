@@ -7,7 +7,27 @@ const nextConfig = {
     styledComponents: true,
   },
   images: {
-    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8080',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
+  // Proxy uploads từ frontend sang backend  ( chuyeenr sang để lấy dc ảnh avatart từ backend vì khác port)
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: 'http://localhost:8080/uploads/:path*',
+      },
+    ];
   },
   webpack: (config, { isServer, dev }) => {
     config.resolve.fallback = { fs: false, path: false };

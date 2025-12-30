@@ -517,7 +517,7 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                           style={{ listStyle: "none", padding: 0, margin: 0 }}
                         >
                           <li>
-                            <Link href="/page-account">
+                            <Link href="/page-management-account">
                               <span
                                 className="dropdown-link"
                                 style={{

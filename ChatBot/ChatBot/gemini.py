@@ -338,8 +338,13 @@ def ai_chatbot():
     if not API_KEY:
         return jsonify({"reply": "Lỗi cấu hình: Thiếu GEMINI_API_KEY trong .env."}), 500
 
-    MODEL = "gemini-2.0-flash"
-    URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={API_KEY}"
+    models_to_try = [
+        "gemini-2.5-flash",        
+        "gemini-flash-latest",      
+        "gemini-2.0-flash-lite",  
+        "gemini-2.0-flash",      
+        "gemini-pro-latest",     
+    ]
 
     parts = [{"text": turn.get("text", "")} for turn in history]
 
@@ -352,13 +357,26 @@ def ai_chatbot():
     payload = {"contents": [{"parts": parts}]}
     headers = {"Content-Type": "application/json"}
 
-    try:
-        resp = requests.post(URL, headers=headers, data=json.dumps(payload), timeout=10)
-        resp.raise_for_status()
-        result = resp.json()
-        reply = result["candidates"][0]["content"]["parts"][0]["text"]
-    except requests.exceptions.RequestException as e:
-        app.logger.error(f"API error: {e}")
+    reply = None
+    last_error = None
+
+    # Try each model in sequence until one succeeds
+    for MODEL in models_to_try:
+        try:
+            URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={API_KEY}"
+            resp = requests.post(URL, headers=headers, data=json.dumps(payload), timeout=10)
+            resp.raise_for_status()
+            result = resp.json()
+            reply = result["candidates"][0]["content"]["parts"][0]["text"]
+            print(f"[SUCCESS] Using model: {MODEL}")
+            break  # Success, exit the loop
+        except requests.exceptions.RequestException as e:
+            app.logger.warning(f"Model {MODEL} failed: {e}")
+            last_error = e
+            continue  # Try next model
+
+    if reply is None:
+        app.logger.error(f"All models failed. Last error: {last_error}")
         reply = "Xin lỗi, hệ thống đang gặp sự cố. Vui lòng thử lại sau."
 
     return jsonify({"reply": reply})

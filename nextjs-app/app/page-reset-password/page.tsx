@@ -1,9 +1,11 @@
 "use client"
 import Layout from "@/components/Layout/Layout";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Reset() {
+    const router = useRouter();
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
@@ -50,7 +52,10 @@ export default function Reset() {
                 body: JSON.stringify({ email, code, newPassword }),
             });
             if (res.ok) {
-                setMessage("Đổi mật khẩu thành công! Bạn có thể đăng nhập lại.");
+                setMessage("Đổi mật khẩu thành công! Vui lòng đăng nhập lại.");
+                setTimeout(() => {
+                    router.push('/');
+                }, 2000);
             } else {
                 setMessage("Mã xác nhận hoặc mật khẩu không hợp lệ.");
             }
