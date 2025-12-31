@@ -46,6 +46,7 @@ export default function ResumeDetailPage() {
       <ResumeCardItem
         data={resume}
         template={resume.template || "modern"}
+        customization={resume.customization}
         isCompact={false} // Hiển thị full size
       />
     </div>

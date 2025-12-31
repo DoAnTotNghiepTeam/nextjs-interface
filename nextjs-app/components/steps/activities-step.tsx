@@ -51,7 +51,7 @@ export function ActivitiesStep() {
       key={field.id}
     >
       <div className="card-header d-flex justify-content-between align-items-center">
-        <h6 className="mb-0">Activities {index + 1}</h6>
+        <h6 className="mb-0">Personal Projects {index + 1}</h6>
         <button
           type="button"
           className="btn btn-outline-danger btn-sm"
@@ -64,7 +64,7 @@ export function ActivitiesStep() {
         <div className="row g-3">
           <div className="col-md-6">
             <label htmlFor={`activityTitle-${index}`} className="form-label">
-              Activity Name *
+              Project Name *
             </label>
             <input
               type="text"
@@ -84,7 +84,7 @@ export function ActivitiesStep() {
 
           <div className="col-md-6">
             <label htmlFor={`organization-${index}`} className="form-label">
-              Organization *
+              Role *
             </label>
             <input
               type="text"
@@ -185,14 +185,14 @@ export function ActivitiesStep() {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div className="d-flex align-items-center gap-2">
           <Users size={20} />
-          <h5 className="mb-0">Activities</h5>
+          <h5 className="mb-0">Personal Projects</h5>
         </div>
         <button
           type="button"
           onClick={addActivity}
           className="btn btn-primary d-flex align-items-center gap-1"
         >
-          <Plus size={16} /> Add Activity
+          <Plus size={16} /> Add Project
         </button>
       </div>
 
@@ -216,7 +216,7 @@ export function ActivitiesStep() {
       {fields.length > 0 && (
         <div>
           <div className="alert alert-secondary text-center mb-3">
-            💡 Drag and drop to reorder activities
+            💡 Drag and drop to reorder projects
           </div>
           <DragDropList
             items={fields}

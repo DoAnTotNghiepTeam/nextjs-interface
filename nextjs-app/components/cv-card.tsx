@@ -44,7 +44,8 @@ export function CVCard({ resume, onEdit, onDelete, onPreview }: CVCardProps) {
         <div className={styles.previewWrapper}>
           <ResumeCardItem
             data={resume}
-            template={(resume)?.template || "modern"}
+            template={resume?.template || "modern"}
+            customization={resume?.customization}
             // isCompact
           />
         </div>

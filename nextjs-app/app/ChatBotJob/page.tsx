@@ -28,7 +28,21 @@ export default function JobChatBot({ isOpen, setIsOpen }: JobChatBotProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [showTyping, setShowTyping] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  // Auto-resize textarea
+  const adjustTextareaHeight = () => {
+    const textarea = inputRef.current
+    if (textarea) {
+      textarea.style.height = "20px" // Reset to minHeight first
+      const scrollHeight = textarea.scrollHeight
+      textarea.style.height = `${Math.min(scrollHeight, 150)}px`
+    }
+  }
+
+  useEffect(() => {
+    adjustTextareaHeight()
+  }, [input])
 
   // paste ảnh từ clipboard
   useEffect(() => {
@@ -166,7 +180,7 @@ export default function JobChatBot({ isOpen, setIsOpen }: JobChatBotProps) {
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
       sendMessage()
@@ -686,13 +700,11 @@ export default function JobChatBot({ isOpen, setIsOpen }: JobChatBotProps) {
                 </div>
               )}
               <textarea
-                ref={inputRef as any}
+                ref={inputRef}
                 value={input}
                 onChange={(e) => {
                   setInput(e.target.value)
-                  // Auto-resize textarea
-                  e.target.style.height = "auto"
-                  e.target.style.height = e.target.scrollHeight + "px"
+                  setTimeout(() => adjustTextareaHeight(), 0)
                 }}
                 onKeyDown={handleKeyDown as any}
                 placeholder="Nhập câu hỏi về việc làm..."
@@ -700,16 +712,18 @@ export default function JobChatBot({ isOpen, setIsOpen }: JobChatBotProps) {
                   flex: 1,
                   border: "none",
                   outline: "none",
-                  fontSize: 15,
+                  fontSize: 11,
                   minWidth: 0,
                   resize: "none",
-                  minHeight: 24,
-                  maxHeight: 120,
-                  lineHeight: 1.5,
+                  minHeight: 20,
+                  maxHeight: 150,
+                  lineHeight: 1.4,
                   padding: 0,
                   fontFamily: "inherit",
                   color: "#1e293b",
-                  overflow: "hidden",
+                  overflowY: "auto",
+                  overflowX: "hidden",
+                  wordBreak: "break-word",
                 }}
                 disabled={loading}
                 rows={1}

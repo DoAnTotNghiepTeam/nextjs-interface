@@ -1,0 +1,579 @@
+/* Professional Template - Layout giống mẫu ảnh */
+
+.professionalResumeRoot {
+  display: flex;
+  flex-direction: column;
+  min-height: 297mm;
+  max-width: 100%;
+  background: white;
+  font-family: var(--font-family, "Inter", Arial, sans-serif);
+  font-size: calc(9pt * var(--font-size-multiplier, 1));
+  line-height: 1.5;
+  color: #333;
+  overflow-x: hidden;
+  
+  /* Default color variables */
+  --header-bg: #5eb3b3;
+  --accent-color: #5eb3b3;
+  --sidebar-bg: rgba(94, 179, 179, 0.15);
+}
+
+/* Compact preview mode with zoom */
+.professionalCompact {
+  zoom: 0.45;
+  width: 100%;
+  height: 100%;
+  min-height: auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.professionalCompact .professionalResumeRoot {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+}
+
+/* Top block - gộp header + objective */
+.professionalTopBlock {
+  position: relative;
+  background: var(--header-bg, #5eb3b3);
+  padding-right: 160px;
+}
+
+/* Header ngang - tên và ảnh */
+.professionalHeader {
+  display: flex;
+  align-items: center;
+  min-height: 85px;
+  background: transparent;
+}
+
+.professionalHeaderLeft {
+  flex: 1;
+  padding: calc(1.5rem * var(--spacing-multiplier, 1)) calc(1.8rem * var(--spacing-multiplier, 1));
+  padding-bottom: calc(0.8rem * var(--spacing-multiplier, 1));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.professionalName {
+  font-size: calc(16pt * var(--font-size-multiplier, 1));
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  letter-spacing: 1px;
+  line-height: 1.2;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professionalJobTitle {
+  font-size: calc(7pt * var(--font-size-multiplier, 1));
+  color: white;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.professionalAvatarWrapper {
+  position: absolute;
+  top: 50%;
+  right: 30px;
+  transform: translateY(-50%);
+  background: white;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.professionalAvatar {
+  width: 100px;
+  height: 120px;
+  border: 3px solid var(--header-bg, #5eb3b3);
+  border-radius: 0;
+  object-fit: cover;
+}
+
+/* Section mục tiêu nghề nghiệp */
+.professionalObjective {
+  padding: calc(0.3rem * var(--spacing-multiplier, 1)) calc(1.8rem * var(--spacing-multiplier, 1)) calc(1.5rem * var(--spacing-multiplier, 1));
+  background: transparent;
+  margin-top: 0;
+}
+
+.professionalObjectiveTitle {
+  font-size: calc(9pt * var(--font-size-multiplier, 1));
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.professionalObjectiveText {
+  font-size: calc(8pt * var(--font-size-multiplier, 1));
+  line-height: 1.6;
+  color: white;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* 3 icon thông tin */
+.professionalInfoRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: calc(1rem * var(--spacing-multiplier, 1)) calc(1.2rem * var(--spacing-multiplier, 1));
+  background: var(--sidebar-bg, rgba(94, 179, 179, 0.15));
+  border-bottom: none;
+}
+
+.professionalInfoItem {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.professionalInfoIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-color, #5eb3b3);
+  color: white;
+  font-size: calc(18pt * var(--font-size-multiplier, 1));
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.professionalInfoLabel {
+  font-size: calc(8pt * var(--font-size-multiplier, 1));
+  color: #888;
+  text-transform: uppercase;
+}
+
+.professionalInfoValue {
+  font-size: calc(9pt * var(--font-size-multiplier, 1));
+  font-weight: 600;
+  color: #333;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Content container - 2 cột */
+.professionalContent {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Cột trái - trắng */
+.professionalLeftColumn {
+  flex: 1;
+  min-width: 0;
+  padding: calc(1.5rem * var(--spacing-multiplier, 1)) calc(2.5rem * var(--spacing-multiplier, 1));
+  background: white;
+  overflow-wrap: break-word;
+}
+
+/* Cột phải - màu xanh nhạt */
+.professionalRightColumn {
+  width: 40%;
+  min-width: 0;
+  padding: calc(1.5rem * var(--spacing-multiplier, 1)) calc(2rem * var(--spacing-multiplier, 1));
+  background: var(--sidebar-bg, rgba(94, 179, 179, 0.1));
+  overflow-wrap: break-word;
+}
+
+.professionalSection {
+  margin-bottom: calc(2rem * var(--spacing-multiplier, 1));
+}
+
+/* Main titles - cho cột trái */
+.professionalMainTitle {
+  font-size: calc(12pt * var(--font-size-multiplier, 1));
+  font-weight: 700;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid var(--accent-color, #5eb3b3);
+}
+
+/* Sidebar titles - cho cột phải */
+.professionalSidebarTitle {
+  font-size: calc(11pt * var(--font-size-multiplier, 1));
+  font-weight: 700;
+  color: var(--accent-color, #5eb3b3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--accent-color, #5eb3b3);
+}
+
+/* Education items */
+.professionalEduItem {
+  display: flex;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.professionalEduBullet {
+  color: var(--accent-color, #5eb3b3);
+  font-size: calc(14pt * var(--font-size-multiplier, 1));
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.professionalEduContent {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professionalEduHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.3rem;
+}
+
+.professionalEduLeft {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professionalEduDegree {
+  font-weight: 700;
+  font-size: calc(10pt * var(--font-size-multiplier, 1));
+  color: #333;
+  margin-bottom: 0.2rem;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professionalEduInstitution {
+  font-size: calc(9pt * var(--font-size-multiplier, 1));
+  color: #666;
+  font-style: italic;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professionalEduDate {
+  font-size: calc(8.5pt * var(--font-size-multiplier, 1));
+  color: #888;
+  white-space: nowrap;
+}
+
+.professionalEduGpa {
+  font-size: calc(8.5pt * var(--font-size-multiplier, 1));
+  color: #666;
+  margin-top: 0.2rem;
+}
+
+.professionalEduDesc {
+  font-size: calc(8.5pt * var(--font-size-multiplier, 1));
+  color: #555;
+  margin-top: 0.3rem;
+  line-height: 1.6;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Experience items */
+.professionalExpItem {
+  display: flex;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.professionalExpBullet {
+  color: var(--accent-color, #5eb3b3);
+  font-size: calc(14pt * var(--font-size-multiplier, 1));
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.professionalExpContent {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professionalExpHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.professionalExpLeft {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professionalExpPosition {
+  font-weight: 700;
+  font-size: calc(10pt * var(--font-size-multiplier, 1));
+  color: #333;
+  margin-bottom: 0.2rem;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professionalExpCompany {
+  font-size: calc(9pt * var(--font-size-multiplier, 1));
+  color: #666;
+  font-style: italic;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.professionalExpDate {
+  font-size: calc(8.5pt * var(--font-size-multiplier, 1));
+  color: #888;
+  white-space: nowrap;
+}
+
+.professionalExpList {
+  margin: 0.5rem 0 0 1rem;
+  padding: 0;
+  list-style-type: disc;
+}
+
+.professionalExpList li {
+  font-size: calc(8.5pt * var(--font-size-multiplier, 1));
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 0.3rem;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Awards - Danh hiệu & giải thưởng */
+.professionalAwardItem {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(94, 179, 179, 0.2);
+}
+
+.professionalAwardItem:last-child {
+  border-bottom: none;
+}
+
+.professionalAwardYear {
+  font-weight: 700;
+  font-size: calc(10pt * var(--font-size-multiplier, 1));
+  color: var(--accent-color, #5eb3b3);
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.professionalAwardContent {
+  flex: 1;
+}
+
+.professionalAwardTitle {
+  font-weight: 600;
+  font-size: calc(9.5pt * var(--font-size-multiplier, 1));
+  color: #333;
+  margin-bottom: 0.3rem;
+}
+
+.professionalAwardDesc {
+  font-size: calc(8.5pt * var(--font-size-multiplier, 1));
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Certifications - Chứng chỉ */
+.professionalCertItem {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.professionalCertBullet {
+  color: var(--accent-color, #5eb3b3);
+  font-size: calc(12pt * var(--font-size-multiplier, 1));
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.professionalCertContent {
+  flex: 1;
+}
+
+.professionalCertName {
+  font-weight: 600;
+  font-size: calc(9pt * var(--font-size-multiplier, 1));
+  color: #333;
+  margin-bottom: 0.2rem;
+}
+
+.professionalCertIssuer {
+  font-size: calc(8.5pt * var(--font-size-multiplier, 1));
+  color: #666;
+}
+
+/* Skills - Kỹ năng */
+.professionalSkillList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.professionalSkillItem {
+  font-size: calc(9pt * var(--font-size-multiplier, 1));
+  color: #333;
+  margin-bottom: 0.6rem;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.professionalSkillItem:before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: var(--accent-color, #5eb3b3);
+  font-weight: 700;
+}
+
+.professionalSkillName {
+  font-weight: 600;
+}
+
+.professionalSkillLevel {
+  color: #666;
+  font-weight: 400;
+}
+
+/* Languages - Ngôn ngữ */
+.professionalLanguageList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.professionalLanguageItem {
+  font-size: calc(9pt * var(--font-size-multiplier, 1));
+  color: #333;
+  margin-bottom: 0.6rem;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.professionalLanguageItem:before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: var(--accent-color, #5eb3b3);
+  font-weight: 700;
+}
+
+.professionalLanguageName {
+  font-weight: 600;
+}
+
+.professionalLanguageLevel {
+  color: #666;
+  font-weight: 400;
+}
+
+/* Contact list trong sidebar phải */
+.professionalContactList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.professionalContactItem {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: calc(8.5pt * var(--font-size-multiplier, 1));
+  color: #333;
+}
+
+.contactIcon {
+  font-size: calc(14pt * var(--font-size-multiplier, 1));
+  flex-shrink: 0;
+}
+
+.professionalContactText {
+  word-break: break-word;
+}
+
+/* Color schemes */
+.colorSchemeBlue {
+  --header-bg: #5eb3b3;
+  --accent-color: #5eb3b3;
+  --sidebar-bg: rgba(94, 179, 179, 0.15);
+}
+
+.colorSchemeGreen {
+  --header-bg: #27ae60;
+  --accent-color: #27ae60;
+  --sidebar-bg: rgba(39, 174, 96, 0.1);
+}
+
+.colorSchemePurple {
+  --header-bg: #8e44ad;
+  --accent-color: #8e44ad;
+  --sidebar-bg: rgba(142, 68, 173, 0.1);
+}
+
+.colorSchemeRed {
+  --header-bg: #c0392b;
+  --accent-color: #c0392b;
+  --sidebar-bg: rgba(192, 57, 43, 0.1);
+}
+
+.colorSchemeOrange {
+  --header-bg: #d35400;
+  --accent-color: #d35400;
+  --sidebar-bg: rgba(211, 84, 0, 0.1);
+}
+
+.colorSchemeGray {
+  --header-bg: #34495e;
+  --accent-color: #34495e;
+  --sidebar-bg: rgba(52, 73, 94, 0.1);
+}
+
+/* Print styles */
+@media print {
+  .professionalResumeRoot {
+    min-height: auto;
+  }
+  
+  .professionalHeader,
+  .professionalRightColumn {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

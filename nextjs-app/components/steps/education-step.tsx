@@ -187,7 +187,6 @@ export function EducationStep() {
               id={`gpa-${index}`}
               className="form-control"
               {...register(`education.${index}.gpa`, {
-                required: "Please enter GPA",
                 validate: (value) => {
                   if (value === "" || value === undefined) return true;
                   const num = parseFloat(value);

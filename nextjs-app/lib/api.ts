@@ -33,6 +33,14 @@ export interface ApiResumeData {
   resumeLink?: string;
   jobTitle: string;
   template: string;
+  customization?: {
+    font?: string;
+    colorScheme?: string;
+    customColor?: string;
+    spacing?: number;
+    fontSize?: number;
+    backgroundPattern?: string;
+  };
   educations: Array<{
     schoolName: string;
     degree: string;
@@ -65,7 +73,10 @@ export interface ApiResumeData {
 }
 
 export function mapFormToApi(formData: any): ApiResumeData {
-  return {
+  console.log("[mapFormToApi] Input formData:", formData);
+  console.log("[mapFormToApi] Customization from formData:", formData.customization);
+  
+  const result = {
     fullName: formData.personalInfo?.fullName || "",
     email: formData.personalInfo?.email || "",
     phone: formData.personalInfo?.phone || "",
@@ -73,19 +84,27 @@ export function mapFormToApi(formData: any): ApiResumeData {
     summary: formData.personalInfo?.summary || "",
     jobTitle: formData.personalInfo?.jobTitle || "",
     template: formData.template || "modern",
+    customization: formData.customization ? {
+      font: formData.customization.font,
+      colorScheme: formData.customization.colorScheme,
+      customColor: formData.customization.customColor,
+      spacing: formData.customization.spacing,
+      fontSize: formData.customization.fontSize,
+      backgroundPattern: formData.customization.backgroundPattern,
+    } : undefined,
     educations: (formData.education || []).map((edu: any) => ({
       schoolName: edu.institution || "",
       degree: edu.degree || "",
       major: edu.field || "",
       startYear: edu.startDate || "",
       endYear: edu.endDate || "",
-      GPA: edu.gpa || "",
+      gpa: edu.gpa ? String(edu.gpa) : "",
     })),
 
     awards: (formData.awards || []).map((award: any) => ({
       awardName: award.title || "",
-      // Chỉ lấy năm (YYYY) từ chuỗi "YYYY-MM" để gửi lên backend dạng số hoặc chuỗi năm
-      awardYear: award.date ? parseInt(award.date.slice(0, 4)) : null,
+      // Backend expects date string format "YYYY-MM-DD"
+      awardYear: award.date || "",
       donViTrao: award.issuer || "",
       description: award.description || "",
     })),
@@ -105,6 +124,11 @@ export function mapFormToApi(formData: any): ApiResumeData {
     })),
     skillsResumes: formData.skills || [],
   };
+  
+  console.log("[mapFormToApi] Output API data:", result);
+  console.log("[mapFormToApi] Customization in output:", result.customization);
+  
+  return result;
 }
 
 export function mapApiToForm(apiData: ApiResumeData & { id?: number }): any {
@@ -124,12 +148,12 @@ export function mapApiToForm(apiData: ApiResumeData & { id?: number }): any {
       field: edu.major,
       startDate: edu.startYear,
       endDate: edu.endYear,
-      gpa: edu.GPA,
+      gpa: edu.gpa,
     })),
     awards: apiData.awards.map((award) => ({
       title: award.awardName,
-      // Convert awardYear (number or string) to 'YYYY-MM' string for form field compatibility
-      date: award.awardYear ? `${award.awardYear}-01` : "",
+      // Backend returns date string in format "YYYY-MM-DD", use as-is
+      date: award.awardYear || "",
       issuer: award.donViTrao,
       description: award.description,
     })),
@@ -149,6 +173,7 @@ export function mapApiToForm(apiData: ApiResumeData & { id?: number }): any {
     })),
     skills: apiData.skillsResumes,
     template: apiData.template,
+    customization: apiData.customization || undefined,
     resumeLink: apiData.resumeLink,
   };
 }
@@ -182,6 +207,9 @@ export const resumeApi = {
 },
 
   saveMyResume: async (data: ApiResumeData): Promise<any> => {
+    console.log("[saveMyResume] Sending data to backend:", data);
+    console.log("[saveMyResume] Customization being sent:", data.customization);
+    
     const session = await getSession();
     const accessToken = session?.accessToken;
     const response = await api.post("/api/resumes/me", data, {
@@ -189,10 +217,16 @@ export const resumeApi = {
         Authorization: `Bearer ${accessToken}`,
       },
     });
+    
+    console.log("[saveMyResume] Response from backend:", response.data);
     return response.data;
   },
 
   updateMyResume: async (id: number, data: ApiResumeData): Promise<any> => {
+    console.log("[updateMyResume] Updating resume ID:", id);
+    console.log("[updateMyResume] Sending data to backend:", data);
+    console.log("[updateMyResume] Customization being sent:", data.customization);
+    
     const session = await getSession();
     const accessToken = session?.accessToken;
     const response = await api.patch(`/api/resumes/me/${id}`, data, {
@@ -200,6 +234,8 @@ export const resumeApi = {
         Authorization: `Bearer ${accessToken}`,
       },
     });
+    
+    console.log("[updateMyResume] Response from backend:", response.data);
     return response.data;
   },
 

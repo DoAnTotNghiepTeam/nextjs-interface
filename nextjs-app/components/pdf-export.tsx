@@ -199,8 +199,8 @@ export async function exportResumeToPDF(
   customization: CustomizationOptions = {
     font: "inter",
     colorScheme: "blue",
-    spacing: "normal",
-    fontSize: "medium",
+    spacing: 1.5,
+    fontSize: 4,
   }
 ) {
   return new Promise<void>((resolve, reject) => {

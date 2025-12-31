@@ -5,6 +5,8 @@ import type { ResumeData } from "./resume-builder";
 import type { CustomizationOptions } from "./customization-panel";
 import { ModernTemplate } from "./resume-templates/modern-template";
 import { ClassicTemplate } from "./resume-templates/classic-template";
+import { SidebarTemplate } from "./resume-templates/sidebar-template";
+import { ProfessionalTemplate } from "./resume-templates/professional-template";
 
 interface PrintableResumeProps {
   data: ResumeData;
@@ -18,6 +20,10 @@ export const PrintableResume = forwardRef<HTMLDivElement, PrintableResumeProps>(
       const tpl = (template || "modern").toLowerCase();
       const normalized = tpl.includes("classic")
         ? "classic"
+        : tpl.includes("sidebar")
+        ? "sidebar"
+        : tpl.includes("professional")
+        ? "professional"
         : tpl.includes("modern")
         ? "modern"
         : "modern";
@@ -25,6 +31,22 @@ export const PrintableResume = forwardRef<HTMLDivElement, PrintableResumeProps>(
         case "classic":
           return (
             <ClassicTemplate
+              data={data}
+              customization={customization}
+              isCompact={false}
+            />
+          );
+        case "sidebar":
+          return (
+            <SidebarTemplate
+              data={data}
+              customization={customization}
+              isCompact={false}
+            />
+          );
+        case "professional":
+          return (
+            <ProfessionalTemplate
               data={data}
               customization={customization}
               isCompact={false}

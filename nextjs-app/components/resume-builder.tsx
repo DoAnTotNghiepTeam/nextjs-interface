@@ -35,6 +35,7 @@ import { TemplateSelector } from "./template-selector";
 import {
   CustomizationPanel,
   type CustomizationOptions,
+  DEFAULT_CUSTOMIZATION,
 } from "./customization-panel";
 import { PDFExport } from "./pdf-export";
 import { useToast } from "@/hooks/use-toast";
@@ -54,6 +55,14 @@ export interface ResumeData {
     // profileImage?: string;
     profilePicture?: string;
   };
+  customization?: {
+    font?: string;
+    colorScheme?: string;
+    customColor?: string;
+    spacing?: number;
+    fontSize?: number;
+    backgroundPattern?: string;
+  };
   experience: Array<{
     id: string;
     company: string;
@@ -69,7 +78,7 @@ export interface ResumeData {
     field: string;
     startDate: string;
     endDate: string;
-    gpa?: string;
+    GPA?: string;
   }>;
   skills: Array<string>; // Simplified to array of strings, removed level and category
   activities: Array<{
@@ -88,6 +97,7 @@ export interface ResumeData {
     description: string;
   }>;
 }
+
 interface MobileSidebarProps {
   currentStep: number;
   completedSteps: number[];
@@ -156,11 +166,18 @@ export function ResumeBuilder({ onBack, onSave }: ResumeBuilderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [customization, setCustomization] = useState<CustomizationOptions>({
-    font: "inter",
-    colorScheme: "blue",
-    spacing: "normal",
-    fontSize: "medium",
+    font: DEFAULT_CUSTOMIZATION.font,
+    colorScheme: DEFAULT_CUSTOMIZATION.colorScheme,
+    spacing: DEFAULT_CUSTOMIZATION.spacing,
+    fontSize: DEFAULT_CUSTOMIZATION.fontSize,
+    backgroundPattern: DEFAULT_CUSTOMIZATION.backgroundPattern,
   });
+  
+  // Debug: Log customization whenever it changes
+  useEffect(() => {
+    console.log("[CUSTOMIZATION STATE CHANGED]:", customization);
+  }, [customization]);
+  
   const { toast } = useToast();
 
   const methods = useForm<ResumeData>({
@@ -173,6 +190,14 @@ export function ResumeBuilder({ onBack, onSave }: ResumeBuilderProps) {
         jobTitle: "", // Changed from address to jobTitle
         summary: "",
       },
+      customization: {
+    font: "",
+    colorScheme: "",
+    customColor: "",
+    spacing: 1.5,
+    fontSize: 4,
+    backgroundPattern: "",
+  },
       experience: [],
       education: [],
       skills: [], // Changed to simple array
@@ -185,8 +210,21 @@ export function ResumeBuilder({ onBack, onSave }: ResumeBuilderProps) {
     handleSubmit,
     trigger,
     watch,
+    setValue,
     formState: { errors },
   } = methods;
+
+  // Sync customization state with form
+  useEffect(() => {
+    if (customization) {
+      setValue('customization', customization);
+    }
+  }, [customization, setValue]);
+
+  // Sync template with form
+  useEffect(() => {
+    setValue('template', selectedTemplate);
+  }, [selectedTemplate, setValue]);
 
   const autoSave = async () => {
     // Đã xóa logic autoSave với localStorage
@@ -276,10 +314,21 @@ export function ResumeBuilder({ onBack, onSave }: ResumeBuilderProps) {
   // Thêm import ở đầu file nếu chưa có:
   // import { resumeApi } from "@/lib/api";
   const onSubmit = async (data: ResumeData) => {
-    // Gán template đã chọn vào data
-    console.log("[DEBUG] selectedTemplate khi submit:", selectedTemplate);
-    const dataWithTemplate = { ...data, template: selectedTemplate };
-    const apiData = mapFormToApi(dataWithTemplate);
+    console.log("\n========== SUBMIT DEBUG START ==========");
+    console.log("[1] Data from form:", JSON.stringify(data, null, 2));
+    console.log("[2] Data has customization?:", data.customization);
+    console.log("[3] Data has template?:", data.template);
+    console.log("========== SUBMIT DEBUG END ==========\n");
+    
+    // Ensure customization and template are set (should already be from useEffect)
+    if (!data.customization) {
+      data.customization = customization || DEFAULT_CUSTOMIZATION;
+    }
+    if (!data.template) {
+      data.template = selectedTemplate || 'modern';
+    }
+    
+    const apiData = mapFormToApi(data);
     try {
       await resumeApi.saveMyResume(apiData);
       toast({
@@ -288,7 +337,7 @@ export function ResumeBuilder({ onBack, onSave }: ResumeBuilderProps) {
         variant: "default",
       });
       setShowPreview(true);
-      if (onSave) onSave(dataWithTemplate);
+      if (onSave) onSave(dataWithTemplateAndCustomization);
     } catch (error) {
       console.error("Error saving CV:", error);
       toast({

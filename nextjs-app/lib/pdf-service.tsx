@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { PrintableResume } from '@/components/printable-resume';
 import type { ResumeData } from '@/components/resume-builder';
 import type { CustomizationOptions } from '@/components/customization-panel';
+import { DEFAULT_CUSTOMIZATION } from '@/components/customization-panel';
 
 export interface PDFGenerationResult {
   blob: Blob;
@@ -23,10 +24,11 @@ export class PDFService {
     data: ResumeData,
     template: string = 'modern',
     customization: CustomizationOptions = {
-      font: 'inter',
-      colorScheme: 'blue',
-      spacing: 'normal',
-      fontSize: 'medium',
+      font: DEFAULT_CUSTOMIZATION.font,
+      colorScheme: DEFAULT_CUSTOMIZATION.colorScheme,
+      spacing: DEFAULT_CUSTOMIZATION.spacing,
+      fontSize: DEFAULT_CUSTOMIZATION.fontSize,
+      backgroundPattern: DEFAULT_CUSTOMIZATION.backgroundPattern,
     }
   ): Promise<PDFGenerationResult> {
     return new Promise((resolve, reject) => {
