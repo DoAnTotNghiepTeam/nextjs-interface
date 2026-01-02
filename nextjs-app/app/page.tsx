@@ -29,41 +29,64 @@ export default function Home() {
 
   useEffect(() => {
     const API_URL = process.env.NEXT_PUBLIC_API_URL_BANNER || "http://localhost:8080";
+    
+    console.log('🔥 Fetching banners from:', API_URL);
+    
     // VIP Banner
     fetch(`${API_URL}/api/banners/active?bannerType=Vip`)
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setVipBanner(data[0]);
+        console.log('✅ VIP Banner Response:', data);
+        // Handle both Array and Object response
+        const banner = Array.isArray(data) ? data[0] : data;
+        if (banner && banner.bannerImage) {
+          setVipBanner(banner);
+          console.log('✅ VIP Banner Set:', banner);
         } else {
           setVipBanner(null);
+          console.log('❌ VIP Banner: No data');
         }
       })
-      .catch(() => setVipBanner(null));
+      .catch((err) => {
+        console.error('❌ VIP Banner Error:', err);
+        setVipBanner(null);
+      });
 
     // Featured Banner
     fetch(`${API_URL}/api/banners/active?bannerType=Featured`)
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setFeaturedBanner(data[0]);
+        console.log('✅ Featured Banner Response:', data);
+        const banner = Array.isArray(data) ? data[0] : data;
+        if (banner && banner.bannerImage) {
+          setFeaturedBanner(banner);
+          console.log('✅ Featured Set:', banner);
         } else {
           setFeaturedBanner(null);
         }
       })
-      .catch(() => setFeaturedBanner(null));
+      .catch((err) => {
+        console.error('❌ Featured Banner Error:', err);
+        setFeaturedBanner(null);
+      });
 
     // Standard Banner
     fetch(`${API_URL}/api/banners/active?bannerType=Standard`)
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setStandardBanner(data[0]);
+        console.log('✅ Standard Banner Response:', data);
+        const banner = Array.isArray(data) ? data[0] : data;
+        if (banner && banner.bannerImage) {
+          setStandardBanner(banner);
+          console.log('✅ Standard Set:', banner);
         } else {
           setStandardBanner(null);
         }
       })
-      .catch(() => setStandardBanner(null));
+      .catch((err) => {
+        console.error('❌ Standard Banner Error:', err);
+        setStandardBanner(null);
+      });
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -77,21 +100,34 @@ export default function Home() {
 
   const t = useTranslations();
 
+  console.log('🎨 Render - VIP Banner:', vipBanner);
+  console.log('🎨 Render - Featured Banner:', featuredBanner);
+  console.log('🎨 Render - Standard Banner:', standardBanner);
+
   return (
     <>
       <Layout>
-        <section className="section-box" style={{
-          position: 'relative',
+        {/*  đây là vị trí thuê banner 1 : banner loại vip */}
+        <div style={{
+          background: vipBanner 
+            ? `url("${vipBanner.bannerImage}") center/cover no-repeat` 
+            : 'url("assets/imgs/page/homepage1/bannefull2.png") center/cover no-repeat',
           minHeight: '700px',
-          backgroundImage: 'url(assets/imgs/page/homepage1/bannefull2.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          marginTop: 0,
-          paddingTop: '75px'
+          width: '100%'
         }}>
-          <div className="banner-hero hero-1" style={{ background: 'transparent' }}>
-            <div className="banner-inner">
+          <section className="section-box" style={{
+            background: 'transparent',
+            marginTop: 0,
+            paddingTop: '75px'
+          }}>
+            {/* Debug info */}
+            {vipBanner && (
+              <div style={{position: 'absolute', top: 10, right: 10, background: 'rgba(0,255,0,0.8)', color: 'black', padding: '5px 10px', fontSize: '12px', zIndex: 9999}}>
+                VIP ACTIVE: {vipBanner.companyName}
+              </div>
+            )}
+            <div className="banner-hero hero-1" style={{ background: 'transparent' }}>
+            <div className="banner-inner" style={{ background: 'none' }}>
               <div className="row">
                 <div className="col-xl-8 col-lg-12">
                   <div className="block-banner">
@@ -191,6 +227,7 @@ export default function Home() {
             </div>
           </div>
         </section>
+        </div>
         <section className="section-box mt-80">
           <div className="section-box wow animate__animated animate__fadeIn">
             <div className="container">
@@ -211,68 +248,22 @@ export default function Home() {
         </section>
         <div className="section-box mb-30">
           <div className="container">
-            {featuredBanner ? (
-              <div className="featured-banner" style={{
-                position: 'relative',
-                width: '100%',
-                backgroundImage: `url(${featuredBanner.bannerImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                borderRadius: 16,
-                color: '#fff',
-                display: 'flex',
-                // flexDirection: 'row',
-                justifyContent: 'center',
-                padding: '41px 0px',
-                boxSizing: 'border-box',
-              }}>
-                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', maxWidth: 500 }}>
-
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 4 }}>WE ARE</div>
-                    <div style={{ fontWeight: 900, fontSize: 36, marginBottom: 4 }}>HIRING</div>
-                  </div>
-
-                  <div style={{ fontSize: 18, marginBottom: 4, marginLeft: 16 }}>
-                    Let’s <span style={{ color: '#ffd600', fontWeight: 700 }}>Work</span> Together<br />
-                    &amp; <span style={{ color: '#ffd600', fontWeight: 700 }}>Explore</span> Opportunities
-                  </div>
-                </div>
-                <a
-                  href={featuredBanner.bannerLink || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    position: 'absolute',
-                    right: 48,
-                    bottom: 43,
-                    fontSize: 20,
-                    padding: '14px 32px',
-                    background: '#2563eb',
-                    color: '#fff',
-                    borderRadius: 12,
-                    fontWeight: 700,
-                    textDecoration: 'none',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-                  }}
-                >
-                  Apply now
-                </a>
+            {/* đây là vị trí thuê banner 2 : banner loại featured */}
+            <div className="box-we-hiring" style={{
+              backgroundImage: featuredBanner ? `url("${featuredBanner.bannerImage}")` : undefined,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}>
+              <div className="text-1">
+                <span className="text-we-are">We are</span>
+                <span className="text-hiring">Hiring</span>
               </div>
-
-            ) : (
-              <div className="box-we-hiring">
-                <div className="text-1">
-                  <span className="text-we-are">We are</span>
-                  <span className="text-hiring">Hiring</span>
-                </div>
-                <div className="text-2">
-                  Let’s <span className="color-brand-1">Work</span> Together
-                  <br /> &amp; <span className="color-brand-1">Explore</span>{" "}
-                  Opportunities
-                </div>
+              <div className="text-2">
+                Let's <span className="color-brand-1">Work</span> Together
+                <br /> &amp; <span className="color-brand-1">Explore</span>{" "}
+                Opportunities
               </div>
-            )}
+            </div>
           </div>
         </div>
         <section className="section-box mt-50">
@@ -309,35 +300,51 @@ export default function Home() {
           <div className="container">
             <div className="row">
               <div className="col-lg-6 col-sm-12">
-                {/* Banner Standard logic: nếu có banner active thì thay thế block này */}
+                 {/*  đây là vị trí thuê banner 3 : banner loại mặc định lại thường standard  */}
                 {standardBanner ? (
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '77%',
-                    minHeight: '320px',
-                    maxHeight: '320px',
-                    background: '#fff',
-                    borderRadius: '16px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                    padding: 0,
-                    overflow: 'hidden',
-                    border: '6px solid #7c3aed',
-                    marginTop: '48px',
-                  }}>
+                  <div 
+                    style={{
+                      position: 'relative',
+                      width: '100%',
+                      maxWidth: '550px',
+                      height: '380px',
+                      borderRadius: '16px',
+                      overflow: 'hidden',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                      cursor: 'pointer',
+                      marginBottom: '30px'
+                    }}
+                    onClick={() => {
+                      if (standardBanner.bannerLink) {
+                        window.open(standardBanner.bannerLink, '_blank');
+                      }
+                    }}
+                  >
                     <img
                       src={standardBanner.bannerImage}
-                      alt={standardBanner.bannerTitle || "Banner"}
+                      alt={standardBanner.companyName || "Standard Banner"}
                       style={{
                         width: '100%',
-                        height: '320px',
+                        height: '100%',
                         objectFit: 'cover',
-                        margin: 0,
-                        display: 'block',
-                        borderRadius: 0,
+                        display: 'block'
                       }}
                     />
+                    {standardBanner.companyName && (
+                      <div style={{
+                        position: 'absolute',
+                        bottom: 16,
+                        left: 16,
+                        background: 'rgba(0,0,0,0.7)',
+                        color: '#fff',
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: 600
+                      }}>
+                        {standardBanner.companyName}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="box-image-job">
@@ -382,75 +389,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-        {/* <section className="section-box overflow-visible mt-50 mb-50">
-          <div className="container">
-            <div className="row">
-              <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
-                <div className="text-center">
-                  <h1 className="color-brand-2">
-                    <span className="count">25</span>
-                    <span> K+</span>
-                  </h1>
-                  <h5>Completed Cases</h5>
-                  <p className="font-sm color-text-paragraph mt-10">
-                    We always provide people a{" "}
-                    <br className="d-none d-lg-block" />
-                    complete solution upon focused of
-                    <br className="d-none d-lg-block" /> any business
-                  </p>
-                </div>
-              </div>
-              <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
-                <div className="text-center">
-                  <h1 className="color-brand-2">
-                    <span className="count">17</span>
-                    <span> +</span>
-                  </h1>
-                  <h5>Our Office</h5>
-                  <p className="font-sm color-text-paragraph mt-10">
-                    We always provide people a{" "}
-                    <br className="d-none d-lg-block" />
-                    complete solution upon focused of{" "}
-                    <br className="d-none d-lg-block" />
-                    any business
-                  </p>
-                </div>
-              </div>
-              <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
-                <div className="text-center">
-                  <h1 className="color-brand-2">
-                    <span className="count">86</span>
-                    <span> +</span>
-                  </h1>
-                  <h5>Skilled People</h5>
-                  <p className="font-sm color-text-paragraph mt-10">
-                    We always provide people a{" "}
-                    <br className="d-none d-lg-block" />
-                    complete solution upon focused of{" "}
-                    <br className="d-none d-lg-block" />
-                    any business
-                  </p>
-                </div>
-              </div>
-              <div className="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12">
-                <div className="text-center">
-                  <h1 className="color-brand-2">
-                    <span className="count">28</span>
-                    <span> +</span>
-                  </h1>
-                  <h5>CHappy Clients</h5>
-                  <p className="font-sm color-text-paragraph mt-10">
-                    We always provide people a{" "}
-                    <br className="d-none d-lg-block" />
-                    complete solution upon focused of{" "}
-                    <br className="d-none d-lg-block" />
-                    any business
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section> */}
         <section className="section-box mt-50">
           <div className="container">
             <div className="text-center">
@@ -539,3 +477,4 @@ export default function Home() {
     </>
   );
 }
+
