@@ -100,9 +100,6 @@ export default function Home() {
 
   const t = useTranslations();
 
-  console.log('🎨 Render - VIP Banner:', vipBanner);
-  console.log('🎨 Render - Featured Banner:', featuredBanner);
-  console.log('🎨 Render - Standard Banner:', standardBanner);
 
   return (
     <>

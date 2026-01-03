@@ -5,11 +5,13 @@ import { useApplicants } from "../hooks/useApplicants";
 // import ApplicantDetailModal from "@/features/applicants/components/ApplicantDetailModal";
 // import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import styles from "../../../styles/ApplicantsTable.module.css";
 
 export default function ApplicantsTable() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
 
   // UI mặc định page = 1
   const currentPage = parseInt(searchParams.get("page") ?? "1", 10);
@@ -18,6 +20,23 @@ export default function ApplicantsTable() {
   // Truyền (currentPage - 1) vào API vì backend zero-based
   const { applications, loading, totalPages, handleDeleteApplicant } =
     useApplicants(pageSize, currentPage - 1);
+
+  // Mark as read when viewing
+  const handleViewStatus = async (appId: number, isRead: boolean) => {
+    if (!isRead && session) {
+      try {
+        await fetch(`http://localhost:8080/api/applicant/${appId}/mark-read`, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+          },
+        });
+      } catch (error) {
+        console.error("Failed to mark as read:", error);
+      }
+    }
+    router.push(`/applicants/${appId}`);
+  };
 
   // const [selectedApplicantId, setSelectedApplicantId] = useState<number | null>(
   //   null
@@ -43,7 +62,11 @@ export default function ApplicantsTable() {
     <>
       <div className={styles.wrapper}>
         {applications.map((app) => (
-          <div key={app.id} className={styles.card}>
+          <div 
+            key={app.id} 
+            className={`${styles.card} ${!app.isRead ? styles.unread : ""}`}
+          >
+            {!app.isRead && <span className={styles.newBadge}>NEW</span>}
             <div className={styles.header}>
               <div className={styles.company}>
                 {/* <div className={styles.logo}>
@@ -126,7 +149,7 @@ export default function ApplicantsTable() {
                 </button>
                 <button
                   className={`${styles.btn} ${styles.view}`}
-                  onClick={() => router.push(`/applicants/${app.id}`)}
+                  onClick={() => handleViewStatus(app.id, app.isRead || false)}
                 >
                   View status
                 </button>

@@ -17,7 +17,47 @@
   padding: 18px;
   display: flex;
   flex-direction: column;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+/* ✅ Highlight cho application chưa đọc */
+.card.unread {
+  border: 2px solid #3b82f6;
+  background: linear-gradient(to bottom, #eff6ff 0%, #fff 100%);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+}
+
+.card.unread:hover {
+  border-color: #2563eb;
+  box-shadow: 0 12px 32px rgba(59, 130, 246, 0.25);
+}
+
+/* ✅ NEW Badge */
+.newBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+  animation: pulse-badge 2s infinite;
+  z-index: 10;
+}
+
+@keyframes pulse-badge {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
 }
 
 .card:hover {

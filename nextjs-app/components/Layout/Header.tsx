@@ -6,6 +6,7 @@ import { Settings, KeyRound, LogOut } from "lucide-react";
 import CompanyRegistrationModal from "../Company/company-registration-modal";
 import PreferencesForm from "../preferences/preferences_form";
 import { useTranslations } from "next-intl";
+import NotificationBell from "../NotificationBell";
 
 interface HeaderProps {
   handleOpen: () => void;
@@ -29,6 +30,14 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
   const [avatarReady, setAvatarReady] = useState<boolean>(false);
   const [balance, setBalance] = useState<string>("");
   const role = session?.user?.roles;
+
+  // Debug role
+  useEffect(() => {
+    if (session?.user) {
+      // console.log("🔔 User role:", role);
+      // console.log("🔔 Session user:", session.user);
+    }
+  }, [session, role]);
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -330,9 +339,21 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
             <div className="header-right">
               <div
                 className="block-signin"
-                style={{ display: "flex", alignItems: "center" }}
+                style={{ display: "flex", alignItems: "center", gap: "12px" }}
               >
                 <PreferencesForm />
+                
+                {/* ✅ Notification Bell - TEST: Hiển thị cho tất cả user */}
+                {status === "authenticated" && session?.user && (
+                  <NotificationBell />
+                )}
+                
+                {/* ✅ Uncomment dòng dưới và comment dòng trên sau khi test xong */}
+                {/* {status === "authenticated" && 
+                 session?.user && 
+                 (Array.isArray(role) ? role.includes("Candidate") : role === "Candidate") && (
+                  <NotificationBell />
+                )} */}
                 
                 {/* --- SỬA ĐỔI 3: Xử lý 3 trạng thái: Loading, Authenticated, Unauthenticated --- */}
                 
