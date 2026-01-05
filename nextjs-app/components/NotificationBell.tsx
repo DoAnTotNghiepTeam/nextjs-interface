@@ -6,13 +6,18 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import styles from "./NotificationBell.module.css";
 
+// ✅ Interface mới theo backend NotificationResponseDto (Updated với notificationType)
 interface Notification {
   id: number;
+  notificationType: string; // "APPLY_SUCCESS" | "STATUS_UPDATE_PASSED" | "STATUS_UPDATE_INTERVIEW" | "STATUS_UPDATE_HIRED" | "STATUS_UPDATE_REJECTED" | "NEW_APPLICANT"
+  title: string;
+  message: string;
+  status: string; // "PENDING" | "CV_PASSED" | "INTERVIEW" | "HIRED" | "REJECTED"
+  isRead: boolean;
+  createdAt: string; // ISO datetime
+  applicantId: number | null;
   jobTitle: string;
   companyName: string;
-  applicationStatus: string;
-  appliedAt: string;
-  isRead: boolean;
 }
 
 export default function NotificationBell() {
@@ -23,31 +28,38 @@ export default function NotificationBell() {
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Fetch notifications từ API
+  // ✅ Fetch notifications từ API mới (lấy TẤT CẢ thông báo, không chỉ unread)
   const fetchNotifications = async () => {
     if (!session) return;
     
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8080/api/applicant?page=0&size=50&sortBy=appliedAt&sortDir=desc", {
+      // ✅ Backend đã có pagination cho /unread, nhưng ta vẫn dùng /api/notifications để lấy TẤT CẢ
+      // Lý do: Để hiển thị cả đã đọc và chưa đọc trong dropdown
+      const res = await fetch("http://localhost:8080/api/notifications?page=0&size=20", {
         headers: {
           Authorization: `Bearer ${session.accessToken}`,
         },
       });
+      
+      if (!res.ok) throw new Error("Failed to fetch notifications");
+      
       const data = await res.json();
       
-      // Lọc các application chưa đọc
-      const apps = data.data || [];
-      const unreadApps = apps.filter((app: Notification) => !app.isRead);
+      console.log("🔔 Total notifications:", data.notifications?.length || 0);
+      console.log("🔔 Sample notification:", data.notifications?.[0]);
       
-      console.log("🔔 Total applications:", apps.length);
-      console.log("🔔 Unread applications:", unreadApps.length);
-      console.log("🔔 Sample app:", apps[0]);
+      // ✅ Backend trả về: { notifications: [...], currentPage, totalPages, ... }
+      const allNotifications = data.notifications || [];
+      setNotifications(allNotifications);
       
-      setNotifications(apps);
-      setUnreadCount(unreadApps.length);
+      // ✅ Tính số thông báo chưa đọc từ data
+      const unread = allNotifications.filter((n: Notification) => !n.isRead).length;
+      setUnreadCount(unread);
+      
+      console.log("🔔 Unread count:", unread);
     } catch (error) {
-      console.error("Error fetching notifications:", error);
+      console.error("❌ Error fetching notifications:", error);
     } finally {
       setLoading(false);
     }
@@ -57,7 +69,7 @@ export default function NotificationBell() {
     if (session) {
       fetchNotifications();
       
-      // Refresh mỗi 30 giây
+      // ✅ Refresh mỗi 30 giây để cập nhật thông báo mới
       const interval = setInterval(fetchNotifications, 30000);
       return () => clearInterval(interval);
     }
@@ -77,6 +89,36 @@ export default function NotificationBell() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
+  // ✅ Đánh dấu thông báo đã đọc khi click
+  const handleMarkAsRead = async (notificationId: number) => {
+    if (!session) return;
+    
+    // ✅ Kiểm tra xem notification đã read chưa trước khi gọi API
+    const notification = notifications.find(n => n.id === notificationId);
+    if (!notification || notification.isRead) return;
+    
+    try {
+      const res = await fetch(`http://localhost:8080/api/notifications/${notificationId}/read`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+      });
+      
+      if (res.ok) {
+        // ✅ Cập nhật UI local
+        setNotifications(prev => 
+          prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n)
+        );
+        setUnreadCount(prev => Math.max(0, prev - 1));
+        
+        console.log("✅ Marked notification as read:", notificationId);
+      }
+    } catch (error) {
+      console.error("❌ Error marking notification as read:", error);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "HIRED":
@@ -87,6 +129,8 @@ export default function NotificationBell() {
         return "#8b5cf6"; // purple
       case "CV_PASSED":
         return "#3b82f6"; // blue
+      case "PENDING":
+        return "#f59e0b"; // amber
       default:
         return "#6b7280"; // gray
     }
@@ -95,13 +139,13 @@ export default function NotificationBell() {
   const getStatusText = (status: string) => {
     switch (status) {
       case "HIRED":
-        return "✅ Trúng tuyển";
+        return "🎉 Trúng tuyển";
       case "REJECTED":
         return "❌ Từ chối";
       case "INTERVIEW":
         return "📅 Mời phỏng vấn";
       case "CV_PASSED":
-        return "✓ CV đạt yêu cầu";
+        return "✅ CV đạt yêu cầu";
       case "PENDING":
         return "⏳ Đang xét duyệt";
       default:
@@ -109,6 +153,23 @@ export default function NotificationBell() {
     }
   };
 
+  // ✅ Format thời gian hiển thị
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return "Vừa xong";
+    if (diffMins < 60) return `${diffMins} phút trước`;
+    if (diffHours < 24) return `${diffHours} giờ trước`;
+    if (diffDays < 7) return `${diffDays} ngày trước`;
+    return date.toLocaleDateString("vi-VN");
+  };
+
+  // ✅ Không hiển thị nếu chưa login
   if (!session) return null;
 
   return (
@@ -127,7 +188,7 @@ export default function NotificationBell() {
       {isOpen && (
         <div className={styles.dropdown}>
           <div className={styles.header}>
-            <h3>Thông báo ứng tuyển</h3>
+            <h3>Thông báo</h3>
             {unreadCount > 0 && (
               <span className={styles.unreadText}>
                 {unreadCount} chưa đọc
@@ -144,29 +205,60 @@ export default function NotificationBell() {
                 <p>Chưa có thông báo nào</p>
               </div>
             ) : (
-              notifications.slice(0, 10).map((notif) => (
-                <Link
+              notifications.slice(0, 15).map((notif) => (
+                <div
                   key={notif.id}
-                  href={`/applicants/${notif.id}`}
                   className={`${styles.notificationItem} ${!notif.isRead ? styles.unread : ""}`}
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => {
+                    handleMarkAsRead(notif.id);
+                    // ✅ Đợi một chút rồi mới chuyển trang để animation mark as read chạy
+                    setTimeout(() => {
+                      if (notif.applicantId) {
+                        window.location.href = `/applicants/${notif.applicantId}`;
+                      }
+                    }, 200);
+                  }}
+                  style={{ cursor: "pointer" }}
                 >
                   <div className={styles.notifContent}>
                     <div className={styles.notifTitle}>
-                      <span className={styles.companyName}>{notif.companyName}</span>
+                      <span className={styles.notifTitleText}>{notif.title}</span>
                       {!notif.isRead && <span className={styles.newDot}>●</span>}
                     </div>
-                    <div className={styles.notifJob}>{notif.jobTitle}</div>
-                    <div className={styles.notifStatus}>
-                      <span style={{ color: getStatusColor(notif.applicationStatus) }}>
-                        {getStatusText(notif.applicationStatus)}
-                      </span>
+                    
+                    {notif.companyName && (
+                      <div className={styles.companyName}>
+                        📍 {notif.companyName}
+                      </div>
+                    )}
+                    
+                    {notif.jobTitle && (
+                      <div className={styles.notifJob}>
+                        💼 {notif.jobTitle}
+                      </div>
+                    )}
+                    
+                    {notif.message && (
+                      <div className={styles.notifMessage}>
+                        {notif.message}
+                      </div>
+                    )}
+                    
+                    <div className={styles.notifFooter}>
+                      {notif.status && (
+                        <span 
+                          className={styles.notifStatus}
+                          style={{ color: getStatusColor(notif.status) }}
+                        >
+                          {getStatusText(notif.status)}
+                        </span>
+                      )}
                       <span className={styles.notifTime}>
-                        {new Date(notif.appliedAt).toLocaleDateString("vi-VN")}
+                        {formatTime(notif.createdAt)}
                       </span>
                     </div>
                   </div>
-                </Link>
+                </div>
               ))
             )}
           </div>

@@ -30,21 +30,20 @@ export default function Home() {
   useEffect(() => {
     const API_URL = process.env.NEXT_PUBLIC_API_URL_BANNER || "http://localhost:8080";
     
-    console.log('🔥 Fetching banners from:', API_URL);
     
     // VIP Banner
     fetch(`${API_URL}/api/banners/active?bannerType=Vip`)
       .then((res) => res.json())
       .then((data) => {
-        console.log('✅ VIP Banner Response:', data);
+        // console.log('✅ VIP Banner Response:', data);
         // Handle both Array and Object response
         const banner = Array.isArray(data) ? data[0] : data;
         if (banner && banner.bannerImage) {
           setVipBanner(banner);
-          console.log('✅ VIP Banner Set:', banner);
+          // console.log('✅ VIP Banner Set:', banner);
         } else {
           setVipBanner(null);
-          console.log('❌ VIP Banner: No data');
+          // console.log('❌ VIP Banner: No data');
         }
       })
       .catch((err) => {
@@ -56,11 +55,11 @@ export default function Home() {
     fetch(`${API_URL}/api/banners/active?bannerType=Featured`)
       .then((res) => res.json())
       .then((data) => {
-        console.log('✅ Featured Banner Response:', data);
+        // console.log('✅ Featured Banner Response:', data);
         const banner = Array.isArray(data) ? data[0] : data;
         if (banner && banner.bannerImage) {
           setFeaturedBanner(banner);
-          console.log('✅ Featured Set:', banner);
+          // console.log('✅ Featured Set:', banner);
         } else {
           setFeaturedBanner(null);
         }
@@ -74,11 +73,11 @@ export default function Home() {
     fetch(`${API_URL}/api/banners/active?bannerType=Standard`)
       .then((res) => res.json())
       .then((data) => {
-        console.log('✅ Standard Banner Response:', data);
+        // console.log('✅ Standard Banner Response:', data);
         const banner = Array.isArray(data) ? data[0] : data;
         if (banner && banner.bannerImage) {
           setStandardBanner(banner);
-          console.log('✅ Standard Set:', banner);
+          // console.log('✅ Standard Set:', banner);
         } else {
           setStandardBanner(null);
         }

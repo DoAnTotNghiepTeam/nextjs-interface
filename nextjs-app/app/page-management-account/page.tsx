@@ -74,20 +74,20 @@ export default function AccountManagementPage() {
       setLoading(true);
       setError("");
       
-      console.log("Fetching user data for ID:", session?.user?.id);
+      // console.log("Fetching user data for ID:", session?.user?.id);  // Log ID người dùng
       
       const response = await fetch(
         `${BACKEND_URL}/api/users/${session?.user?.id}`
       );
 
-      console.log("Response status:", response.status);
+      // console.log("Fetch Response status:", response.status);  //  Log trạng thái phản hồi xem nó trả về 200 thành công hay như nào
 
       if (!response.ok) {
         throw new Error("Không thể tải thông tin người dùng");
       }
 
       const data = await response.json();
-      console.log("User data received:", data);
+      // console.log("User data received:", data);  // Log dữ liệu người dùng nhận được để kiểm tra từ tên , email , balance, id....
       
       setUserData(data);
       
@@ -110,7 +110,7 @@ export default function AccountManagementPage() {
           avatarUrl = data.avatarUrl;
         }
       }
-      console.log("Final avatar path:", avatarUrl);
+      // console.log("Final avatar path:", avatarUrl);  // Log đường dẫn avatar cuối cùng để kiểm tra ( đg dẫn luuw trong ổ D để check)
       setPreviewUrl(avatarUrl);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Có lỗi xảy ra");

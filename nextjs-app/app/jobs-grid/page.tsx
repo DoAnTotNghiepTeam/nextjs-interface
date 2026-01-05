@@ -77,7 +77,7 @@ export default function JobGrid() {
         const res = await fetch("http://localhost:8080/api/job-postings/all");
         if (!res.ok) throw new Error("Không thể lấy danh sách công việc");
         const jobsData = await res.json();
-        console.log("Fetched jobs:", jobsData);
+        // console.log("Fetched jobs:", jobsData);  // Log danh sách job nhận được
         setJobs(jobsData);
 
         // 2. Lấy tất cả employerId duy nhất
@@ -397,8 +397,8 @@ export default function JobGrid() {
         await savedJobService.removeSavedJob(existing.savedJobId);
         setSavedJobs((prev) => prev.filter((j) => j.jobId !== jobId));
         toast.success("Removed successfully");
-        console.log("Removed job:", existing);
-        console.log("Removed job:", existing.savedJobId);
+        // console.log("Removed job:", existing);  // log 
+        // console.log("Removed job:", existing.savedJobId);
       } else {
         const res = await savedJobService.saveJob(jobId);
         setSavedJobs((prev) => [
@@ -406,8 +406,8 @@ export default function JobGrid() {
           { jobId, savedJobId: res.data.savedJobId },
         ]);
         toast.success("Saved successfully");
-        console.log("Saved job:", res.data);
-        console.log("Saved jobss:", res.data.savedJobId);
+        // console.log("Saved job:", res.data);
+        // console.log("Saved jobss:", res.data.savedJobId);
       }
     } catch (err) {
       if (err instanceof Error) {
@@ -465,13 +465,13 @@ export default function JobGrid() {
     };
     fetchSavedJobs();
   }, [session]);
-  useEffect(() => {
-    console.log(
-      "Jobs:",
-      jobs.map((j) => j.id)
-    );
-    console.log("SavedJobs:", savedJobs);
-  }, [jobs, savedJobs]);
+  // useEffect(() => {
+  //   // console.log(
+  //   //   "Jobs:",
+  //   //   jobs.map((j) => j.id)
+  //   // );
+  //   // console.log("SavedJobs:", savedJobs);
+  // }, [jobs, savedJobs]);
   return (
     <>
       <Layout>
