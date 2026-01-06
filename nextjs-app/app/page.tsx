@@ -8,7 +8,6 @@ import CategoryTab from "@/components/elements/CategoryTab";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import JobChatBot from "./ChatBotJob/page";
 import JobPostingVip from "@/components/sliders/JobPostingVip";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -18,7 +17,6 @@ export default function Home() {
   const [location, setLocation] = useState("");
   const [keyword, setKeyword] = useState("");
   const [salary, setSalary] = useState("");
-  const [isChatOpen, setIsChatOpen] = useState(false);
   // Banner VIP active
   const [vipBanner, setVipBanner] = useState<any>(null);
   // Banner Featured active
@@ -469,7 +467,6 @@ export default function Home() {
           </div>
         </section>
       </Layout>
-      <JobChatBot isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
     </>
   );
 }

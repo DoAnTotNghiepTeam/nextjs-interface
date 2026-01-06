@@ -51,7 +51,6 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 
 
-import MultiChatWidget from "@/components/MultiChatWidget";
 import { JobPostingResponseDTO, Resume } from "@/types/applicant";
 import { applicantService } from "@/features/applicants/services/applicant.service";
 import { initializeChatConversation } from "@/lib/chat-helper";
@@ -98,7 +97,7 @@ export default function JobDetails2() {
   }, [id]);
 
   const { data: session } = useSession();
-  const chatRef = useRef<FloatingChatHandle | null>(null);
+  const chatRef = useRef<MultiChatHandle | null>(null);
   // Hook lấy dữ liệu job từ API
   const [jobs, setJobs] = useState<Job[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
@@ -354,9 +353,12 @@ const hours = Math.floor(minutes / 60);
                         <div className="author-single" style={{ display: "flex", alignItems: "center", gap: 16 }}>
                           <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <span>{job.employerName || job.employer?.name || company?.companyName}</span>
-                            {session?.user?.id && (
+                            {session?.user?.id && job.employerId && (
                               <button
-                                onClick={() => chatRef.current?.open()}
+                                onClick={() => chatRef.current?.openChat(
+                                  String(job.employerId),
+                                  job.employerName || job.employer?.name || company?.companyName
+                                )}
                                 style={{ marginTop: 8, padding: '8px 12px', borderRadius: 6, border: '1px solid #1976d2', background: '#fff', color: '#1976d2', cursor: 'pointer' }}
                               >
                                 Liên hệ với nhà tuyển dụng ngay
@@ -615,13 +617,6 @@ const hours = Math.floor(minutes / 60);
             </div>
           </section>
         </div>
-      {/* Hiển thị chat widget để chat với tất cả employers */}
-      {session?.user?.id && (
-        <MultiChatWidget
-          applicantId={session.user.id}
-          applicantName={session?.user?.fullName ?? session?.user?.name ?? undefined}
-        />
-      )}
     </Layout>
   </>
   );

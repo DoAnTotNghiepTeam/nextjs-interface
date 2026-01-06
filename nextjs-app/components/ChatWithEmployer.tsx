@@ -50,15 +50,21 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
     // Load messages when embedded or when chat is opened
     if (!embedded && !showChat) return;
     
-    // console.log("Loading messages for chatId:", chatId);
+    console.log("📂 [ChatWithEmployer] Loading messages for chatId:", chatId);
     const q = query(
       collection(db, "chats", chatId, "messages"),
       orderBy("timestamp", "asc")
     );
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      // console.log("📨 Messages snapshot received! Size:", snapshot.docs.length);
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      console.log("📨 [ChatWithEmployer] Messages snapshot received! Size:", snapshot.docs.length);
       const list: Message[] = snapshot.docs.map(doc => {
         const data = doc.data();
+        console.log("💬 [ChatWithEmployer] Message:", {
+          id: doc.id,
+          senderId: data.senderId,
+          text: data.text?.substring(0, 30),
+          timestamp: data.timestamp?.toDate?.()
+        });
         return {
           id: doc.id,
           senderId: data.senderId,
@@ -66,15 +72,40 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
           timestamp: data.timestamp,
         };
       });
-      // console.log("📝 Updating messages state with:", list.length, "messages");
+      console.log("✅ [ChatWithEmployer] Updating messages state with:", list.length, "messages");
       setMessages(list);
+      
+      // 🔄 Tự động cập nhật lastMessage từ tin nhắn mới nhất trong subcollection
+      if (snapshot.docs.length > 0) {
+        const lastDoc = snapshot.docs[snapshot.docs.length - 1];
+        const lastMsgData = lastDoc.data();
+        
+        if (lastMsgData.text && lastMsgData.timestamp) {
+          try {
+            console.log("🔄 [ChatWithEmployer] Syncing lastMessage to parent doc:", {
+              chatId,
+              lastMessage: lastMsgData.text.substring(0, 30),
+              timestamp: lastMsgData.timestamp
+            });
+            
+            await setDoc(doc(db, "chats", chatId), {
+              lastMessage: lastMsgData.text,
+              lastTimestamp: lastMsgData.timestamp
+            }, { merge: true });
+            
+            console.log("✅ [ChatWithEmployer] Successfully synced lastMessage");
+          } catch (error) {
+            console.error("❌ [ChatWithEmployer] Failed to sync lastMessage:", error);
+          }
+        }
+      }
     }, (error) => {
-      console.error("Error loading messages:", error);
+      console.error("❌ [ChatWithEmployer] Error loading messages:", error);
     });
     
-    // console.log("✅ Message listener setup complete");
+    console.log("🔌 [ChatWithEmployer] Message listener setup complete for chatId:", chatId);
     return () => {
-      // console.log("🔌 Cleaning up message listener");
+      console.log("🔌 [ChatWithEmployer] Cleaning up message listener for chatId:", chatId);
       unsubscribe();
     };
   }, [chatId, showChat, embedded]);
