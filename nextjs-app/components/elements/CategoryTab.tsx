@@ -177,8 +177,12 @@ const CategoryTab = () => {
         useEffect(() => {
           const fetchSavedJobs = async () => {
             if (!session) return;
+            // Chỉ fetch saved jobs nếu user có role USER, không phải EMPLOYER
+            const userRole = session?.user?.role;
+            if (userRole !== "USER") return;
+            
             try {
-              const res = await savedJobService.getMySavedJobs();
+              const res = await savedJobService.getMySavedJobs({});
               const savedJobsMap =
                 res.data.data.content?.map((job: SavedJobResponseDTO) => ({
                   jobId: job.jobPostingResponseDTO?.id, // 👈 lấy id từ DTO

@@ -19,6 +19,8 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
 
   // --- SỬA ĐỔI 1: Lấy thêm 'status' để kiểm tra trạng thái loading ---
   const { data: session, status } = useSession();
+  // log check role của user
+  console.log("User role:", session?.user?.roles);
   // ------------------------------------------------------------------
 
   const [scroll, setScroll] = useState(false);
