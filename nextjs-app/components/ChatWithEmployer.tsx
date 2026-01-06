@@ -50,13 +50,13 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
     // Load messages when embedded or when chat is opened
     if (!embedded && !showChat) return;
     
-    console.log("Loading messages for chatId:", chatId);
+    // console.log("Loading messages for chatId:", chatId);
     const q = query(
       collection(db, "chats", chatId, "messages"),
       orderBy("timestamp", "asc")
     );
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      console.log("📨 Messages snapshot received! Size:", snapshot.docs.length);
+      // console.log("📨 Messages snapshot received! Size:", snapshot.docs.length);
       const list: Message[] = snapshot.docs.map(doc => {
         const data = doc.data();
         return {
@@ -66,31 +66,31 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
           timestamp: data.timestamp,
         };
       });
-      console.log("📝 Updating messages state with:", list.length, "messages");
+      // console.log("📝 Updating messages state with:", list.length, "messages");
       setMessages(list);
     }, (error) => {
       console.error("Error loading messages:", error);
     });
     
-    console.log("✅ Message listener setup complete");
+    // console.log("✅ Message listener setup complete");
     return () => {
-      console.log("🔌 Cleaning up message listener");
+      // console.log("🔌 Cleaning up message listener");
       unsubscribe();
     };
   }, [chatId, showChat, embedded]);
 
   const sendMessage = async () => {
-    console.log("🚀 sendMessage called! input:", input, "length:", input.length, "trimmed:", input.trim().length);
+    // console.log("🚀 sendMessage called! input:", input, "length:", input.length, "trimmed:", input.trim().length);
     
     if (!input.trim()) {
-      console.log("⚠️ Empty message, skipping send");
+      // console.log("⚠️ Empty message, skipping send");
       return;
     }
     
     // IMPORTANT: Convert applicantId to string for consistency across Firestore
     const applicantIdStr = String(applicantId);
     
-    console.log("📤 Sending message. Input:", input.substring(0, 30), "chatId:", chatId);
+    // console.log("📤 Sending message. Input:", input.substring(0, 30), "chatId:", chatId);
     
     try {
       // Tạo document chat nếu chưa có
@@ -99,7 +99,7 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
         text: input,
         timestamp: serverTimestamp(),
       });
-      console.log("✅ Message added to subcollection");
+      // console.log("✅ Message added to subcollection");
       
       // Tạo/ghi document chat chính với id = chatId (để employer thấy ứng viên ở sidebar)
       const summaryPayload: ChatSummary = {
@@ -115,13 +115,13 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
         summaryPayload.employerName = employerName;
       }
       
-      console.log("💾 Updating chat summary:", { 
-        chatId, 
-        lastMessage: input.substring(0, 30), 
-        applicantId: applicantIdStr,
-        employerId,
-        employerName 
-      });
+      // console.log("💾 Updating chat summary:", { 
+      //   chatId, 
+      //   lastMessage: input.substring(0, 30), 
+      //   applicantId: applicantIdStr,
+      //   employerId,
+      //   employerName 
+      // });
       
       // mark unread for employer when applicant sends a message so employer UI can highlight it
       await setDoc(doc(db, "chats", chatId), { 
@@ -130,7 +130,7 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
         unreadForApplicant: false  // Mark as read for applicant since they just sent it
       }, { merge: true });
       
-      console.log("✅ Message sent and chat summary updated!");
+      // console.log("✅ Message sent and chat summary updated!");
       setInput("");
     } catch (error) {
       console.error("❌ Error sending message:", error);
@@ -214,7 +214,7 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
             {messages.map(msg => {
               // Convert both to string for consistent comparison
               const isMyMessage = String(msg.senderId) === String(applicantId);
-              console.log("💬 Message:", msg.text.substring(0, 20), "senderId:", msg.senderId, "(type:", typeof msg.senderId, ") vs applicantId:", applicantId, "(type:", typeof applicantId, ") => isMyMessage:", isMyMessage);
+              // console.log("💬 Message:", msg.text.substring(0, 20), "senderId:", msg.senderId, "(type:", typeof msg.senderId, ") vs applicantId:", applicantId, "(type:", typeof applicantId, ") => isMyMessage:", isMyMessage);
               
               return (
                 <div key={msg.id} style={{ 

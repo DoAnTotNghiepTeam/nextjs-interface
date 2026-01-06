@@ -34,8 +34,8 @@ export default function MyJobs() {
       setLoading(true);
       setMessage("");
       try {
-        console.log("session:", session);
-        console.log("accessToken:", accessToken);
+        // console.log("session:", session);  // Log session để kiểm tra thông tin người dùng
+        // console.log("accessToken:", accessToken);  // Log accessToken để kiểm tra
         if (!session) {
           setJobs([]);
           setLoading(false);
@@ -48,13 +48,13 @@ export default function MyJobs() {
         });
         if (res.ok) {
           const data = await res.json();
-          console.log("jobs data:", data);
+          // console.log("jobs data:", data);  // Log data để kiểm tra danh sách job nhận được
             // Lọc job theo employerId (luôn lọc thủ công phía FE)
             const employerId = session?.user?.id;
-            console.log("employerId:", employerId);
+            // console.log("employerId:", employerId);  // Log employerId để kiểm tra
             const jobsArray: Job[] = Array.isArray(data) ? data : (data.jobs || []);
             const filteredJobs = jobsArray.filter((job: Job) => String(job.employerId) === String(employerId));
-            console.log("filteredJobs:", filteredJobs);
+            // console.log("filteredJobs:", filteredJobs);  // Log filteredJobs để kiểm tra kết quả lọc
             setJobs(filteredJobs);
             setCurrentPage(1);
         } else {

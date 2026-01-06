@@ -10,26 +10,26 @@ export const useApplicants = (pageSize: number, page: number) => {
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(0);
 
+  const fetchApplicants = async () => {
+    setLoading(true);
+    try {
+      const res = await applicantService.getAllApplicantsByPage({
+        page,
+        size: pageSize,
+      });
+      const apiRes: PaginatedResponse<Applicant> = res.data;
+
+      setApplications(apiRes.data ?? []);
+      console.log("apiRes.totalPages", apiRes.data);
+      setTotalPages(apiRes.totalPages ?? 1);
+    } catch (error) {
+      console.error("Error fetching applicants:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchApplicants = async () => {
-      setLoading(true);
-      try {
-        const res = await applicantService.getAllApplicantsByPage({
-          page,
-          size: pageSize,
-        });
-        const apiRes: PaginatedResponse<Applicant> = res.data;
-
-        setApplications(apiRes.data ?? []);
-        console.log("apiRes.totalPages", apiRes.data);
-        setTotalPages(apiRes.totalPages ?? 1);
-      } catch (error) {
-        console.error("Error fetching applicants:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchApplicants();
   }, [page, pageSize]);
 

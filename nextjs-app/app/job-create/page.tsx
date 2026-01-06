@@ -30,8 +30,8 @@ export default function JobCreate() {
   const accessToken = session?.accessToken;
   const employerId = session?.user?.id;
 
-  console.log("Session:", session);
-  console.log("AccessToken:", accessToken);
+  // console.log("Session:", session);
+  // console.log("AccessToken:", accessToken);
 
   // Danh sách bằng cấp dropdown
   const degreeOptions = ["Đại học", "Cao đẳng", "Trung cấp"];
@@ -135,7 +135,7 @@ export default function JobCreate() {
         body: JSON.stringify(payload),
       });
 
-      console.log("Request payload:", payload);
+      // console.log("Request payload:", payload); // Log payload gửi đi xem thử có đúng không
 
       if (res.ok) {
         setMessage("Đăng việc thành công!");

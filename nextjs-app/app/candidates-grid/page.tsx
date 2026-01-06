@@ -8,7 +8,7 @@ import { useSession } from "next-auth/react";
 export default function CandidateGrid() {
 
   const { data: session } = useSession();
-  console.log("dieu tư session", session);
+  // console.log("dieu tư session", session);  // Log session để kiểm tra thông tin người dùng ( ussernam, emial,....)
 
   const role = session?.user?.roles;
 

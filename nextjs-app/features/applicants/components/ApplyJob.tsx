@@ -292,6 +292,9 @@ export default function ApplyJob({
         toast.info(data?.data?.minExperience || "");
       }
 
+      // ✅ Trigger refresh notification ngay lập tức sau khi apply thành công
+      window.dispatchEvent(new Event("refreshNotifications"));
+
       onSuccess();
       onClose();
     } catch (err: unknown) {

@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "react-markdown": "^10.1.0",
+    "reactstrap": "^9.2.3"
+  },
+  "devDependencies": {
+    "@types/reactstrap": "^8.7.2"
+  }
+}

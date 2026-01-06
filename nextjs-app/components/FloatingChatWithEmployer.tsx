@@ -32,14 +32,14 @@ const FloatingChatWithEmployer = forwardRef<FloatingChatHandle, FloatingChatWith
 
     // Listen for new messages to update unread count
     useEffect(() => {
-      console.log("🔔 Setting up message listener. chatId:", chatId, "showChat:", showChat);
+      // console.log("🔔 Setting up message listener. chatId:", chatId, "showChat:", showChat);
       const q = query(
         collection(db, "chats", chatId, "messages"),
         orderBy("timestamp", "asc")
       );
       
       const unsubscribe = onSnapshot(q, (snapshot) => {
-        console.log("📬 Snapshot received. Size:", snapshot.docs.length, "showChat:", showChat);
+        // console.log("📬 Snapshot received. Size:", snapshot.docs.length, "showChat:", showChat);
         
         if (showChat) {
           // When chat is open, don't count but update lastReadTimestamp to latest message
@@ -47,7 +47,7 @@ const FloatingChatWithEmployer = forwardRef<FloatingChatHandle, FloatingChatWith
           const latestMessage = snapshot.docs[snapshot.docs.length - 1]?.data();
           if (latestMessage?.timestamp) {
             lastReadTimestampRef.current = latestMessage.timestamp.toDate();
-            console.log("✅ Updated lastReadTimestamp:", lastReadTimestampRef.current);
+            // console.log("✅ Updated lastReadTimestamp:", lastReadTimestampRef.current);
           }
           setUnreadCount(0);
           return;
@@ -55,27 +55,27 @@ const FloatingChatWithEmployer = forwardRef<FloatingChatHandle, FloatingChatWith
         
         // When chat is closed, count unread messages from employer only
         let count = 0;
-        console.log("🔍 Counting unread. employerId:", employerId, "applicantId:", applicantId, "lastRead:", lastReadTimestampRef.current);
+        // console.log("🔍 Counting unread. employerId:", employerId, "applicantId:", applicantId, "lastRead:", lastReadTimestampRef.current);
         snapshot.docs.forEach((docSnap) => {
           const data = docSnap.data();
-          console.log("  📨 Message from:", data.senderId, "at", data.timestamp?.toDate());
+          // console.log("  📨 Message from:", data.senderId, "at", data.timestamp?.toDate());
           // Count ONLY messages from employer (not from applicant) that are newer than last read
           if (data.senderId === employerId && data.timestamp) {
             const msgDate = data.timestamp.toDate();
             if (msgDate > lastReadTimestampRef.current) {
               count++;
-              console.log("    ✓ Unread from employer!");
+              // console.log("    ✓ Unread from employer!");
             }
           } else if (data.senderId === applicantId) {
-            console.log("    ℹ️ Message from me (applicant) - not counted");
+            // console.log("    ℹ️ Message from me (applicant) - not counted");
           }
         });
-        console.log("📊 Total unread from employer:", count);
+        // console.log("📊 Total unread from employer:", count);
         setUnreadCount(count);
       });
 
       return () => {
-        console.log("🔌 Cleaning up message listener");
+        // console.log("🔌 Cleaning up message listener");
         unsubscribe();
       };
     }, [chatId, employerId, showChat]);

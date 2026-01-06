@@ -17,7 +17,7 @@ interface CVCardProps {
 
 export function CVCard({ resume, onEdit, onDelete, onPreview }: CVCardProps) {
   const [download, setDownload] = useState(false);
-  console.log("Resume in CVCard:", resume);
+  // console.log("Resume in CVCard:", resume);
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("vi-VN", {
