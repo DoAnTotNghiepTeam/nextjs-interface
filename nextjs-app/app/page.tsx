@@ -105,7 +105,7 @@ export default function Home() {
         <div style={{
           background: vipBanner 
             ? `url("${vipBanner.bannerImage}") center/cover no-repeat` 
-            : 'url("assets/imgs/page/homepage1/bannefull2.png") center/cover no-repeat',
+            : 'url("/assets/imgs/page/homepage1/bannefull2.png") center/cover no-repeat',
           minHeight: '700px',
           width: '100%'
         }}>
@@ -114,12 +114,6 @@ export default function Home() {
             marginTop: 0,
             paddingTop: '75px'
           }}>
-            {/* Debug info */}
-            {vipBanner && (
-              <div style={{position: 'absolute', top: 10, right: 10, background: 'rgba(0,255,0,0.8)', color: 'black', padding: '5px 10px', fontSize: '12px', zIndex: 9999}}>
-                VIP ACTIVE: {vipBanner.companyName}
-              </div>
-            )}
             <div className="banner-hero hero-1" style={{ background: 'transparent' }}>
             <div className="banner-inner" style={{ background: 'none' }}>
               <div className="row">
@@ -345,7 +339,7 @@ export default function Home() {
                     <figure className="wow animate__animated animate__fadeIn">
                       <img
                         alt="jobBox"
-                        src="assets/imgs/page/homepage1/img1.png"
+                        src="/assets/imgs/page/homepage1/img1.png"
                       />
                     </figure>
                   </div>

@@ -222,9 +222,15 @@ export default function NotificationBell() {
                   key={notif.id}
                   className={`${styles.notificationItem} ${!notif.isRead ? styles.unread : ""}`}
                   onClick={() => {
+                    // ✅ Bước 1: Đánh dấu thông báo đã đọc qua API PUT /api/notifications/{id}/read
                     handleMarkAsRead(notif.id);
-                    // ✅ Đợi một chút rồi mới chuyển trang để animation mark as read chạy
+                    
+                    // ✅ Bước 2: Đợi 200ms để animation mark as read chạy xong
                     setTimeout(() => {
+                      // ✅ Bước 3: Chuyển hướng đến trang chi tiết đơn ứng tuyển
+                      // Backend trả về applicantId trong notification response
+                      // Frontend sử dụng applicantId này để navigate đến /applicants/{id}
+                      // VD: applicantId = 62 → navigate đến /applicants/62
                       if (notif.applicantId) {
                         window.location.href = `/applicants/${notif.applicantId}`;
                       }

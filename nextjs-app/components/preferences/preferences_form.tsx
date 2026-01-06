@@ -72,18 +72,17 @@ const PreferencesForm = ({ noLabel }: { noLabel?: boolean }) => {
                   alignItems: "center",
                   justifyContent: "center",
                   objectFit: "cover",
-                  marginRight : 20,
                 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {pref.language && (
                       <img
                         src={
                           pref.language === "en"
-                            ? "assets/imgs/page/homepage1/en.jpg"
+                            ? "/assets/imgs/page/homepage1/en.jpg"
                             : pref.language === "vi"
-                            ? "assets/imgs/page/homepage1/vi.jpg"
+                            ? "/assets/imgs/page/homepage1/vi.jpg"
                             : pref.language === "ko"
-                            ? "assets/imgs/page/homepage1/ko.png"
+                            ? "/assets/imgs/page/homepage1/ko.png"
                             : ""
                         }
                         alt={pref.language}
@@ -105,7 +104,7 @@ const PreferencesForm = ({ noLabel }: { noLabel?: boolean }) => {
                       }}
                     >
                       <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <img src="assets/imgs/page/homepage1/en.jpg" alt="English" style={{ width: 22, height: 16, objectFit: "cover" }} />
+                        <img src="/assets/imgs/page/homepage1/en.jpg" alt="English" style={{ width: 22, height: 16, objectFit: "cover" }} />
                         {t('component_Preferences.eng')}
                       </span>
                     </SelectItem>
@@ -119,7 +118,7 @@ const PreferencesForm = ({ noLabel }: { noLabel?: boolean }) => {
                       }}
                     >
                       <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <img src="assets/imgs/page/homepage1/vi.jpg" alt="Vietnamese" style={{ width: 22, height: 16, objectFit: "cover" }} />
+                        <img src="/assets/imgs/page/homepage1/vi.jpg" alt="Vietnamese" style={{ width: 22, height: 16, objectFit: "cover" }} />
                         {t('component_Preferences.vie')}
                       </span>
                     </SelectItem>
@@ -133,7 +132,7 @@ const PreferencesForm = ({ noLabel }: { noLabel?: boolean }) => {
                       }}
                     >
                       <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <img src="assets/imgs/page/homepage1/ko.png" alt="Korean" style={{ width: 22, height: 16, objectFit: "cover" }} />
+                        <img src="/assets/imgs/page/homepage1/ko.png" alt="Korean" style={{ width: 22, height: 16, objectFit: "cover" }} />
                         {t('component_Preferences.ko')}
                       </span>
                     </SelectItem>
