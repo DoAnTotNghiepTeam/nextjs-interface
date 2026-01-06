@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import JobChatBot from "./ChatBotJob/page";
 import JobPostingVip from "@/components/sliders/JobPostingVip";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 export default function Home() {
   const router = useRouter();
@@ -74,30 +75,41 @@ export default function Home() {
     router.push(`/jobs-grid?${params.toString()}`);
   };
 
+  const t = useTranslations();
+
   return (
     <>
       <Layout>
-        <div className="bg-homepage1" />
-        <section className="section-box">
-          <div className="banner-hero hero-1">
+        <section className="section-box" style={{
+          position: 'relative',
+          minHeight: '700px',
+          backgroundImage: 'url(assets/imgs/page/homepage1/bannefull2.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          marginTop: 0,
+          paddingTop: '75px'
+        }}>
+          <div className="banner-hero hero-1" style={{ background: 'transparent' }}>
             <div className="banner-inner">
               <div className="row">
                 <div className="col-xl-8 col-lg-12">
                   <div className="block-banner">
-                    <h1 className="heading-banner wow animate__animated animate__fadeInUp">
-                      The <span className="color-brand-2">Easiest Way</span>
+                    <h1 className="heading-banner wow animate__animated animate__fadeInUp" style={{ color: 'black', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
+                      {t('App_Page.the')}<span style={{ color: '#3C65F5' }}>{t('App_Page.easiest-way')}</span>
                       <br className="d-none d-lg-block" />
-                      to Get Your New Job
+                      {t('App_Page.to-get-your-new-job')}
                     </h1>
                     <div
                       className="banner-description mt-20 wow animate__animated animate__fadeInUp"
                       data-wow-delay=".1s"
+                      style={{ color: 'black', textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}
                     >
-                      Each month, more than 3 million job seekers turn to{" "}
+                      {t('App_Page.each-month-more-than-3-million-job-seekers-turn-to')}{" "}
                       <br className="d-none d-lg-block" />
-                      website in their search for work, making over 140,000{" "}
+                      {t('App_Page.website-in-their-search-for-work-making-over-140-000')}{" "}
                       <br className="d-none d-lg-block" />
-                      applications every single day
+                      {t('App_Page.applications-every-single-day')}
                     </div>
                     <div
                       className="form-find mt-40 wow animate__animated animate__fadeIn"
@@ -111,56 +123,56 @@ export default function Home() {
                             onChange={(e) => setLocation(e.target.value)}
                           >
                             <option value="">Location</option>
-                            <option value="Hà Nội">Hà Nội</option>
-                            <option value="Hải Phòng">Hải Phòng</option>
-                            <option value="Đà Nẵng">Đà Nẵng</option>
-                            <option value="Huế">Huế</option>
-                            <option value="Cần Thơ">Cần Thơ</option>
-                            <option value="HCM">Thành phố Hồ Chí Minh</option>
+                            <option value="Hà Nội">Ha Noi</option>
+                            <option value="Hải Phòng">Hai Phong</option>
+                            <option value="Đà Nẵng">Da Nang</option>
+                            <option value="Huế">Hue</option>
+                            <option value="Cần Thơ">Can Tho</option>
+                            <option value="HCM">Thanh pho Ho Chi Minh</option>
                             <option value="An Giang">An Giang</option>
-                            <option value="Bắc Ninh">Bắc Ninh</option>
-                            <option value="Cà Mau">Cà Mau</option>
-                            <option value="Cao Bằng">Cao Bằng</option>
-                            <option value="Đắk Lắk">Đắk Lắk</option>
-                            <option value="Điện Biên">Điện Biên</option>
-                            <option value="Đồng Nai">Đồng Nai</option>
-                            <option value="Đồng Tháp">Đồng Tháp</option>
+                            <option value="Bắc Ninh">Bac Ninh</option>
+                            <option value="Cà Mau">Ca Mau</option>
+                            <option value="Cao Bằng">Cao Bang</option>
+                            <option value="Đắk Lắk">Dak Lak</option>
+                            <option value="Điện Biên">Dien Bien</option>
+                            <option value="Đồng Nai">Dong Nai</option>
+                            <option value="Đồng Tháp">Dong Thap</option>
                             <option value="Gia Lai">Gia Lai</option>
-                            <option value="Hà Tĩnh">Hà Tĩnh</option>
-                            <option value="Hưng Yên">Hưng Yên</option>
-                            <option value="Khánh Hòa">Khánh Hòa</option>
-                            <option value="Lai Châu">Lai Châu</option>
-                            <option value="Lạng Sơn">Lạng Sơn</option>
-                            <option value="Lào Cai">Lào Cai</option>
-                            <option value="Lâm Đồng">Lâm Đồng</option>
-                            <option value="Nghệ An">Nghệ An</option>
-                            <option value="Ninh Bình">Ninh Bình</option>
-                            <option value="Phú Thọ">Phú Thọ</option>
-                            <option value="Quảng Ngãi">Quảng Ngãi</option>
-                            <option value="Quảng Ninh">Quảng Ninh</option>
-                            <option value="Quảng Trị">Quảng Trị</option>
-                            <option value="Sơn La">Sơn La</option>
-                            <option value="Tây Ninh">Tây Ninh</option>
-                            <option value="Thái Nguyên">Thái Nguyên</option>
-                            <option value="Thanh Hóa">Thanh Hóa</option>
-                            <option value="Tuyên Quang">Tuyên Quang</option>
-                            <option value="Vĩnh Long">Vĩnh Long</option>
+                            <option value="Hà Tĩnh">Ha Tinh</option>
+                            <option value="Hưng Yên">Hung Yen</option>
+                            <option value="Khánh Hòa">Khanh Hoa</option>
+                            <option value="Lai Châu">Lai Chau</option>
+                            <option value="Lạng Sơn">Lang Son</option>
+                            <option value="Lào Cai">Lao Cai</option>
+                            <option value="Lâm Đồng">Lam Dong</option>
+                            <option value="Nghệ An">Nghe An</option>
+                            <option value="Ninh Bình">Ninh Binh</option>
+                            <option value="Phú Thọ">Phu Tho</option>
+                            <option value="Quảng Ngãi">Quang Ngai</option>
+                            <option value="Quảng Ninh">Quang Ninh</option>
+                            <option value="Quảng Trị">Quang Tri</option>
+                            <option value="Sơn La">Son La</option>
+                            <option value="Tây Ninh">Tay Ninh</option>
+                            <option value="Thái Nguyên">Thai Nguyen</option>
+                            <option value="Thanh Hóa">Thanh Hoa</option>
+                            <option value="Tuyên Quang">Tuyen Quang</option>
+                            <option value="Vĩnh Long">Vinh Long</option>
                           </select>
                         </div>
-                        <div className="box-industry">
+                        {/* <div className="box-industry">
                           <select
                             className="form-input mr-10 select-active input-location"
                             value={salary}
                             onChange={(e) => setSalary(e.target.value)}
                           >
                             <option value="">Salary</option>
-                            <option value="Dưới 20 triệu">Dưới 20 triệu</option>
-                            <option value="Từ 20 triệu trở lên">Từ 20 triệu trở lên</option>
-                            <option value="Từ 50 triệu trở lên">Từ 50 triệu trở lên</option>
-                            <option value="Từ 70 triệu trở lên">Từ 70 triệu trở lên</option>
-                            <option value="Trên 100 triệu">Trên 100 triệu</option>
+                            <option value="Dưới 20 triệu">Duoi 20 trieu</option>
+                            <option value="Từ 20 triệu trở lên">Tu 20 trieu tro len</option>
+                            <option value="Từ 50 triệu trở lên">Tu 50 trieu tro len</option>
+                            <option value="Từ 70 triệu trở lên">Tu 70 trieu tro len</option>
+                            <option value="Trên 100 triệu">Tren 100 trieu</option>
                           </select>
-                        </div>
+                        </div> */}
                         <input
                           className="form-input input-keysearch mr-10"
                           type="text"
@@ -175,74 +187,10 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div className="col-xl-4 col-lg-12 d-none d-xl-block col-md-6">
-                  {/* Banner VIP logic: nếu có banner active thì thay thế block này */}
-                  {vipBanner ? (
-
-                    <div className="banner-imgs">
-                      <motion.div
-                        className="gradient-frame"
-                        initial={{ y: 0, x: 0 }}
-                        animate={{
-                          y: [0, -10, 0, 20, 0],
-                          x: [0, 10, 0, -10, 0]
-                        }}
-                        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                      >
-                        <div className="gradient-frame-inner">
-                          <motion.img
-                            src={vipBanner.bannerImage}
-                            alt={vipBanner.bannerTitle || "Banner"}
-                            style={{ width: "100%", borderRadius: "12px", maxHeight: "320px", objectFit: "contain" }}
-                            initial={{ y: 0, x: 0 }}
-                            animate={{
-                              y: [0, -20, 0, 30, 0],
-                              x: [0, 15, 0, -20, 0]
-                            }}
-                            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                          />
-                        </div>
-                      </motion.div>
-                    </div>
-
-                  ) : (
-                    <div className="banner-imgs">
-                      <div className="block-1 shape-1">
-                        <img
-                          className="img-responsive"
-                          alt="jobBox"
-                          src="assets/imgs/page/homepage1/banner1.png"
-                        />
-                      </div>
-                      <div className="block-2 shape-2">
-                        <img
-                          className="img-responsive"
-                          alt="jobBox"
-                          src="assets/imgs/page/homepage1/banner2.png"
-                        />
-                      </div>
-                      <div className="block-3 shape-3">
-                        <img
-                          className="img-responsive"
-                          alt="jobBox"
-                          src="assets/imgs/page/homepage1/icon-top-banner.png"
-                        />
-                      </div>
-                      <div className="block-4 shape-3">
-                        <img
-                          className="img-responsive"
-                          alt="jobBox"
-                          src="assets/imgs/page/homepage1/icon-bottom-banner.png"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           </div>
         </section>
-        <div className="mt-100" />
         <section className="section-box mt-80">
           <div className="section-box wow animate__animated animate__fadeIn">
             <div className="container">
@@ -355,7 +303,7 @@ export default function Home() {
           <div className="container">
             <div className="text-center">
               <h2 className="section-title mb-10 wow animate__animated animate__fadeInUp">
-               New jobs of the day
+                New jobs of the day
               </h2>
               <p className="font-lg color-text-paragraph-2 wow animate__animated animate__fadeInUp">
                 Search and connect with the right candidates faster.{" "}
@@ -385,7 +333,7 @@ export default function Home() {
                     padding: 0,
                     overflow: 'hidden',
                     border: '6px solid #7c3aed',
-                    marginTop: '48px',  
+                    marginTop: '48px',
                   }}>
                     <img
                       src={standardBanner.bannerImage}
@@ -402,16 +350,6 @@ export default function Home() {
                   </div>
                 ) : (
                   <div className="box-image-job">
-                    <img
-                      className="img-job-1"
-                      alt="jobBox"
-                      src="assets/imgs/page/homepage1/img-chart.png"
-                    />
-                    <img
-                      className="img-job-2"
-                      alt="jobBox"
-                      src="assets/imgs/page/homepage1/controlcard.png"
-                    />
                     <figure className="wow animate__animated animate__fadeIn">
                       <img
                         alt="jobBox"
@@ -421,34 +359,34 @@ export default function Home() {
                   </div>
                 )}
               </div>
-              
-<div className="col-lg-6 col-sm-12">
-  <div className="content-job-inner">
-    <span className="color-text-mutted text-32">
-      Your Career, Your Future
-    </span>
-    <h2 className="text-52 wow animate__animated animate__fadeInUp">
-      Discover <span className="color-brand-2">Opportunities</span> That
-      Matter
-    </h2>
-    <div className="mt-40 pr-50 text-md-lh28 wow animate__animated animate__fadeInUp">
-      Thousands of companies are hiring right now. Explore open positions,
-      compare offers, and take the next step in your career journey — all in
-      one place.
-    </div>
-    <div className="mt-40">
-      <div className="wow animate__animated animate__fadeInUp">
-        <Link href="/jobs-grid">
-<span className="btn btn-default">Search Jobs</span>
-        </Link>
 
-        <Link href="/page-about">
-          <span className="btn btn-link">Learn More</span>
-        </Link>
-      </div>
-    </div>
-  </div>
-</div>
+              <div className="col-lg-6 col-sm-12">
+                <div className="content-job-inner">
+                  <span className="color-text-mutted text-32">
+                    Your Career, Your Future
+                  </span>
+                  <h2 className="text-52 wow animate__animated animate__fadeInUp">
+                    Discover <span className="color-brand-2">Opportunities</span> That
+                    Matter
+                  </h2>
+                  <div className="mt-40 pr-50 text-md-lh28 wow animate__animated animate__fadeInUp">
+                    Thousands of companies are hiring right now. Explore open positions,
+                    compare offers, and take the next step in your career journey — all in
+                    one place.
+                  </div>
+                  <div className="mt-40">
+                    <div className="wow animate__animated animate__fadeInUp">
+                      <Link href="/jobs-grid">
+                        <span className="btn btn-default">Search Jobs</span>
+                      </Link>
+
+                      <Link href="/page-about">
+                        <span className="btn btn-link">Learn More</span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
             </div>
           </div>
@@ -539,7 +477,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-        
+
         <section className="section-box mt-50 mb-50">
           <div className="container">
             <div className="text-center">
