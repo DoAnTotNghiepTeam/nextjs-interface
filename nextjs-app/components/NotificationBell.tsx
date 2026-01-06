@@ -69,10 +69,22 @@ export default function NotificationBell() {
     if (session) {
       fetchNotifications();
       
-      // ✅ Refresh mỗi 30 giây để cập nhật thông báo mới
-      const interval = setInterval(fetchNotifications, 30000);
+      // ✅ Refresh mỗi 10 giây (giảm từ 30s) để cập nhật thông báo nhanh hơn
+      const interval = setInterval(fetchNotifications, 10000);
       return () => clearInterval(interval);
     }
+  }, [session]);
+
+  // ✅ Expose function để các component khác có thể trigger refresh thủ công
+  useEffect(() => {
+    // Listen for custom event để refresh notification
+    const handleRefreshNotifications = () => {
+      console.log("🔄 Manual refresh notifications triggered");
+      fetchNotifications();
+    };
+
+    window.addEventListener("refreshNotifications", handleRefreshNotifications);
+    return () => window.removeEventListener("refreshNotifications", handleRefreshNotifications);
   }, [session]);
 
   // Click outside to close
