@@ -126,6 +126,32 @@ def ai_chatbot():
                 }
             }
 
+    # ===== CHECK QÚYTRINH TRƯỚC (trước khi lấy DB) =====
+    last_user_raw = ""
+    for turn in reversed(history):
+        if isinstance(turn, dict) and turn.get("role") == "user":
+            last_user_raw = turn.get("text", "")
+            break
+
+    last_user_text = last_user_raw.lower()
+    
+    # Nếu user hỏi về quy trình ứng tuyển → trả lời nhanh (không gọi Gemini, không lấy DB)
+    quytrinh_keywords = ["quy trình", "hướng dẫn", "cách ứng tuyển", "làm sao để ứng tuyển",
+                         "nộp hồ sơ", "đăng ký", "apply", "ứng tuyển"]
+    is_quytrinh = any(kw in last_user_text for kw in quytrinh_keywords)
+    
+    if is_quytrinh:
+        # Format response dạng text + thêm link riêng biệt
+        reply = "**5 BƯỚC ỨNG TUYỂN TẠI BossAIJOB:**\n\n" + \
+                "1. Tìm công việc - Tìm kiếm công việc phù hợp trên website BossAIJOB\n\n" + \
+                "2. Xem chi tiết - Xem yêu cầu công việc, mô tả chi tiết\n\n" + \
+                "3. Chuẩn bị CV - [🔗 Tạo CV ngay](http://localhost:3000/page-resume)\n\n" + \
+                "4. Bấm Apply - Bấm nút 'Ứng tuyển' trong chi tiết công việc\n\n" + \
+                "5. Chờ phản hồi - Chờ nhà tuyển dụng liên hệ bạn\n\n" + \
+                "📞 Liên hệ: **076-523-3951** nếu cần hỗ trợ!"
+        print("[SUCCESS] Trả lời quy trình ứng tuyển (0.1s)")
+        return jsonify({"reply": reply})
+
     # ===== Lấy dữ liệu job từ MySQL =====
     result, columns = get_jobs()
     jobs_text = ""
@@ -145,12 +171,6 @@ def ai_chatbot():
     import re
 
     # ✅ Chỉ lấy filter từ message mới nhất của user
-    last_user_raw = ""
-    for turn in reversed(history):
-        if isinstance(turn, dict) and turn.get("role") == "user":
-            last_user_raw = turn.get("text", "")
-            break
-
     text_norm = remove_accents(last_user_raw.lower().replace('-', ' ').replace('_', ' ')).replace('  ', ' ').strip()
 
     match = re.search(r"công việc (?:nào )?tên là ([^?]+)", text_norm, re.IGNORECASE)
@@ -200,8 +220,6 @@ def ai_chatbot():
     job_related = is_job_related(last_user_text)
 
     # Nếu có filter và liên quan đến việc làm → trả job
-    quytrinh_keywords = ["quy trình", "hướng dẫn", "cách ứng tuyển", "làm sao để ứng tuyển",
-                         "nộp hồ sơ", "đăng ký", "apply", "ứng tuyển"]
     is_quytrinh = any(kw in last_user_text for kw in quytrinh_keywords)
 
     if has_filter and job_related and not is_quytrinh and result and columns:
@@ -256,10 +274,10 @@ def ai_chatbot():
         print(f"[DEBUG] matched jobs: {len(matched)}")
         if matched:
             max_jobs = 15  # Giới hạn số lượng job trả về
-            reply = f"Đã tìm thấy {len(matched)} công việc phù hợp:\n"
+            reply = f"🎯 **Đã tìm thấy {len(matched)} công việc phù hợp:**\n\n"
             for info in matched[:max_jobs]:
                 link = f"http://localhost:3000/job-details-2/{info.get('id','')}"
-                reply += f"- [{info.get('title','')} ({info.get('job_type','')}), địa điểm: {info.get('location','')}, lương: {info.get('salary_range','')} VND]({link})\n"
+                reply += f"- [{info.get('title','')} ({info.get('job_type','')}), địa điểm: {info.get('location','')}, lương: {info.get('salary_range','')} VND]({link})\n\n"
             if len(matched) > max_jobs:
                 reply += f"\n... và {len(matched)-max_jobs} công việc khác. Vui lòng lọc thêm để xem chi tiết."
             print("[DEBUG] reply:", reply)
@@ -271,68 +289,36 @@ def ai_chatbot():
     # Nếu không có filter hoặc không liên quan → gọi Gemini
     # CHỈ thêm danh sách jobs nếu là lần đầu tiên (history rỗng hoặc chưa có system prompt)
     if (not history or "Bạn là BossAIJOB" not in str(history[0])) and result and columns:
-        for row in result[:3]:  # Giảm từ 5 xuống 3 jobs
+        for row in result[:10]:  # Lấy 10 jobs để AI có đủ context
             info = {col: str(val) if val not in [None, 'None'] else 'Chưa cập nhật' for col, val in zip(columns, row)}
-            link = f"http://localhost:3000/jobs/{info.get('id','')}"
-            jobs_text += f"---\n[TÊN]: {info.get('title','').upper()}\n[ĐỊA ĐIỂM]: {info.get('location','')}\n[LƯƠNG]: {info.get('salary_range','')} VND\n[MÔ TẢ]: {info.get('description','')}\n[LINK]: {link}\n\n"
+            link = f"http://localhost:3000/job-details-2/{info.get('id','')}"
+            jobs_text += f"[{info.get('title','')}] - {info.get('location','')} - {info.get('salary_range','')} VND - Loại: {info.get('job_type','')} - Link: {link}\n"
     else:
         jobs_text = ""  # Không thêm jobs nếu không phải lần đầu
 
     if not history or "Bạn là BossAIJOB" not in str(history[0]):
         initial_prompt = (
-    "# Meta Prompt: BossAIJOB Chatbot\n\n"
-    "## 1. System (Vai trò)\n"
-    "Bạn là BossAIJOB, một trợ lý ảo chuyên nghiệp cho website BossAIJOB. "
-    "Bạn đóng vai trò là chuyên gia tư vấn việc làm, hỗ trợ ứng viên tìm kiếm công việc phù hợp, "
-    "hướng dẫn quy trình ứng tuyển và đánh giá CV.\n\n"
-
-    "## 2. Context (Ngữ cảnh)\n"
-    "BossAIJOB là nền tảng tuyển dụng trực tuyến tại Việt Nam. "
-    "Người dùng của chatbot là ứng viên muốn:\n"
-    "- Tìm công việc theo ngành nghề, mức lương, kỹ năng hoặc địa điểm.\n"
-    "- Hiểu rõ yêu cầu tuyển dụng (mô tả công việc, kỹ năng, lương, quy trình).\n"
-    "- Nhận hướng dẫn ứng tuyển trên website BossAIJOB.\n"
-    "- Tạo và quản lý CV để ứng tuyển trực tuyến.\n"
-    "- Nhờ chatbot xem và đánh giá CV có phù hợp với một vị trí mong muốn hay không.\n\n"
-
-    "Dưới đây là danh sách các công việc hiện có trong hệ thống (trích từ bảng job_postings):\n"
+    "Bạn là BossAIJOB, trợ lý tư vấn việc làm chuyên nghiệp.\n"
+    "Nhiệm vụ: Tìm việc phù hợp từ database, đánh giá CV, hướng dẫn ứng tuyển.\n\n"
+    
+    "LUẬT BẮT BUỘC:\n"
+    "- Khi user tìm kiếm công việc: LẤY DỮ LIỆU TỪ DANH SÁCH BÊN DƯỚI, không tự sáng tác.\n"
+    "- Nếu tìm thấy: liệt kê chi tiết (tên, địa điểm, lương, link).\n"
+    "- Nếu không tìm thấy: trả lời 'Xin lỗi, chưa có công việc nào phù hợp. Liên hệ 076-523-3951'.\n"
+    "- Khi user tải CV lên: đánh giá match với vị trí, cho điểm 1-10 các tiêu chí.\n"
+    "- Luôn trả lời tiếng Việt, thân thiện, ngắn gọn.\n\n"
+    
+    "HƯỚNG DẪN ỨNG TUYỂN (5 BƯỚC):\n"
+    "1. Tìm công việc phù hợp trên website BossAIJOB\n"
+    "2. Xem chi tiết yêu cầu công việc\n"
+    "3. Chuẩn bị CV/Resume phù hợp (hoặc tạo CV: http://localhost:3000/page-resume)\n"
+    "4. Bấm nút 'Apply' hoặc 'Ứng tuyển' trong chi tiết công việc\n"
+    "5. Chờ phản hồi từ nhà tuyển dụng\n\n"
+    
+    "DANH SÁCH CÔNG VIỆC CÓ SẴN TỪ DATABASE:\n"
     f"{jobs_text}\n\n"
-
-    "## 3. Instructions (Hướng dẫn)\n"
-    "- Khi người dùng hỏi về tên công việc, hãy so sánh chính xác hoặc gần đúng với trường '[TÊN]' trong danh sách bên trên.\n"
-    "- Nếu tìm thấy, trả lời chi tiết về công việc đó (vị trí, lương, mô tả, link...).\n"
-    "- Nếu không tìm thấy, trả lời lịch sự là không có công việc phù hợp.\n"
-    "- Luôn trả lời bằng tiếng Việt, văn phong lịch sự, thân thiện, dễ hiểu.\n"
-    "- Trả lời ngắn gọn nhưng đầy đủ thông tin.\n"
-    "- Khi có thể, chèn link chi tiết công việc bằng Markdown.\n"
-    "- Nếu không có thông tin, trả lời:\n"
-    "  \"Xin lỗi, hiện tại tôi chưa có thông tin về công việc phù hợp. "
-    "Vui lòng truy cập website hoặc liên hệ hotline 076-523-3951 gặp BossHuy để biết thêm chi tiết.\"\n"
-    "- khi người dùng hỏi về cách ứng tuyển thì hãy nhắc đến 5 bước trong quy trình ứng tuyển.\n"
-    "- Không trả lời các câu hỏi không liên quan đến việc làm hoặc dịch vụ BossAIJOB.\n\n"
-
-    "### Hướng dẫn tạo CV:\n"
-    "- Khi người dùng hỏi về cách tạo CV hoặc quản lý CV, hãy trả lời theo các bước sau:\n"
-    "  1. Vào mục **Candidate** → chọn **Create CV** → chọn nút **Tạo CV** .\n"
-    "  2. Điền đầy đủ thông tin yêu cầu (họ tên, kỹ năng, kinh nghiệm, học vấn...).\n"
-    "  3. Sau khi hoàn tất, bấm nút **Tạo** để lưu CV.\n"
-    "- Kèm theo link tạo CV: [Tạo CV ngay](http://localhost:3000/page-resume).\n\n"
-
-    "### Đánh giá CV:\n"
-    "- Khi người dùng tải lên hoặc nhập nội dung CV và hỏi về sự phù hợp với một vị trí (ví dụ: Backend Developer, Data Analyst, Mobile Developer...), "
-    "hãy làm theo các bước sau:\n"
-    "  1. Xác định rõ vị trí {job_position} mà ứng viên muốn ứng tuyển.\n"
-    "  2. Đọc và phân tích CV, sau đó đánh giá theo các tiêu chí (thang điểm 1–10):\n"
-    "     - Kỹ năng kỹ thuật liên quan đến {job_position}.\n"
-    "     - Kiến thức bổ trợ.\n"
-    "     - Kinh nghiệm thực tế/dự án.\n"
-    "     - Học vấn & chứng chỉ liên quan.\n"
-    "     - Kỹ năng mềm (làm việc nhóm, giao tiếp...).\n"
-    "     - Mức độ phù hợp với {job_position}.\n"
-    "  3. Liệt kê điểm mạnh và điểm yếu của CV.\n"
-    "  4. Đưa ra gợi ý cụ thể để cải thiện CV.\n"
-    "  5. Kết luận tổng quan: CV này có phù hợp để nộp vào vị trí {job_position} hay không.\n"
-    "- Nếu người dùng không nêu rõ vị trí, hãy hỏi lại để đánh giá chính xác.\n"
+    
+    "Thông tin thêm: Link tạo CV: http://localhost:3000/page-resume"
 )
         history = [{'role': 'user', 'text': initial_prompt}] + history
 
@@ -341,17 +327,15 @@ def ai_chatbot():
         return jsonify({"reply": "Lỗi cấu hình: Thiếu GEMINI_API_KEY trong .env."}), 500
 
     models_to_try = [
-        "gemini-2.5-flash",        
-        "gemini-flash-latest",      
-        "gemini-2.0-flash-lite",  
-        "gemini-2.0-flash",      
-        "gemini-pro-latest",   
+        "gemini-2.5-flash",          # ⭐ Ổn định, nhanh
+        "gemini-flash-latest",       # Backup
+        "gemini-2.0-flash",          # Backup
     ]
 
     parts = [{"text": turn.get("text", "")} for turn in history]
 
-    # ===== Giới hạn lịch sử: chỉ gửi 10 message gần nhất để giảm kích thước payload =====
-    max_history = 10
+    # Giới hạn lịch sử: chỉ gửi 6 message gần nhất (không quá ít, không quá nhiều)
+    max_history = 6
     if len(parts) > max_history:
         parts = parts[-max_history:]
     if cv_text:
@@ -369,13 +353,13 @@ def ai_chatbot():
     for MODEL in models_to_try:
         try:
             URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={API_KEY}"
-            resp = requests.post(URL, headers=headers, data=json.dumps(payload), timeout=20)
+            resp = requests.post(URL, headers=headers, data=json.dumps(payload), timeout=25)
             
             # Kiểm tra lỗi 429 (Rate Limit) - thử model tiếp theo
             if resp.status_code == 429:
-                print(f"[WARNING] Rate limit exceeded for {MODEL}, trying next model...")
+                print(f"[WARNING] Rate limit exceeded for {MODEL}, waiting 2s...")
                 last_error = "Rate limit exceeded"
-                time.sleep(1)  # Đợi 1 giây trước khi thử model khác
+                time.sleep(2)  # Đợi 2 giây trước khi thử model khác
                 continue
             
             # Kiểm tra lỗi 404 (Model not found) - thử model tiếp theo
