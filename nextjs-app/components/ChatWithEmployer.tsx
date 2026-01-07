@@ -206,7 +206,11 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
           background: embedded ? "transparent" : "#fff", 
           maxWidth: embedded ? "100%" : 400,
           boxShadow: embedded ? "none" : "0 4px 16px rgba(0, 0, 0, 0.1)",
-          overflow: "hidden"
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          position: "relative"
         }}>
           {!embedded && (
             <div style={{ 
@@ -225,21 +229,40 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
             </div>
           )}
           <div style={{ 
-            maxHeight: 320, 
+            flex: 1,
             overflowY: "auto", 
             padding: "16px",
-            background: "#f8f9fa",
-            minHeight: "200px"
+            paddingBottom: "80px",
+            background: "linear-gradient(to bottom, #f0f4ff 0%, #f8f9fa 100%)",
+            minHeight: "0"
           }}>
             {messages.length === 0 && (
               <div style={{ 
                 textAlign: "center", 
                 color: "#999", 
-                padding: "40px 20px",
-                fontSize: "14px"
+                padding: "60px 20px",
+                fontSize: "14px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center"
               }}>
-                <div style={{ fontSize: "48px", marginBottom: "12px" }}>💬</div>
-                <div>Chưa có tin nhắn nào</div>
+                <div style={{ 
+                  fontSize: "64px", 
+                  marginBottom: "16px",
+                  opacity: 0.5,
+                  filter: "grayscale(30%)"
+                }}>💬</div>
+                <div style={{ 
+                  fontSize: "16px", 
+                  fontWeight: "500",
+                  color: "#666"
+                }}>Chưa có tin nhắn nào</div>
+                <div style={{ 
+                  fontSize: "13px", 
+                  color: "#999",
+                  marginTop: "8px"
+                }}>Hãy bắt đầu cuộc trò chuyện!</div>
               </div>
             )}
             {messages.map(msg => {
@@ -249,29 +272,82 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
               
               return (
                 <div key={msg.id} style={{ 
-                  textAlign: isMyMessage ? "right" : "left", 
-                  margin: "8px 0",
+                  margin: "10px 0",
                   display: "flex",
-                  justifyContent: isMyMessage ? "flex-end" : "flex-start"
+                  justifyContent: isMyMessage ? "flex-end" : "flex-start",
+                  alignItems: "flex-end",
+                  gap: "8px"
                 }}>
-                  <span style={{ 
-                    background: isMyMessage
-                      ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
-                      : "#fff", 
-                    color: isMyMessage ? "#fff" : "#333",
-                    padding: "10px 16px", 
-                    borderRadius: isMyMessage ? "18px 18px 4px 18px" : "18px 18px 18px 4px", 
-                    display: "inline-block",
-                    maxWidth: "75%",
-                    wordWrap: "break-word",
-                    boxShadow: isMyMessage
-                      ? "0 2px 8px rgba(102, 126, 234, 0.25)" 
-                      : "0 2px 8px rgba(0, 0, 0, 0.08)",
-                    fontSize: "14px",
-                    lineHeight: "1.4"
+                  {!isMyMessage && (
+                    <div style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "16px",
+                      flexShrink: 0
+                    }}>
+                      👤
+                    </div>
+                  )}
+                  <div style={{
+                    maxWidth: "70%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: isMyMessage ? "flex-end" : "flex-start"
                   }}>
-                    {msg.text}
-                  </span>
+                    <span style={{ 
+                      background: isMyMessage
+                        ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
+                        : "#fff", 
+                      color: isMyMessage ? "#fff" : "#333",
+                      padding: "12px 16px", 
+                      borderRadius: isMyMessage 
+                        ? "20px 20px 4px 20px" 
+                        : "20px 20px 20px 4px", 
+                      display: "inline-block",
+                      wordWrap: "break-word",
+                      boxShadow: isMyMessage
+                        ? "0 4px 12px rgba(102, 126, 234, 0.3)" 
+                        : "0 2px 8px rgba(0, 0, 0, 0.08)",
+                      fontSize: "14px",
+                      lineHeight: "1.5",
+                      border: isMyMessage ? "none" : "1px solid rgba(0, 0, 0, 0.05)"
+                    }}>
+                      {msg.text}
+                    </span>
+                    {msg.timestamp && (
+                      <span style={{
+                        fontSize: "11px",
+                        color: "#999",
+                        marginTop: "4px",
+                        padding: "0 4px"
+                      }}>
+                        {msg.timestamp.toDate().toLocaleTimeString("vi-VN", { 
+                          hour: "2-digit", 
+                          minute: "2-digit" 
+                        })}
+                      </span>
+                    )}
+                  </div>
+                  {isMyMessage && (
+                    <div style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "16px",
+                      flexShrink: 0
+                    }}>
+                      😊
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -282,7 +358,13 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
             padding: "16px",
             background: "#fff",
             borderTop: "1px solid rgba(0, 0, 0, 0.08)",
-            gap: "8px"
+            gap: "8px",
+            flexShrink: 0,
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 10
           }}>
             <input
               value={input}

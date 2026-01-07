@@ -5,6 +5,7 @@ import { X, Building2, MapPin, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import "./company-registration-modal.css";
 import { useSession } from "next-auth/react";
+import { useToast } from "@/hooks/use-toast";
 
 interface CompanyRegistrationModalProps {
   isOpen: boolean;
@@ -40,6 +41,7 @@ export default function CompanyRegistrationModal({
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
   const { data: session } = useSession();
   const userId = session?.user?.id || "default-user-id"; // replace with actual user ID logic
+  const { toast } = useToast();
 
   const [formData, setFormData] = useState<FormData>({
     companyName: "",
@@ -193,7 +195,11 @@ export default function CompanyRegistrationModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValid) {
-      alert("Vui lòng hoàn thành đầy đủ thông tin bắt buộc trước khi gửi.");
+      toast({
+        title: "Thông tin chưa đầy đủ",
+        description: "Vui lòng hoàn thành đầy đủ thông tin bắt buộc trước khi gửi.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -228,15 +234,26 @@ export default function CompanyRegistrationModal({
       );
 
       if (response.ok) {
-        alert("🎉 Gửi Đăng ký thông tin công ty thành công!");
+        toast({
+          title: "🎉 Đăng ký thành công!",
+          description: "Thông tin công ty đã được gửi thành công. Vui lòng chờ admin phê duyệt.",
+        });
         handleCancel();
       } else {
         const err = await response.json().catch(() => null);
-        alert(`❌ Lỗi: ${err?.message || "Có lỗi xảy ra"}`);
+        toast({
+          title: "Đăng ký thất bại",
+          description: err?.message || "Có lỗi xảy ra khi gửi thông tin công ty",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("❌ Có lỗi xảy ra khi gửi thông tin");
+      toast({
+        title: "Lỗi kết nối",
+        description: "Có lỗi xảy ra khi gửi thông tin. Vui lòng thử lại sau.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }

@@ -39,6 +39,7 @@ type Company = {
 import { useEffect, useState, useRef } from "react";
 import { getCompanyByEmployerId } from "@/lib/company/api";
 import { useParams, useRouter } from "next/navigation";
+import MultiChatWidget, { MultiChatHandle } from "@/components/MultiChatWidget";
 
 
 import Link from "next/link";
@@ -617,6 +618,15 @@ const hours = Math.floor(minutes / 60);
             </div>
           </section>
         </div>
+        
+        {/* Chat Widget */}
+        {session?.user?.id && (
+          <MultiChatWidget
+            ref={chatRef}
+            applicantId={session.user.id}
+            applicantName={session.user.fullName || session.user.name}
+          />
+        )}
     </Layout>
   </>
   );
