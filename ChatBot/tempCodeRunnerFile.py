@@ -339,9 +339,11 @@ def ai_chatbot():
         return jsonify({"reply": "Lỗi cấu hình: Thiếu GEMINI_API_KEY trong .env."}), 500
 
     models_to_try = [
-"gemini-1.5-flash", 
-    "gemini-1.5-pro",
-    "gemini-pro"   
+        "gemini-2.5-flash",        
+        "gemini-flash-latest",      
+        "gemini-2.0-flash-lite",  
+        "gemini-2.0-flash",      
+        "gemini-pro-latest",     
     ]
 
     parts = [{"text": turn.get("text", "")} for turn in history]
