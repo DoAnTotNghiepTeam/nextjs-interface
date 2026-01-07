@@ -140,16 +140,34 @@ def ai_chatbot():
                          "nộp hồ sơ", "đăng ký", "apply", "ứng tuyển"]
     is_quytrinh = any(kw in last_user_text for kw in quytrinh_keywords)
     
+    # Nếu user hỏi câu chung chung → trả lời nhanh
+    general_keywords = ["bạn là ai", "bạn tên gì", "bạn là người", "ai là bạn", "hello", "hi", "xin chào"]
+    is_general_question = any(kw in last_user_text for kw in general_keywords)
+    
+    if is_general_question:
+        time.sleep(0.8)  # Delay 1.5 giây để tạo hiệu ứng tự nhiên
+        reply = "Chào bạn! 👋 Tôi là **BossAIJOB**, trợ lý tư vấn việc làm chuyên nghiệp của bạn.\n\n" + \
+                "Tôi có thể giúp bạn:\n\n" + \
+                "✅ Tìm công việc phù hợp (full-time, part-time, remote, intern...)\n" + \
+                "✅ Đánh giá CV và đưa lời khuyên cải thiện\n\n" + \
+                "✅ Hướng dẫn quy trình ứng tuyển\n\n" + \
+                "Bạn cần gì? Hãy hỏi tôi! 😊"
+        print("[SUCCESS] Trả lời câu hỏi chung chung (0.05s)")
+        return jsonify({"reply": reply})
+    
     if is_quytrinh:
+        # Delay 1.5 giây để tạo hiệu ứng tự nhiên (chatbot đang suy nghĩ)
+        time.sleep(1.5)
+        
         # Format response dạng text + thêm link riêng biệt
         reply = "**5 BƯỚC ỨNG TUYỂN TẠI BossAIJOB:**\n\n" + \
                 "1. Tìm công việc - Tìm kiếm công việc phù hợp trên website BossAIJOB\n\n" + \
                 "2. Xem chi tiết - Xem yêu cầu công việc, mô tả chi tiết\n\n" + \
-                "3. Chuẩn bị CV - [🔗 Tạo CV ngay](http://localhost:3000/page-resume)\n\n" + \
+                "3. Truy cập vào mục CV để chuẩn bị CV - [🔗 http://localhost:3000/page-resume ](http://localhost:3000/page-resume)\n\n" + \
                 "4. Bấm Apply - Bấm nút 'Ứng tuyển' trong chi tiết công việc\n\n" + \
                 "5. Chờ phản hồi - Chờ nhà tuyển dụng liên hệ bạn\n\n" + \
-                "📞 Liên hệ: **076-523-3951** nếu cần hỗ trợ!"
-        print("[SUCCESS] Trả lời quy trình ứng tuyển (0.1s)")
+                "📞 Liên hệ: **076-523-3951** nếu cần hỗ trợ gấp!"
+        print("[SUCCESS] Trả lời quy trình ứng tuyển (1.5s)")
         return jsonify({"reply": reply})
 
     # ===== Lấy dữ liệu job từ MySQL =====
@@ -298,15 +316,30 @@ def ai_chatbot():
 
     if not history or "Bạn là BossAIJOB" not in str(history[0]):
         initial_prompt = (
-    "Bạn là BossAIJOB, trợ lý tư vấn việc làm chuyên nghiệp.\n"
+    "Bạn là BossAIJOB, trợ lý tư vấn việc làm chuyên nghiệp của bạn .\n"
     "Nhiệm vụ: Tìm việc phù hợp từ database, đánh giá CV, hướng dẫn ứng tuyển.\n\n"
     
     "LUẬT BẮT BUỘC:\n"
     "- Khi user tìm kiếm công việc: LẤY DỮ LIỆU TỪ DANH SÁCH BÊN DƯỚI, không tự sáng tác.\n"
     "- Nếu tìm thấy: liệt kê chi tiết (tên, địa điểm, lương, link).\n"
     "- Nếu không tìm thấy: trả lời 'Xin lỗi, chưa có công việc nào phù hợp. Liên hệ 076-523-3951'.\n"
-    "- Khi user tải CV lên: đánh giá match với vị trí, cho điểm 1-10 các tiêu chí.\n"
-    "- Luôn trả lời tiếng Việt, thân thiện, ngắn gọn.\n\n"
+    "- Luôn trả lời tiếng Việt, thân thiện.\n\n"
+    
+    "HƯỚNG DẪN ĐÁNH GIÁ CV:\n"
+    "Khi user tải CV lên (ảnh hoặc file PDF) và hỏi về sự phù hợp với một vị trí, hãy:\n"
+    "VÍ DỤ: 'xem giúp ta CV này cho vị trí Backend Developer', 'đánh giá CV cho vị trí Data Analyst', 'CV phù hợp với QA/Tester không?'\n\n"
+    "1. XÁC ĐỊNH VỊ TRỊ - Nêu rõ vị trí ứng tuyển (Backend, Frontend, QA, Data, DevOps, v.v.)\n"
+    "2. TỔNG QUAN - Đánh giá cấu trúc, trình bày CV (cảm nhận chung)\n"
+    "3. ĐÁNH GIÁ 5 TIÊU CHÍ (mỗi tiêu chí cho điểm 1-10 có giải thích):\n"
+    "   • Trình bày & Định dạng (Layout, độ chuyên nghiệp)\n"
+    "   • Kỹ năng liên quan (Công nghệ, tool phù hợp vị trí)\n"
+    "   • Kinh nghiệm & Dự án (Số năm, độ phức tạp, liên quan)\n"
+    "   • Học vấn & Chứng chỉ (Bằng cấp, chứng chỉ, khoá học)\n"
+    "   • Kỹ năng mềm & Khác (Giao tiếp, Tiếng Anh, Lãnh đạo)\n"
+    "4. ĐIỂM MẠNH - Liệt kê 3-5 điểm tích cực\n"
+    "5. CẦN CẢI THIỆN - Liệt kê 3-5 điểm yếu cần bổ sung\n"
+    "6. KHUYẾN NGHỊ CỤ THỂ - Đưa ra 3-5 hành động cụ thể để tối ưu CV\n"
+    "7. KẾT LUẬN - Mức độ phù hợp (Rất cao/Cao/Trung bình/Thấp) + lời khuyên\n\n"
     
     "HƯỚNG DẪN ỨNG TUYỂN (5 BƯỚC):\n"
     "1. Tìm công việc phù hợp trên website BossAIJOB\n"
@@ -330,14 +363,26 @@ def ai_chatbot():
         "gemini-2.5-flash",          # ⭐ Ổn định, nhanh
         "gemini-flash-latest",       # Backup
         "gemini-2.0-flash",          # Backup
+        "gemini-1.5-pro",            # Fallback nếu 503
     ]
 
     parts = [{"text": turn.get("text", "")} for turn in history]
 
+    # ===== CHỈ thêm system instruction lần đầu hoặc khi có CV =====
+    should_add_system = (not history or "Bạn là BossAIJOB" not in str(history[0])) or cv_text
+    
+    if should_add_system:
+        system_instruction = (
+            "BẠN LÀ BossAIJOB, một trợ lý tư vấn việc làm chuyên nghiệp. "
+            "Luôn tự giới thiệu là BossAIJOB, không phải mô hình ngôn ngữ của Google. "
+            "Bạn giúp user tìm việc từ database, đánh giá CV, hướng dẫn ứng tuyển."
+        )
+        parts = [{"text": system_instruction}] + parts
+
     # Giới hạn lịch sử: chỉ gửi 6 message gần nhất (không quá ít, không quá nhiều)
     max_history = 6
-    if len(parts) > max_history:
-        parts = parts[-max_history:]
+    if len(parts) > max_history + 1:  # +1 vì có system instruction
+        parts = [parts[0]] + parts[-(max_history):] if should_add_system else parts[-max_history:]
     if cv_text:
         parts.append({"text": "Nội dung CV ứng viên:\n" + cv_text})
     if file_part:
@@ -360,6 +405,13 @@ def ai_chatbot():
                 print(f"[WARNING] Rate limit exceeded for {MODEL}, waiting 2s...")
                 last_error = "Rate limit exceeded"
                 time.sleep(2)  # Đợi 2 giây trước khi thử model khác
+                continue
+            
+            # Kiểm tra lỗi 503 (Service Unavailable - hết quota) - thử model tiếp theo
+            if resp.status_code == 503:
+                print(f"[WARNING] Service unavailable for {MODEL} (quota exceeded?), trying next model...")
+                last_error = "Service unavailable - quota may be exceeded"
+                time.sleep(2)
                 continue
             
             # Kiểm tra lỗi 404 (Model not found) - thử model tiếp theo
