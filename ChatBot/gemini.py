@@ -7,6 +7,7 @@ import mysql.connector
 from dotenv import load_dotenv
 import base64
 import fitz  # PyMuPDF để đọc text từ PDF
+import time  # Để xử lý rate limit
 
 load_dotenv()
 
@@ -268,13 +269,14 @@ def ai_chatbot():
             has_filter = False
 
     # Nếu không có filter hoặc không liên quan → gọi Gemini
-    if result and columns:
-        for row in result[:5]:
+    # CHỈ thêm danh sách jobs nếu là lần đầu tiên (history rỗng hoặc chưa có system prompt)
+    if (not history or "Bạn là BossAIJOB" not in str(history[0])) and result and columns:
+        for row in result[:3]:  # Giảm từ 5 xuống 3 jobs
             info = {col: str(val) if val not in [None, 'None'] else 'Chưa cập nhật' for col, val in zip(columns, row)}
             link = f"http://localhost:3000/jobs/{info.get('id','')}"
             jobs_text += f"---\n[TÊN]: {info.get('title','').upper()}\n[ĐỊA ĐIỂM]: {info.get('location','')}\n[LƯƠNG]: {info.get('salary_range','')} VND\n[MÔ TẢ]: {info.get('description','')}\n[LINK]: {link}\n\n"
     else:
-        jobs_text = "Hiện tại chưa có công việc nào trong hệ thống."
+        jobs_text = ""  # Không thêm jobs nếu không phải lần đầu
 
     if not history or "Bạn là BossAIJOB" not in str(history[0]):
         initial_prompt = (
@@ -339,14 +341,19 @@ def ai_chatbot():
         return jsonify({"reply": "Lỗi cấu hình: Thiếu GEMINI_API_KEY trong .env."}), 500
 
     models_to_try = [
-"gemini-1.5-flash", 
-    "gemini-1.5-pro",
-    "gemini-pro"   
+        "gemini-2.5-flash",        
+        "gemini-flash-latest",      
+        "gemini-2.0-flash-lite",  
+        "gemini-2.0-flash",      
+        "gemini-pro-latest",   
     ]
 
     parts = [{"text": turn.get("text", "")} for turn in history]
 
-    # ===== Thêm CV vào prompt nếu có =====
+    # ===== Giới hạn lịch sử: chỉ gửi 10 message gần nhất để giảm kích thước payload =====
+    max_history = 10
+    if len(parts) > max_history:
+        parts = parts[-max_history:]
     if cv_text:
         parts.append({"text": "Nội dung CV ứng viên:\n" + cv_text})
     if file_part:
@@ -362,7 +369,21 @@ def ai_chatbot():
     for MODEL in models_to_try:
         try:
             URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={API_KEY}"
-            resp = requests.post(URL, headers=headers, data=json.dumps(payload), timeout=10)
+            resp = requests.post(URL, headers=headers, data=json.dumps(payload), timeout=20)
+            
+            # Kiểm tra lỗi 429 (Rate Limit) - thử model tiếp theo
+            if resp.status_code == 429:
+                print(f"[WARNING] Rate limit exceeded for {MODEL}, trying next model...")
+                last_error = "Rate limit exceeded"
+                time.sleep(1)  # Đợi 1 giây trước khi thử model khác
+                continue
+            
+            # Kiểm tra lỗi 404 (Model not found) - thử model tiếp theo
+            if resp.status_code == 404:
+                print(f"[WARNING] Model {MODEL} not found, trying next model...")
+                last_error = f"Model {MODEL} not available"
+                continue
+            
             resp.raise_for_status()
             result = resp.json()
             reply = result["candidates"][0]["content"]["parts"][0]["text"]
