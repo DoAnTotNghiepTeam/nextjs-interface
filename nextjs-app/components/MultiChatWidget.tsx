@@ -1,31 +1,43 @@
-import React, { useState, useEffect } from "react";
-import { collection, query, where, onSnapshot, orderBy, limit, type Timestamp } from "firebase/firestore";
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from "react";
+import { collection, query, where, onSnapshot, orderBy, limit, type Timestamp, doc, updateDoc, setDoc, getDocs } from "firebase/firestore";
 import { db } from "../lib/firebaseConfig";
 import ChatWithEmployer from "./ChatWithEmployer";
 
 interface MultiChatWidgetProps {
   applicantId: string | number;
   applicantName?: string;
-  bottomOffset?: number;
+  iconBottomOffset?: number;  // Vị trí icon (mặc định 160)
+  popupBottomOffset?: number; // Vị trí popup (mặc định 40, giống chatbot)
+  hideIcon?: boolean;         // Ẩn icon khi chatbot mở
 }
 
 interface ChatContact {
   employerId: string;
   employerName?: string;
+  companyName?: string;
   lastMessage: string;
   lastTimestamp: Timestamp | null;
   unreadForApplicant?: boolean;
 }
 
-const MultiChatWidget: React.FC<MultiChatWidgetProps> = ({ 
+export interface MultiChatHandle {
+  open: () => void;
+  openChat: (employerId: string, employerName?: string, companyName?: string) => Promise<void>;
+  close: () => void;
+}
+
+const MultiChatWidget = forwardRef<MultiChatHandle, MultiChatWidgetProps>(({ 
   applicantId, 
   applicantName, 
-  bottomOffset = 100 
-}) => {
+  iconBottomOffset = 160,
+  popupBottomOffset = 40,
+  hideIcon = false
+}, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showChatList, setShowChatList] = useState(true);
   const [selectedEmployerId, setSelectedEmployerId] = useState<string | null>(null);
   const [selectedEmployerName, setSelectedEmployerName] = useState<string>("");
+  const [selectedCompanyName, setSelectedCompanyName] = useState<string>("");
   const [chatContacts, setChatContacts] = useState<ChatContact[]>([]);
   const [totalUnread, setTotalUnread] = useState(0);
 
@@ -37,6 +49,8 @@ const MultiChatWidget: React.FC<MultiChatWidgetProps> = ({
     // (old chats might have number, new chats have string)
     const applicantIdStr = String(applicantId);
     const applicantIdNum = typeof applicantId === 'string' ? parseInt(applicantId, 10) : applicantId;
+    
+    console.log("🔍 [MultiChatWidget] Querying with applicantIdStr:", applicantIdStr, "and applicantIdNum:", applicantIdNum);
     
     const q1 = query(
       collection(db, "chats"),
@@ -52,16 +66,41 @@ const MultiChatWidget: React.FC<MultiChatWidgetProps> = ({
     const allContacts = new Map<string, ChatContact>();
     let activeListeners = 2;
     
-    const processSnapshot = (snapshot: any, queryType: string) => {
+    const processSnapshot = async (snapshot: any, queryType: string) => {
       console.log(`📂 [MultiChatWidget] Query with ${queryType} - Chat documents found:`, snapshot.docs.length);
       
-      snapshot.docs.forEach((doc: any) => {
-        const data = doc.data();
+      const promises = snapshot.docs.map(async (chatDoc: any) => {
+        const data = chatDoc.data();
         const employerId = data.employerId;
         
+        // Fetch company name from API
+        let companyName = data.companyName;
+        if (!companyName && employerId) {
+          try {
+            const apiUrl = `http://localhost:8080/api/employers/${employerId}/company`;
+            console.log(`🔍 [MultiChatWidget] Fetching company from:`, apiUrl);
+            const response = await fetch(apiUrl);
+            console.log(`📡 [MultiChatWidget] API response status:`, response.status);
+            if (response.ok) {
+              // API trả về plain text, không phải JSON
+              const companyText = await response.text();
+              console.log(`📦 [MultiChatWidget] Raw company text:`, companyText);
+              // Loại bỏ dấu ngoặc kép nếu có
+              companyName = companyText.replace(/^"|"$/g, '').trim();
+              console.log(`🏢 [MultiChatWidget] Extracted company name for employer ${employerId}:`, companyName);
+            } else {
+              console.warn(`⚠️ [MultiChatWidget] API returned non-OK status ${response.status} for employer ${employerId}`);
+            }
+          } catch (error) {
+            console.error(`❌ [MultiChatWidget] Failed to fetch company for employer ${employerId}:`, error);
+          }
+        }
+        
         console.log(`📋 [MultiChatWidget] Processing chat doc:`, {
-          docId: doc.id,
+          docId: chatDoc.id,
           employerId,
+          employerName: data.employerName,
+          companyName: companyName,
           lastMessage: data.lastMessage?.substring(0, 30) || '(empty)',
           lastTimestamp: data.lastTimestamp?.toDate() || '(undefined)',
           unread: data.unreadForApplicant
@@ -70,31 +109,85 @@ const MultiChatWidget: React.FC<MultiChatWidgetProps> = ({
         const contact: ChatContact = {
           employerId: data.employerId,
           employerName: data.employerName || "Nhà tuyển dụng",
+          companyName: companyName,
           lastMessage: data.lastMessage || "",  // Empty string if undefined
           lastTimestamp: data.lastTimestamp || null,  // null if undefined
           unreadForApplicant: data.unreadForApplicant || false,
         };
         
+        // 🔄 Tự động sync lastMessage nếu thiếu hoặc rỗng
+        if ((!data.lastMessage || data.lastMessage.trim() === '') && data.lastTimestamp) {
+          console.log(`🔄 [MultiChatWidget] Contact has timestamp but no lastMessage, syncing from subcollection...`, {
+            chatId: chatDoc.id,
+            employerId
+          });
+          
+          try {
+            const chatId = chatDoc.id;
+            const messagesQuery = query(
+              collection(db, "chats", chatId, "messages"),
+              orderBy("timestamp", "desc"),
+              limit(1)
+            );
+            
+            const messagesSnapshot = await getDocs(messagesQuery);
+            if (!messagesSnapshot.empty) {
+              const lastMsg = messagesSnapshot.docs[0].data();
+              if (lastMsg.text && lastMsg.timestamp) {
+                console.log(`✅ [MultiChatWidget] Found last message in subcollection:`, lastMsg.text.substring(0, 30));
+                
+                // Cập nhật vào Firestore
+                await setDoc(doc(db, "chats", chatId), {
+                  lastMessage: lastMsg.text,
+                  lastTimestamp: lastMsg.timestamp
+                }, { merge: true });
+                
+                // Cập nhật contact local
+                contact.lastMessage = lastMsg.text;
+                console.log(`✅ [MultiChatWidget] Synced lastMessage for chat ${chatId}`);
+              }
+            } else {
+              console.log(`⚠️ [MultiChatWidget] No messages found in subcollection for chat ${chatDoc.id}`);
+            }
+          } catch (error) {
+            console.error(`❌ [MultiChatWidget] Failed to sync lastMessage:`, error);
+          }
+        }
+        
         // ALWAYS update contact data (even if already exists) to get latest message
         console.log(`➕ [MultiChatWidget] ${allContacts.has(employerId) ? 'Updating' : 'Adding'} contact:`, {
           employerId,
+          companyName: contact.companyName,
           lastMessage: contact.lastMessage?.substring(0, 20)
         });
         allContacts.set(employerId, contact);
       });
       
+      await Promise.all(promises);
       updateContactsList();
     };
     
     const updateContactsList = () => {
-      const contacts = Array.from(allContacts.values())
+      const allContactsArray = Array.from(allContacts.values());
+      console.log("📊 [MultiChatWidget] All contacts before filter:", allContactsArray.length, allContactsArray.map(c => ({
+        employerId: c.employerId,
+        hasLastMessage: !!c.lastMessage,
+        hasLastTimestamp: !!c.lastTimestamp,
+        lastMessage: c.lastMessage?.substring(0, 20),
+        companyName: c.companyName
+      })));
+      
+      const contacts = allContactsArray
+        // Chỉ loại bỏ những contact thực sự không có lastTimestamp (chưa từng có tin nhắn)
+        // Empty string lastMessage vẫn giữ lại vì có thể là tin nhắn trống hoặc chưa sync kịp
+        .filter(contact => contact.lastTimestamp)
         .sort((a, b) => {
           if (!a.lastTimestamp) return 1;
           if (!b.lastTimestamp) return -1;
           return b.lastTimestamp.toMillis() - a.lastTimestamp.toMillis();
         });
       
-      console.log("✅ [MultiChatWidget] Total unique contacts:", contacts.length);
+      console.log("✅ [MultiChatWidget] Total unique contacts with messages:", contacts.length);
       setChatContacts(contacts);
       
       const unreadCount = contacts.filter(c => c.unreadForApplicant).length;
@@ -125,10 +218,58 @@ const MultiChatWidget: React.FC<MultiChatWidgetProps> = ({
     };
   }, [applicantId]);
 
-  const handleSelectContact = (employerId: string, employerName: string) => {
+  // Expose methods to parent component via ref
+  useImperativeHandle(ref, () => ({
+    open: () => {
+      setIsOpen(true);
+    },
+    openChat: async (employerId: string, employerName?: string, companyName?: string) => {
+      setSelectedEmployerId(employerId);
+      setSelectedEmployerName(employerName || "Nhà tuyển dụng");
+      
+      // Fetch company name if not provided
+      if (!companyName && employerId) {
+        try {
+          const apiUrl = `http://localhost:8080/api/employers/${employerId}/company`;
+          console.log(`🔍 [MultiChatWidget.openChat] Fetching company from:`, apiUrl);
+          const response = await fetch(apiUrl);
+          if (response.ok) {
+            const companyText = await response.text();
+            companyName = companyText.replace(/^"|"$/g, '').trim();
+            console.log(`🏢 [MultiChatWidget.openChat] Fetched company name:`, companyName);
+          }
+        } catch (error) {
+          console.error(`❌ [MultiChatWidget.openChat] Failed to fetch company:`, error);
+        }
+      }
+      
+      setSelectedCompanyName(companyName || "");
+      setShowChatList(false);
+      setIsOpen(true);
+    },
+    close: () => {
+      setIsOpen(false);
+      setShowChatList(true);
+      setSelectedEmployerId(null);
+    }
+  }));
+
+  const handleSelectContact = async (employerId: string, employerName: string, companyName?: string) => {
     setSelectedEmployerId(employerId);
     setSelectedEmployerName(employerName);
+    setSelectedCompanyName(companyName || "");
     setShowChatList(false);
+    
+    // Mark as read when opening chat
+    const chatId = `${employerId}_${applicantId}`;
+    try {
+      await updateDoc(doc(db, "chats", chatId), {
+        unreadForApplicant: false
+      });
+      console.log(`✅ [MultiChatWidget] Marked chat ${chatId} as read`);
+    } catch (error) {
+      console.error(`❌ [MultiChatWidget] Failed to mark chat as read:`, error);
+    }
   };
 
   const handleBackToList = () => {
@@ -154,41 +295,76 @@ const MultiChatWidget: React.FC<MultiChatWidgetProps> = ({
 
   return (
     <>
+      <style jsx>{`
+        @keyframes float-chat {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+        }
+        
+        @keyframes pulse-chat {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        
+        @keyframes bounce-chat {
+          0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+          40% { transform: translateY(-8px); }
+          60% { transform: translateY(-4px); }
+        }
+        
+        @keyframes glow-chat {
+          0%, 100% { box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3); }
+          50% { box-shadow: 0 6px 24px rgba(102, 126, 234, 0.5); }
+        }
+        
+        .chat-float-btn {
+          animation: float-chat 3s ease-in-out infinite, glow-chat 2s ease-in-out infinite;
+          transition: all 0.3s ease;
+        }
+        
+        .chat-float-btn:hover {
+          animation: bounce-chat 0.6s ease-in-out;
+        }
+        
+        .chat-icon {
+          animation: pulse-chat 2s ease-in-out infinite;
+          transition: transform 0.3s ease;
+          font-size: 32px;
+        }
+        
+        .chat-icon:hover {
+          transform: rotate(-10deg) scale(1.1);
+        }
+        
+        @keyframes pulse-badge {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+        }
+      `}</style>
+      
       {/* Chat Bubble Button */}
-      {!isOpen && (
+      {!isOpen && !hideIcon && (
         <button
+          className="chat-float-btn"
           onClick={() => setIsOpen(true)}
           style={{
             position: "fixed",
-            bottom: bottomOffset,
+            bottom: iconBottomOffset,
             right: 32,
-            zIndex: 1000,
+            zIndex: 10000,
             borderRadius: "50%",
             width: 64,
             height: 64,
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            color: "#fff",
-            fontWeight: "bold",
-            fontSize: 28,
-            boxShadow: "0 8px 24px rgba(102, 126, 234, 0.4), 0 4px 8px rgba(0, 0, 0, 0.1)",
-            border: "none",
+            background: "#fff",
+            border: "3px solid #e2e8f0",
             cursor: "pointer",
-            transition: "all 0.3s ease",
             display: "flex",
             alignItems: "center",
             justifyContent: "center"
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.1) rotate(5deg)";
-            e.currentTarget.style.boxShadow = "0 12px 32px rgba(102, 126, 234, 0.6), 0 6px 12px rgba(0, 0, 0, 0.15)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1) rotate(0deg)";
-            e.currentTarget.style.boxShadow = "0 8px 24px rgba(102, 126, 234, 0.4), 0 4px 8px rgba(0, 0, 0, 0.1)";
-          }}
-          title="Tin nhắn"
+          title="Tin nhắn với nhà tuyển dụng"
         >
-          💬
+          <span className="chat-icon">💬</span>
           {totalUnread > 0 && (
             <span style={{
               position: "absolute",
@@ -206,7 +382,7 @@ const MultiChatWidget: React.FC<MultiChatWidgetProps> = ({
               fontWeight: "bold",
               boxShadow: "0 2px 8px rgba(255, 68, 68, 0.5)",
               border: "2px solid #fff",
-              animation: "pulse 2s infinite"
+              animation: "pulse-badge 2s infinite"
             }}>
               {totalUnread > 9 ? "9+" : totalUnread}
             </span>
@@ -219,9 +395,9 @@ const MultiChatWidget: React.FC<MultiChatWidgetProps> = ({
         <div
           style={{
             position: "fixed",
-            bottom: bottomOffset,
-            right: 32,
-            zIndex: 1001,
+            bottom: popupBottomOffset,
+            right: 40,
+            zIndex: 10001,
             background: "#fff",
             borderRadius: 16,
             boxShadow: "0 12px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1)",
@@ -278,7 +454,7 @@ const MultiChatWidget: React.FC<MultiChatWidgetProps> = ({
               )}
               <span style={{ fontSize: "20px" }}>💬</span>
               <span style={{ fontWeight: "600", fontSize: "16px" }}>
-                {showChatList ? "Tin nhắn" : selectedEmployerName}
+                {showChatList ? "Tin nhắn" : (selectedCompanyName ? `Tuyển dụng ${selectedCompanyName}` : selectedEmployerName)}
               </span>
             </div>
             <button
@@ -331,6 +507,8 @@ const MultiChatWidget: React.FC<MultiChatWidgetProps> = ({
                     console.log("🎨 [MultiChatWidget] Rendering contact:", {
                       employerId: contact.employerId,
                       employerName: contact.employerName,
+                      companyName: contact.companyName,
+                      displayName: contact.companyName || contact.employerName,
                       lastMessage: contact.lastMessage,
                       lastTimestamp: contact.lastTimestamp,
                       formattedTime: formatTime(contact.lastTimestamp),
@@ -340,7 +518,7 @@ const MultiChatWidget: React.FC<MultiChatWidgetProps> = ({
                     return (
                       <div
                         key={contact.employerId}
-                        onClick={() => handleSelectContact(contact.employerId, contact.employerName || "Nhà tuyển dụng")}
+                        onClick={() => handleSelectContact(contact.employerId, contact.employerName || "Nhà tuyển dụng", contact.companyName)}
                         style={{
                           padding: "16px 20px",
                           borderBottom: "1px solid #e0e0e0",
@@ -362,7 +540,7 @@ const MultiChatWidget: React.FC<MultiChatWidgetProps> = ({
                             fontSize: "15px",
                             color: "#333"
                           }}>
-                            {contact.employerName}
+                            {contact.companyName ? `Tuyển dụng ${contact.companyName}` : contact.employerName}
                           </div>
                           <div style={{ fontSize: "12px", color: "#999" }}>
                             {formatTime(contact.lastTimestamp)}
@@ -376,7 +554,7 @@ const MultiChatWidget: React.FC<MultiChatWidgetProps> = ({
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap"
                         }}>
-                          {contact.lastMessage || "Chưa có tin nhắn"}
+                          {contact.lastMessage || "Nhấn để bắt đầu trò chuyện"}
                         </div>
                         {contact.unreadForApplicant && (
                           <div style={{
@@ -403,8 +581,10 @@ const MultiChatWidget: React.FC<MultiChatWidgetProps> = ({
                     employerId={selectedEmployerId}
                     applicantId={applicantId}
                     applicantName={applicantName}
-                    employerName={selectedEmployerName}
+                    employerName={selectedCompanyName ? `Tuyển dụng ${selectedCompanyName}` : selectedEmployerName}
                     embedded={true}
+                    onBack={handleBackToList}
+                    onClose={() => setIsOpen(false)}
                   />
                 )}
               </div>
@@ -413,14 +593,10 @@ const MultiChatWidget: React.FC<MultiChatWidgetProps> = ({
         </div>
       )}
 
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.1); }
-        }
-      `}</style>
     </>
   );
-};
+});
+
+MultiChatWidget.displayName = "MultiChatWidget";
 
 export default MultiChatWidget;

@@ -281,7 +281,7 @@ export default function Contact() {
                     {featuredOurTeam?.ourTeamDescription}
                   </p>
                 </div>
-                <div className="row mt-70">
+                <div className="row mt-70 justify-content-center">
                   {ourTeam.map((member, index) => (
                     <div
                       className="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12 mb-md-30"

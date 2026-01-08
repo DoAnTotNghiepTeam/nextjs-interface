@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Toaster } from "sonner";
+import { Toaster as ShadcnToaster } from "@/components/ui/toaster";
 import { NextIntlClientProvider } from "next-intl";
 import PreferencesProvider from "@/components/providers/PreferencesProvider";
 
@@ -49,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <ToastContainer position="top-right" autoClose={4000} />
         <Toaster position="top-right" />
+        <ShadcnToaster />
       </body>
     </html>
   );

@@ -1,8 +1,12 @@
 /* eslint-disable react/no-unescaped-entities */
 import Link from "next/link"
+import Image from "next/image"
 import Layout from "@/components/Layout/Layout"
 import { blogApiServer } from "../../lib/blog/blog-api-server"
 import "./blog-grid.css"
+
+// Cache trang trong 5 phút để tăng tốc độ
+export const revalidate = 300
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -20,10 +24,9 @@ const getReadTime = (content: string) => {
 
 export default async function BlogGrid2() {
   try {
-    const blogs = await blogApiServer.getAllBlogs()
-    const featuredBlog = blogs.length > 0 ? blogs[0] : null
-
-    if (!blogs || blogs.length === 0) {
+    const blogsData = await blogApiServer.getAllBlogs()
+    
+    if (!blogsData || blogsData.length === 0) {
       return (
         <Layout>
           <div className="section-box">
@@ -38,6 +41,17 @@ export default async function BlogGrid2() {
         </Layout>
       )
     }
+
+    // Sắp xếp bài viết mới nhất lên đầu
+    const blogs = blogsData.sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
+
+    // Giới hạn data để tăng tốc độ
+    const featuredBlog = blogs[0]
+    const latestBlogs = blogs.slice(1, 11) // Chỉ 10 bài mới nhất
+    const trendingBlogs = blogs.slice(0, 5) // 5 bài trending
+    const galleryBlogs = blogs.slice(0, 6) // 6 bài cho gallery
 
     return (
       <Layout>
@@ -72,15 +86,17 @@ export default async function BlogGrid2() {
                 <div className="box-improve">
                   <div className="row">
                     <div className="col-lg-5 col-md-12 col-sm-12">
-                      <Link href={`/blog/${featuredBlog.slug}`}>
-                        <span>
-                          <img
-                            src={
-                              featuredBlog.imageUrl || "assets/imgs/page/job-single-2/img2.png" || "/placeholder.svg"
-                            }
+                      <Link href={`/blog-details?slug=${featuredBlog.slug}`}>
+                        <div style={{ position: 'relative', width: '100%', height: '350px' }}>
+                          <Image
+                            src={featuredBlog.imageUrl || "/assets/imgs/page/job-single-2/img2.png"}
                             alt={featuredBlog.title}
+                            fill
+                            style={{ objectFit: 'cover', borderRadius: '8px' }}
+                            priority
+                            sizes="(max-width: 768px) 100vw, 500px"
                           />
-                        </span>
+                        </div>
                       </Link>
                     </div>
                     <div className="col-lg-7 col-md-12 col-sm-12">
@@ -122,21 +138,21 @@ export default async function BlogGrid2() {
                 <div className="row mt-30 latest-posts">
                   <div className="col-lg-8">
                     <div className="row">
-                      {blogs.slice(1).map((blog) => (
+                      {latestBlogs.map((blog) => (
                         <div key={blog.id} className="col-lg-6 mb-30 d-flex">
                           <div className="card-grid-3 hover-up w-100 latest-card">
                             <div className="text-center card-grid-3-image">
                               <Link href={`/blog-details?slug=${blog.slug}`}>
-                                <span>
-                                  <figure>
-                                    <img
-                                      alt={blog.title}
-                                      src={
-                                        blog.imageUrl || "assets/imgs/page/job-single-2/img3.png" || "/placeholder.svg"
-                                      }
-                                    />
-                                  </figure>
-                                </span>
+                                <div style={{ position: 'relative', width: '100%', height: '220px' }}>
+                                  <Image
+                                    src={blog.imageUrl || "/assets/imgs/page/job-single-2/img3.png"}
+                                    alt={blog.title}
+                                    fill
+                                    style={{ objectFit: 'cover', borderRadius: '8px' }}
+                                    loading="lazy"
+                                    sizes="(max-width: 768px) 100vw, 400px"
+                                  />
+                                </div>
                               </Link>
                             </div>
                             <div className="card-block-info">
@@ -210,27 +226,26 @@ export default async function BlogGrid2() {
                     <div className="sidebar-shadow sidebar-news-small">
                       <h5 className="sidebar-title">Trending Now</h5>
                       <div className="post-list-small">
-                        {blogs.slice(0, 5).map((blog) => (
+                        {trendingBlogs.map((blog) => (
                           <div key={blog.id} className="post-list-small-item d-flex align-items-start">
-                            <figure className="thumb mr-15">
-                              <a href={`/blog-details?slug=${blog.slug}`}>
-                                <img
-                                  src={blog.imageUrl || "assets/imgs/page/blog/img-trending.png" || "/placeholder.svg"}
+                            <Link href={`/blog-details?slug=${blog.slug}`} style={{ display: 'flex', textDecoration: 'none', color: 'inherit' }}>
+                              <div style={{ position: 'relative', width: '80px', height: '80px', minWidth: '80px', marginRight: '15px' }}>
+                                <Image
+                                  src={blog.imageUrl || "/assets/imgs/page/blog/img-trending.png"}
                                   alt={blog.title}
+                                  fill
+                                  style={{ objectFit: 'cover', borderRadius: '4px' }}
+                                  loading="lazy"
+                                  sizes="80px"
                                 />
-                              </a>
-                            </figure>
-                            <div className="content">
-                              <h5>
-                                <a href={`/blog-details?slug=${blog.slug}`}>{blog.title}</a>
-                              </h5>
-                              <div className="post-meta text-muted d-flex align-items-center mb-15">
-                                <div className="author d-flex align-items-center mr-20"></div>
-                                <div className="date">
-                                  <span>{formatDate(blog.createdAt)}</span>
+                              </div>
+                              <div className="content">
+                                <h5 style={{ fontSize: '14px', marginBottom: '5px' }}>{blog.title}</h5>
+                                <div className="post-meta text-muted">
+                                  <span className="font-xs">{formatDate(blog.createdAt)}</span>
                                 </div>
                               </div>
-                            </div>
+                            </Link>
                           </div>
                         ))}
                       </div>
@@ -253,15 +268,19 @@ export default async function BlogGrid2() {
                       <h5 className="sidebar-title">Gallery</h5>
                       <div className="post-list-small">
                         <ul className="gallery-3">
-                          {blogs.map((blog) => (
+                          {galleryBlogs.map((blog) => (
                             <li key={blog.id}>
                               <Link href={`/blog-details?slug=${blog.slug}`}>
-                                <span>
-                                  <img
-                                    src={blog.imageUrl || "assets/imgs/page/blog/gallery1.png" || "/placeholder.svg"}
+                                <div style={{ position: 'relative', width: '100%', height: '100px' }}>
+                                  <Image
+                                    src={blog.imageUrl || "/assets/imgs/page/blog/gallery1.png"}
                                     alt={blog.title}
+                                    fill
+                                    style={{ objectFit: 'cover', borderRadius: '4px' }}
+                                    loading="lazy"
+                                    sizes="120px"
                                   />
-                                </span>
+                                </div>
                               </Link>
                             </li>
                           ))}

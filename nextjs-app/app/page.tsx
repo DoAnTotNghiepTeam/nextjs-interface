@@ -8,7 +8,6 @@ import CategoryTab from "@/components/elements/CategoryTab";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import JobChatBot from "./ChatBotJob/page";
 import JobPostingVip from "@/components/sliders/JobPostingVip";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -18,7 +17,6 @@ export default function Home() {
   const [location, setLocation] = useState("");
   const [keyword, setKeyword] = useState("");
   const [salary, setSalary] = useState("");
-  const [isChatOpen, setIsChatOpen] = useState(false);
   // Banner VIP active
   const [vipBanner, setVipBanner] = useState<any>(null);
   // Banner Featured active
@@ -185,7 +183,7 @@ export default function Home() {
                             <option value="Vĩnh Long">Vinh Long</option>
                           </select>
                         </div>
-                        <div className="box-industry">
+                        {/* <div className="box-industry">
                           <select
                             className="form-input mr-10 select-active input-location"
                             value={salary}
@@ -198,7 +196,7 @@ export default function Home() {
                             <option value="Từ 70 triệu trở lên">Tu 70 trieu tro len</option>
                             <option value="Trên 100 triệu">Tren 100 trieu</option>
                           </select>
-                        </div>
+                        </div> */}
                         <input
                           className="form-input input-keysearch mr-10"
                           type="text"
@@ -463,7 +461,6 @@ export default function Home() {
           </div>
         </section>
       </Layout>
-      <JobChatBot isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
     </>
   );
 }

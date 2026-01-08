@@ -618,11 +618,6 @@ export function SkillsStep() {
             className="btn btn-outline-danger btn-sm"
             onClick={() => {
               remove(index);
-              setErrorMessages((prev) => {
-                const copy = { ...prev };
-                delete copy[index];
-                return copy;
-              });
             }}
           >
             <Trash2 size={16} />
@@ -750,6 +745,20 @@ export function SkillsStep() {
             renderItem={renderSkillItem}
             keyExtractor={(field) => field.id}
           />
+
+          {/* Nút thêm skill ở dưới - chỉ hiện khi có từ 2 skills trở lên */}
+          {fields.length >= 2 && (
+            <div className="text-center mt-3">
+              <button
+                type="button"
+                onClick={addSkill}
+                className="btn btn-outline-primary d-flex align-items-center gap-2 mx-auto"
+              >
+                <Plus size={16} />
+                Add Skill
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

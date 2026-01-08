@@ -186,7 +186,7 @@
 // }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import ReactDOM from "react-dom";
 import { applicantService } from "../services/applicant.service";
 import { toast } from "react-toastify";
@@ -221,8 +221,8 @@ export default function ApplyJob({
   const [previewPercent, setPreviewPercent] = useState<number | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
 
-  // ✅ Hàm preview khi user chọn Resume hoặc File
-  const handlePreview = async (resumeId?: string, resumeFile?: File | null) => {
+  // ✅ Hàm preview khi user chọn Resume - wrapped với useCallback
+  const handlePreview = useCallback(async (resumeId?: string, resumeFile?: File | null) => {
     if (!resumeId && !resumeFile) {
       setPreviewPercent(null);
       return;
@@ -235,8 +235,8 @@ export default function ApplyJob({
     try {
       setPreviewLoading(true);
       const res = await applicantService.previewApplication(job.id, formData);
-      console.log("Preview response raw:", res);        // log toàn bộ response
-  console.log("Preview response data:", res.data);  // log data chính
+      console.log("Preview response raw:", res);
+      console.log("Preview response data:", res.data);
       const percent = res.data.skillMatchPercent;
 
       console.log("Percent:", percent);
@@ -248,12 +248,18 @@ export default function ApplyJob({
     } finally {
       setPreviewLoading(false);
     }
-  };
+  }, [job.id]); // Chỉ phụ thuộc vào job.id
 
-  // Gọi preview mỗi khi chọn Resume hoặc File
+  // Gọi preview chỉ khi chọn Resume (không gọi khi upload file)
   useEffect(() => {
-    handlePreview(selectedResumeId, file);
-  }, [selectedResumeId, file]);
+    if (selectedResumeId) {
+      // Chỉ preview khi có resume ID
+      handlePreview(selectedResumeId, null);
+    } else {
+      // Reset preview khi không có resume ID
+      setPreviewPercent(null);
+    }
+  }, [selectedResumeId, handlePreview]);
 
   // ✅ Submit chính thức
   const handleSubmit = async () => {

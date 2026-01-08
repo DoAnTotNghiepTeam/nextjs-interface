@@ -1,7 +1,7 @@
 ﻿﻿import Link from "next/link";
 import React, { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Settings, KeyRound, LogOut } from "lucide-react";
 import CompanyRegistrationModal from "../Company/company-registration-modal";
 import PreferencesForm from "../preferences/preferences_form";
@@ -27,6 +27,13 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Helper function to check if menu item is active
+  const isActive = (path: string) => {
+    if (path === "/") return pathname === "/";
+    return pathname?.startsWith(path);
+  };
 
   const [avatarSrc, setAvatarSrc] = useState<string>("");
   const [avatarReady, setAvatarReady] = useState<boolean>(false);
@@ -135,9 +142,35 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
   }, [dropdownOpen]);
 
   const [openModal, setOpenModal] = useState(false);
+  const [showPendingModal, setShowPendingModal] = useState(false);
 
-  const handleOpen2 = () => setOpenModal(true);
-  const handleClose = () => setOpenModal(false);
+  const handleOpen2 = async () => {
+    const userId = (session as any)?.user?.id;
+    const token = (session as any)?.accessToken;
+    
+    if (!userId) return;
+
+    try {
+      const res = await fetch(`http://localhost:8080/api/users/${userId}/is-pending`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
+      const isPending = await res.json();
+      
+      if (isPending === true) {
+        setShowPendingModal(true);
+      } else {
+        setOpenModal(true);
+      }
+    } catch (error) {
+      console.error("Error checking pending status:", error);
+      setOpenModal(true); // Mặc định mở form đăng ký nếu có lỗi
+    }
+  };
+
+  const handleClose = () => {
+    setOpenModal(false);
+    setShowPendingModal(false);
+  };
 
   return (
     <>
@@ -169,34 +202,34 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                   {/* Menu cho khách (chưa login) - Chỉ hiện khi chắc chắn là unauthenticated */}
                   {status === "unauthenticated" && (
                     <>
-                      <li>
+                      <li className={isActive("/") ? "active" : ""}>
                         <Link href="/">
-                          <span>Home</span>
+                          <span style={isActive("/") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Home</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/jobs-grid") ? "active" : ""}>
                         <Link href="/jobs-grid">
-                          <span>Find a Job</span>
+                          <span style={isActive("/jobs-grid") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Find a Job</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/companies-grid") ? "active" : ""}>
                         <Link href="/companies-grid">
-                          <span>Recruiters</span>
+                          <span style={isActive("/companies-grid") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Recruiters</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/page-about") ? "active" : ""}>
                         <Link href="/page-about">
-                          <span>About Us</span>
+                          <span style={isActive("/page-about") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>About Us</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/blog-grid-2") ? "active" : ""}>
                         <Link href="/blog-grid-2">
-                          <span>Blog</span>
+                          <span style={isActive("/blog-grid-2") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Blog</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/page-contact") ? "active" : ""}>
                         <Link href="/page-contact">
-                          <span>Contact</span>
+                          <span style={isActive("/page-contact") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Contact</span>
                         </Link>
                       </li>
                     </>
@@ -205,39 +238,39 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                   {/* log với roles user */}
                   {status === "authenticated" && session?.user && role?.includes("Users") && (
                     <>
-                      <li>
+                      <li className={isActive("/") ? "active" : ""}>
                         <Link href="/">
-                          <span>Home</span>
+                          <span style={isActive("/") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Home</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/jobs-grid") ? "active" : ""}>
                         <Link href="/jobs-grid">
-                          <span>Find a Job</span>
+                          <span style={isActive("/jobs-grid") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Find a Job</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/companies-grid") ? "active" : ""}>
                         <Link href="/companies-grid">
-                          <span>Recruiters</span>
+                          <span style={isActive("/companies-grid") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Recruiters</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/candidate-profile") ? "active" : ""}>
                         <Link href="/candidate-profile">
-                          <span>Candidates Profile</span>
+                          <span style={isActive("/candidate-profile") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Candidates Profile</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/page-about") ? "active" : ""}>
                         <Link href="/page-about">
-                          <span>About Us</span>
+                          <span style={isActive("/page-about") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>About Us</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/blog-grid-2") ? "active" : ""}>
                         <Link href="/blog-grid-2">
-                          <span>Blog</span>
+                          <span style={isActive("/blog-grid-2") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Blog</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/page-contact") ? "active" : ""}>
                         <Link href="/page-contact">
-                          <span>Contact</span>
+                          <span style={isActive("/page-contact") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Contact</span>
                         </Link>
                       </li>
                     </>
@@ -246,34 +279,34 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                   {/* login với role là Employer */}
                   {status === "authenticated" && session?.user && role?.includes("Employers") && (
                     <>
-                      <li>
+                      <li className={isActive("/") ? "active" : ""}>
                         <Link href="/">
-                          <span>Home</span>
+                          <span style={isActive("/") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Home</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/jobs-grid") ? "active" : ""}>
                         <Link href="/jobs-grid">
-                          <span> Manager Job</span>
+                          <span style={isActive("/jobs-grid") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}> Manager Job</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/companies-grid") ? "active" : ""}>
                         <Link href="/companies-grid">
-                          <span>Manager Recruiters</span>
+                          <span style={isActive("/companies-grid") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Manager Recruiters</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/page-about") ? "active" : ""}>
                         <Link href="/page-about">
-                          <span>About Us</span>
+                          <span style={isActive("/page-about") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>About Us</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/blog-grid-2") ? "active" : ""}>
                         <Link href="/blog-grid-2">
-                          <span>Blog</span>
+                          <span style={isActive("/blog-grid-2") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Blog</span>
                         </Link>
                       </li>
-                      <li>
+                      <li className={isActive("/page-contact") ? "active" : ""}>
                         <Link href="/page-contact">
-                          <span>Contact</span>
+                          <span style={isActive("/page-contact") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Contact</span>
                         </Link>
                       </li>
                     </>
@@ -283,51 +316,51 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                   {status === "authenticated" && session?.user && role?.includes("Administrators") && (
                     <>
                       <>
-                        <li>
+                        <li className={isActive("/") ? "active" : ""}>
                           <Link href="/">
-                            <span>Home</span>
+                            <span style={isActive("/") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Home</span>
                           </Link>
                         </li>
-                        <li>
+                        <li className={isActive("/jobs-grid") ? "active" : ""}>
                           <Link href="/jobs-grid">
-                            <span>Find a Job</span>
+                            <span style={isActive("/jobs-grid") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Find a Job</span>
                           </Link>
                         </li>
-                        <li>
+                        <li className={isActive("/companies-grid") ? "active" : ""}>
                           <Link href="/companies-grid">
-                            <span>Recruiters</span>
+                            <span style={isActive("/companies-grid") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Recruiters</span>
                           </Link>
                         </li>
-                        <li className="has-children">
+                        <li className={`has-children ${isActive("/candidates-grid") || isActive("/page-resume") || isActive("/candidate-profile") ? "active" : ""}`}>
                           <Link href="/candidates-grid">
-                            <span>Candidates</span>
+                            <span style={isActive("/candidates-grid") || isActive("/page-resume") || isActive("/candidate-profile") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Candidates</span>
                           </Link>
                           <ul className="sub-menu">
-                            <li>
+                            <li className={isActive("/page-resume") ? "active" : ""}>
                               <Link href="/page-resume">
-                                <span>Create Cv</span>
+                                <span style={isActive("/page-resume") ? { color: '#3C65F5' } : {}}>Create Cv</span>
                               </Link>
                             </li>
-                            <li>
+                            <li className={isActive("/candidate-profile") ? "active" : ""}>
                               <Link href="/candidate-profile">
-                                <span>Candidate Profile</span>
+                                <span style={isActive("/candidate-profile") ? { color: '#3C65F5' } : {}}>Candidate Profile</span>
                               </Link>
                             </li>
                           </ul>
                         </li>
-                        <li>
+                        <li className={isActive("/page-about") ? "active" : ""}>
                           <Link href="/page-about">
-                            <span>About Us</span>
+                            <span style={isActive("/page-about") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>About Us</span>
                           </Link>
                         </li>
-                        <li>
+                        <li className={isActive("/blog-grid-2") ? "active" : ""}>
                           <Link href="/blog-grid-2">
-                            <span>Blog</span>
+                            <span style={isActive("/blog-grid-2") || isActive("/blog-details") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Blog</span>
                           </Link>
                         </li>
-                        <li>
+                        <li className={isActive("/page-contact") ? "active" : ""}>
                           <Link href="/page-contact">
-                            <span>Contact</span>
+                            <span style={isActive("/page-contact") ? { color: '#3C65F5', borderBottom: '2px solid #3C65F5', paddingBottom: '2px' } : {}}>Contact</span>
                           </Link>
                         </li>
                       </>
@@ -473,6 +506,97 @@ const Header = ({ handleOpen, handleRemove, openClass }: HeaderProps) => {
                       isOpen={openModal}
                       onClose={handleClose}
                     />
+
+                    {/* Modal thông báo pending */}
+                    {showPendingModal && (
+                      <div
+                        style={{
+                          position: "fixed",
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: "rgba(0,0,0,0.5)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          zIndex: 9999,
+                        }}
+                        onClick={handleClose}
+                      >
+                        <div
+                          style={{
+                            background: "#fff",
+                            borderRadius: 12,
+                            padding: 32,
+                            maxWidth: 480,
+                            width: "90%",
+                            boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div style={{ textAlign: "center" }}>
+                            <div
+                              style={{
+                                width: 64,
+                                height: 64,
+                                borderRadius: "50%",
+                                background: "#fff3cd",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                margin: "0 auto 20px",
+                                fontSize: 32,
+                              }}
+                            >
+                              ⏳
+                            </div>
+                            <h3
+                              style={{
+                                fontSize: 22,
+                                fontWeight: 600,
+                                marginBottom: 12,
+                                color: "#333",
+                              }}
+                            >
+                              Application Under Review
+                            </h3>
+                            <p
+                              style={{
+                                fontSize: 16,
+                                color: "#666",
+                                lineHeight: 1.6,
+                                marginBottom: 24,
+                              }}
+                            >
+                              Your employer registration is currently being reviewed by our team. You will be notified once the review process is complete.
+                            </p>
+                            <button
+                              onClick={handleClose}
+                              style={{
+                                background: "#3C65F5",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: 8,
+                                padding: "12px 32px",
+                                fontSize: 16,
+                                fontWeight: 500,
+                                cursor: "pointer",
+                                transition: "background 0.2s",
+                              }}
+                              onMouseEnter={(e) =>
+                                (e.currentTarget.style.background = "#2451D9")
+                              }
+                              onMouseLeave={(e) =>
+                                (e.currentTarget.style.background = "#3C65F5")
+                              }
+                            >
+                              Got it
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Dropdown menu */}
                     {dropdownOpen && (

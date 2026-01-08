@@ -39,6 +39,7 @@ type Company = {
 import { useEffect, useState, useRef } from "react";
 import { getCompanyByEmployerId } from "@/lib/company/api";
 import { useParams, useRouter } from "next/navigation";
+import MultiChatWidget, { MultiChatHandle } from "@/components/MultiChatWidget";
 
 
 import Link from "next/link";
@@ -51,7 +52,6 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 
 
-import MultiChatWidget from "@/components/MultiChatWidget";
 import { JobPostingResponseDTO, Resume } from "@/types/applicant";
 import { applicantService } from "@/features/applicants/services/applicant.service";
 import { initializeChatConversation } from "@/lib/chat-helper";
@@ -98,7 +98,7 @@ export default function JobDetails2() {
   }, [id]);
 
   const { data: session } = useSession();
-  const chatRef = useRef<FloatingChatHandle | null>(null);
+  const chatRef = useRef<MultiChatHandle | null>(null);
   // Hook lấy dữ liệu job từ API
   const [jobs, setJobs] = useState<Job[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
@@ -190,8 +190,8 @@ const hours = Math.floor(minutes / 60);
                       <>
                         <div className="row mt-10">
                           <div className="">
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, width: '100%' }}>
-                              <h3 style={{ margin: 0, fontWeight: 800, fontSize: '2rem', color: '#1d3557', letterSpacing: 0.2 }}>{job.title}</h3>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                              <h3 style={{ margin: 0, fontWeight: 800, fontSize: '2rem', color: '#1d3557', letterSpacing: 0.2, flex: 1, minWidth: 0 }}>{job.title}</h3>
                               {job.postType === 'vip' && (
                                 <span
                                   className="badge-vip"
@@ -210,7 +210,9 @@ const hours = Math.floor(minutes / 60);
                                     letterSpacing: 1,
                                     textShadow: '0 1px 4px rgba(0,0,0,0.08)',
                                     zIndex: 2,
-                                    backdropFilter: 'blur(3px)'
+                                    backdropFilter: 'blur(3px)',
+                                    flexShrink: 0,
+                                    whiteSpace: 'nowrap'
                                   }}
                                 >
                                   <span style={{ fontSize: '1.1em', color: '#fff', marginRight: 3 }}>★</span> VIP
@@ -354,9 +356,12 @@ const hours = Math.floor(minutes / 60);
                         <div className="author-single" style={{ display: "flex", alignItems: "center", gap: 16 }}>
                           <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <span>{job.employerName || job.employer?.name || company?.companyName}</span>
-                            {session?.user?.id && (
+                            {session?.user?.id && job.employerId && (
                               <button
-                                onClick={() => chatRef.current?.open()}
+                                onClick={() => chatRef.current?.openChat(
+                                  String(job.employerId),
+                                  job.employerName || job.employer?.name || company?.companyName
+                                )}
                                 style={{ marginTop: 8, padding: '8px 12px', borderRadius: 6, border: '1px solid #1976d2', background: '#fff', color: '#1976d2', cursor: 'pointer' }}
                               >
                                 Liên hệ với nhà tuyển dụng ngay
@@ -615,13 +620,18 @@ const hours = Math.floor(minutes / 60);
             </div>
           </section>
         </div>
-      {/* Hiển thị chat widget để chat với tất cả employers */}
-      {session?.user?.id && (
-        <MultiChatWidget
-          applicantId={session.user.id}
-          applicantName={session?.user?.fullName ?? session?.user?.name ?? undefined}
-        />
-      )}
+        
+        {/* Chat Widget */}
+        {session?.user?.id && (
+          <MultiChatWidget
+            ref={chatRef}
+            applicantId={session.user.id}
+            applicantName={session.user.fullName || session.user.name}
+            iconBottomOffset={240}
+            popupBottomOffset={40}
+            hideIcon={true}
+          />
+        )}
     </Layout>
   </>
   );

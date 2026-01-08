@@ -34,9 +34,12 @@ export default function JobChatBot({ isOpen, setIsOpen }: JobChatBotProps) {
   const adjustTextareaHeight = () => {
     const textarea = inputRef.current
     if (textarea) {
-      textarea.style.height = "20px" // Reset to minHeight first
+      textarea.style.height = "auto" // Reset height để tính toán lại
       const scrollHeight = textarea.scrollHeight
-      textarea.style.height = `${Math.min(scrollHeight, 150)}px`
+      const newHeight = Math.min(Math.max(scrollHeight, 32), 150) // Min 32px, Max 150px
+      textarea.style.height = `${newHeight}px`
+      // Hiển thị scrollbar chỉ khi đạt maxHeight
+      textarea.style.overflowY = scrollHeight > 150 ? "auto" : "hidden"
     }
   }
 
@@ -651,10 +654,12 @@ export default function JobChatBot({ isOpen, setIsOpen }: JobChatBotProps) {
                 flexDirection: "column",
                 border: "2px solid #e2e8f0",
                 borderRadius: 16,
-                padding: "12px 16px",
+                padding: "6px 12px",
                 gap: 8,
                 background: "#fff",
                 transition: "border-color 0.2s ease",
+                minHeight: 48,
+                alignItems: "stretch",
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = "#4361ee"
@@ -704,29 +709,30 @@ export default function JobChatBot({ isOpen, setIsOpen }: JobChatBotProps) {
                 value={input}
                 onChange={(e) => {
                   setInput(e.target.value)
-                  setTimeout(() => adjustTextareaHeight(), 0)
+                  adjustTextareaHeight()
                 }}
                 onKeyDown={handleKeyDown as any}
                 placeholder="Nhập câu hỏi về việc làm..."
                 style={{
-                  flex: 1,
+                  width: "100%",
                   border: "none",
                   outline: "none",
-                  fontSize: 11,
-                  minWidth: 0,
+                  fontSize: 14,
                   resize: "none",
-                  minHeight: 20,
+                  minHeight: 32,
                   maxHeight: 150,
-                  lineHeight: 1.4,
+                  lineHeight: 1.5,
                   padding: 0,
+                  margin: 0,
                   fontFamily: "inherit",
                   color: "#1e293b",
-                  overflowY: "auto",
+                  overflowY: "hidden",
                   overflowX: "hidden",
                   wordBreak: "break-word",
+                  transition: "height 0.1s ease",
+                  boxSizing: "border-box",
                 }}
                 disabled={loading}
-                rows={1}
               />
             </div>
 

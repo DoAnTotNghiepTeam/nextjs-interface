@@ -9,6 +9,10 @@ interface ChatWithEmployerProps {
   employerName?: string;
   /** when true, the component is embedded inside a floating wrapper and should not render its own open button */
   embedded?: boolean;
+  /** callback to close/hide the chat window completely */
+  onClose?: () => void;
+  /** callback to go back to chat list (only for back button) */
+  onBack?: () => void;
 }
 
 interface Message {
@@ -27,11 +31,28 @@ type ChatSummary = {
   employerName?: string;
 };
 
-const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applicantId, applicantName, employerName, embedded }) => {
+const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applicantId, applicantName, employerName, embedded, onClose, onBack }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [showChat, setShowChat] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize textarea
+  const adjustTextareaHeight = () => {
+    const textarea = inputRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      const scrollHeight = textarea.scrollHeight;
+      const newHeight = Math.min(Math.max(scrollHeight, 40), 150);
+      textarea.style.height = `${newHeight}px`;
+      textarea.style.overflowY = scrollHeight > 150 ? "auto" : "hidden";
+    }
+  };
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [input]);
 
   // Auto scroll to bottom when new messages arrive
   useEffect(() => {
@@ -50,15 +71,21 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
     // Load messages when embedded or when chat is opened
     if (!embedded && !showChat) return;
     
-    // console.log("Loading messages for chatId:", chatId);
+    console.log("📂 [ChatWithEmployer] Loading messages for chatId:", chatId);
     const q = query(
       collection(db, "chats", chatId, "messages"),
       orderBy("timestamp", "asc")
     );
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      // console.log("📨 Messages snapshot received! Size:", snapshot.docs.length);
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      console.log("📨 [ChatWithEmployer] Messages snapshot received! Size:", snapshot.docs.length);
       const list: Message[] = snapshot.docs.map(doc => {
         const data = doc.data();
+        console.log("💬 [ChatWithEmployer] Message:", {
+          id: doc.id,
+          senderId: data.senderId,
+          text: data.text?.substring(0, 30),
+          timestamp: data.timestamp?.toDate?.()
+        });
         return {
           id: doc.id,
           senderId: data.senderId,
@@ -66,15 +93,40 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
           timestamp: data.timestamp,
         };
       });
-      // console.log("📝 Updating messages state with:", list.length, "messages");
+      console.log("✅ [ChatWithEmployer] Updating messages state with:", list.length, "messages");
       setMessages(list);
+      
+      // 🔄 Tự động cập nhật lastMessage từ tin nhắn mới nhất trong subcollection
+      if (snapshot.docs.length > 0) {
+        const lastDoc = snapshot.docs[snapshot.docs.length - 1];
+        const lastMsgData = lastDoc.data();
+        
+        if (lastMsgData.text && lastMsgData.timestamp) {
+          try {
+            console.log("🔄 [ChatWithEmployer] Syncing lastMessage to parent doc:", {
+              chatId,
+              lastMessage: lastMsgData.text.substring(0, 30),
+              timestamp: lastMsgData.timestamp
+            });
+            
+            await setDoc(doc(db, "chats", chatId), {
+              lastMessage: lastMsgData.text,
+              lastTimestamp: lastMsgData.timestamp
+            }, { merge: true });
+            
+            console.log("✅ [ChatWithEmployer] Successfully synced lastMessage");
+          } catch (error) {
+            console.error("❌ [ChatWithEmployer] Failed to sync lastMessage:", error);
+          }
+        }
+      }
     }, (error) => {
-      console.error("Error loading messages:", error);
+      console.error("❌ [ChatWithEmployer] Error loading messages:", error);
     });
     
-    // console.log("✅ Message listener setup complete");
+    console.log("🔌 [ChatWithEmployer] Message listener setup complete for chatId:", chatId);
     return () => {
-      // console.log("🔌 Cleaning up message listener");
+      console.log("🔌 [ChatWithEmployer] Cleaning up message listener for chatId:", chatId);
       unsubscribe();
     };
   }, [chatId, showChat, embedded]);
@@ -175,40 +227,123 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
           background: embedded ? "transparent" : "#fff", 
           maxWidth: embedded ? "100%" : 400,
           boxShadow: embedded ? "none" : "0 4px 16px rgba(0, 0, 0, 0.1)",
-          overflow: "hidden"
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          height: embedded ? "100%" : 520,
+          position: embedded ? "absolute" : "relative",
+          inset: embedded ? 0 : "auto",
         }}>
-          {!embedded && (
-            <div style={{ 
-              marginBottom: 0, 
-              fontWeight: "600",
-              fontSize: "16px",
-              padding: "16px 20px",
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-              color: "#fff",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px"
-            }}>
-              <span>💬</span>
-              <span>Chat với nhà tuyển dụng</span>
-            </div>
-          )}
           <div style={{ 
-            maxHeight: 320, 
+            marginBottom: 0, 
+            fontWeight: "600",
+            fontSize: "16px",
+            padding: "16px 20px",
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "8px",
+            flexShrink: 0
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              {embedded && onBack && (
+                <button
+                  onClick={onBack}
+                  style={{ 
+                    background: "transparent", 
+                    border: "none", 
+                    color: "#fff", 
+                    fontSize: 24, 
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 0.2s ease",
+                    lineHeight: "1",
+                    padding: "4px 8px",
+                    marginRight: "4px"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = "0.8";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = "1";
+                  }}
+                  title="Quay lại"
+                >
+                  ←
+                </button>
+              )}
+              
+              <span style={{ fontSize: "14px" }}>{employerName ? `${employerName}` : "Chat với nhà tuyển dụng"}</span>
+            </div>
+            {onClose && (
+              <button
+                onClick={onClose}
+                style={{ 
+                  background: "transparent", 
+                  border: "none", 
+                  color: "#fff", 
+                  fontSize: 28, 
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.2s ease",
+                  lineHeight: "1",
+                  padding: "4px 8px"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = "0.8";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = "1";
+                }}
+                title="Đóng chat"
+              >
+                ×
+              </button>
+            )}
+          </div>
+          <div style={{ 
+            flex: 1,
             overflowY: "auto", 
+            overflowX: "hidden",
             padding: "16px",
-            background: "#f8f9fa",
-            minHeight: "200px"
+            background: "linear-gradient(to bottom, #f0f4ff 0%, #f8f9fa 100%)",
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column"
           }}>
             {messages.length === 0 && (
               <div style={{ 
                 textAlign: "center", 
                 color: "#999", 
-                padding: "40px 20px",
-                fontSize: "14px"
+                padding: "60px 20px",
+                fontSize: "14px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center"
               }}>
-                <div style={{ fontSize: "48px", marginBottom: "12px" }}>💬</div>
-                <div>Chưa có tin nhắn nào</div>
+                <div style={{ 
+                  fontSize: "64px", 
+                  marginBottom: "16px",
+                  opacity: 0.5,
+                  filter: "grayscale(30%)"
+                }}>💬</div>
+                <div style={{ 
+                  fontSize: "16px", 
+                  fontWeight: "500",
+                  color: "#666"
+                }}>Chưa có tin nhắn nào</div>
+                <div style={{ 
+                  fontSize: "13px", 
+                  color: "#999",
+                  marginTop: "8px"
+                }}>Hãy bắt đầu cuộc trò chuyện!</div>
               </div>
             )}
             {messages.map(msg => {
@@ -218,29 +353,82 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
               
               return (
                 <div key={msg.id} style={{ 
-                  textAlign: isMyMessage ? "right" : "left", 
-                  margin: "8px 0",
+                  margin: "10px 0",
                   display: "flex",
-                  justifyContent: isMyMessage ? "flex-end" : "flex-start"
+                  justifyContent: isMyMessage ? "flex-end" : "flex-start",
+                  alignItems: "flex-end",
+                  gap: "8px"
                 }}>
-                  <span style={{ 
-                    background: isMyMessage
-                      ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
-                      : "#fff", 
-                    color: isMyMessage ? "#fff" : "#333",
-                    padding: "10px 16px", 
-                    borderRadius: isMyMessage ? "18px 18px 4px 18px" : "18px 18px 18px 4px", 
-                    display: "inline-block",
-                    maxWidth: "75%",
-                    wordWrap: "break-word",
-                    boxShadow: isMyMessage
-                      ? "0 2px 8px rgba(102, 126, 234, 0.25)" 
-                      : "0 2px 8px rgba(0, 0, 0, 0.08)",
-                    fontSize: "14px",
-                    lineHeight: "1.4"
+                  {!isMyMessage && (
+                    <div style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "16px",
+                      flexShrink: 0
+                    }}>
+                      👤
+                    </div>
+                  )}
+                  <div style={{
+                    maxWidth: "70%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: isMyMessage ? "flex-end" : "flex-start"
                   }}>
-                    {msg.text}
-                  </span>
+                    <span style={{ 
+                      background: isMyMessage
+                        ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
+                        : "#fff", 
+                      color: isMyMessage ? "#fff" : "#333",
+                      padding: "12px 16px", 
+                      borderRadius: isMyMessage 
+                        ? "20px 20px 4px 20px" 
+                        : "20px 20px 20px 4px", 
+                      display: "inline-block",
+                      wordWrap: "break-word",
+                      boxShadow: isMyMessage
+                        ? "0 4px 12px rgba(102, 126, 234, 0.3)" 
+                        : "0 2px 8px rgba(0, 0, 0, 0.08)",
+                      fontSize: "14px",
+                      lineHeight: "1.5",
+                      border: isMyMessage ? "none" : "1px solid rgba(0, 0, 0, 0.05)"
+                    }}>
+                      {msg.text}
+                    </span>
+                    {msg.timestamp && (
+                      <span style={{
+                        fontSize: "11px",
+                        color: "#999",
+                        marginTop: "4px",
+                        padding: "0 4px"
+                      }}>
+                        {msg.timestamp.toDate().toLocaleTimeString("vi-VN", { 
+                          hour: "2-digit", 
+                          minute: "2-digit" 
+                        })}
+                      </span>
+                    )}
+                  </div>
+                  {isMyMessage && (
+                    <div style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "16px",
+                      flexShrink: 0
+                    }}>
+                      😊
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -251,20 +439,43 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
             padding: "16px",
             background: "#fff",
             borderTop: "1px solid rgba(0, 0, 0, 0.08)",
-            gap: "8px"
+            gap: "8px",
+            flexShrink: 0,
+            position: "relative",
+            zIndex: 10,
+            alignItems: "flex-end"
           }}>
-            <input
+            <textarea
+              ref={inputRef}
               value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyPress={e => e.key === 'Enter' && sendMessage()}
+              onChange={e => {
+                setInput(e.target.value);
+                adjustTextareaHeight();
+              }}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
               style={{ 
+                width: "100%",
                 flex: 1, 
                 padding: "10px 16px", 
                 borderRadius: 24, 
                 border: "1px solid #e0e0e0",
                 fontSize: "14px",
                 outline: "none",
-                transition: "all 0.2s ease"
+                transition: "all 0.2s ease",
+                resize: "none",
+                minHeight: 40,
+                maxHeight: 150,
+                lineHeight: 1.5,
+                fontFamily: "inherit",
+                overflowY: "hidden",
+                overflowX: "hidden",
+                wordBreak: "break-word",
+                boxSizing: "border-box"
               }}
               onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
               onBlur={(e) => e.currentTarget.style.borderColor = "#e0e0e0"}
