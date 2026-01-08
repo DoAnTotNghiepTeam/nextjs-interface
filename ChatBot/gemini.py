@@ -8,6 +8,13 @@ from dotenv import load_dotenv
 import base64
 import fitz  # PyMuPDF để đọc text từ PDF
 import time  # Để xử lý rate limit
+from PIL import Image  # Để nén ảnh
+from io import BytesIO
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -23,14 +30,44 @@ job_cache = {
 
 # ===== Hàm phụ cho CV =====
 def encode_image(file_path):
-    with open(file_path, "rb") as f:
-        return base64.b64encode(f.read()).decode("utf-8")
+    """Nén ảnh tối đa để giảm payload (500x500, quality 50)"""
+    try:
+        with Image.open(file_path) as img:
+            # Resize ảnh nhỏ hơn (500x500)
+            img.thumbnail((500, 500), Image.Resampling.LANCZOS)
+            # Lưu vào buffer với chất lượng thấp hơn (50)
+            buffer = BytesIO()
+            img.save(buffer, format='JPEG', quality=50, optimize=True)
+            buffer.seek(0)
+            result = base64.b64encode(buffer.getvalue()).decode("utf-8")
+            file_size = len(result) / 1024  # KB
+            logger.info(f"Image compressed: {file_size:.1f} KB")
+            return result
+    except Exception as e:
+        logger.error(f"Image compression failed: {e}. Using raw file...")
+        # Fallback: encode nguyên file gốc nếu PIL lỗi
+        try:
+            with open(file_path, "rb") as f:
+                result = base64.b64encode(f.read()).decode("utf-8")
+                file_size = len(result) / 1024  # KB
+                logger.warning(f"Using raw image: {file_size:.1f} KB")
+                return result
+        except Exception as e2:
+            logger.error(f"Failed to encode image: {e2}")
+            return None
 
 def extract_pdf_text(file_path):
+    """Chỉ lấy 2 trang đầu của PDF để giảm kích thước"""
     text_content = ""
-    with fitz.open(file_path) as pdf:
-        for page in pdf:
-            text_content += page.get_text() + "\n"
+    try:
+        with fitz.open(file_path) as pdf:
+            # Giới hạn chỉ 2 trang (giảm payload)
+            for page_num in range(min(2, len(pdf))):
+                page = pdf[page_num]
+                text_content += page.get_text() + "\n"
+        logger.info(f"PDF extracted: {len(text_content)} chars from {min(2, len(pdf))} pages")
+    except Exception as e:
+        logger.error(f"Failed to extract PDF: {e}")
     return text_content.strip()
 
 # ===== Hàm lấy dữ liệu công việc từ MySQL =====
@@ -109,22 +146,30 @@ def ai_chatbot():
     uploaded_file = request.files.get("file")
     file_part = None
     cv_text = None
+    files_to_cleanup = []
+    
     if uploaded_file:
         filename = uploaded_file.filename
         save_path = os.path.join("uploads", filename)
         os.makedirs("uploads", exist_ok=True)
         uploaded_file.save(save_path)
+        files_to_cleanup.append(save_path)  # Track for cleanup
+        
+        logger.info(f"Processing file: {filename}")
 
         if filename.lower().endswith(".pdf"):
             cv_text = extract_pdf_text(save_path)
         else:
             image_base64 = encode_image(save_path)
-            file_part = {
-                "inline_data": {
-                    "mime_type": "image/png",  # hoặc image/jpeg
-                    "data": image_base64
+            if image_base64:
+                file_part = {
+                    "inline_data": {
+                        "mime_type": "image/jpeg",  # Force JPEG
+                        "data": image_base64
+                    }
                 }
-            }
+            else:
+                logger.warning("Failed to encode image")
 
     # ===== CHECK QÚYTRINH TRƯỚC (trước khi lấy DB) =====
     last_user_raw = ""
@@ -141,18 +186,33 @@ def ai_chatbot():
     is_quytrinh = any(kw in last_user_text for kw in quytrinh_keywords)
     
     # Nếu user hỏi câu chung chung → trả lời nhanh
-    general_keywords = ["bạn là ai", "bạn tên gì", "bạn là người", "ai là bạn", "hello", "hi", "xin chào"]
-    is_general_question = any(kw in last_user_text for kw in general_keywords)
+    # Phân loại: greeting (chỉ chào) vs capability (hỏi khả năng)
+    greeting_keywords = ["hello", "hi", "xin chào", "chào"]
+    capability_keywords = ["bạn có thể giúp gì", "có thể giúp gì", "bạn có thể làm gì", "làm gì cho tôi",
+                          "bạn có thể hỗ trợ", "hỗ trợ gì", "bạn giúp gì", "giúp gì tôi", "bạn là ai", 
+                          "bạn tên gì", "bạn là người", "ai là bạn"]
+    
+    is_greeting = any(kw in last_user_text for kw in greeting_keywords)
+    is_capability_question = any(kw in last_user_text for kw in capability_keywords)
+    is_general_question = is_greeting or is_capability_question
     
     if is_general_question:
-        time.sleep(0.8)  # Delay 1.5 giây để tạo hiệu ứng tự nhiên
-        reply = "Chào bạn! 👋 Tôi là **BossAIJOB**, trợ lý tư vấn việc làm chuyên nghiệp của bạn.\n\n" + \
-                "Tôi có thể giúp bạn:\n\n" + \
-                "✅ Tìm công việc phù hợp (full-time, part-time, remote, intern...)\n" + \
-                "✅ Đánh giá CV và đưa lời khuyên cải thiện\n\n" + \
-                "✅ Hướng dẫn quy trình ứng tuyển\n\n" + \
-                "Bạn cần gì? Hãy hỏi tôi! 😊"
-        print("[SUCCESS] Trả lời câu hỏi chung chung (0.05s)")
+        time.sleep(2.0)  # Delay 1.5 giây để tạo hiệu ứng tự nhiên
+        
+        if is_greeting and not is_capability_question:
+            # Chỉ trả lời giới thiệu ngắn gọn
+            reply = "Chào bạn! 👋 Tôi là **BossAIJOB**, trợ lý tư vấn việc làm chuyên nghiệp của bạn.Bạn có thể đặt câu hỏi về việc làm, tìm kiếm công việc, hoặc yêu cầu hỗ trợ tôi sẽ giúp bạn."
+        else:
+            # Trả lời đầy đủ với danh sách khả năng
+            reply = "Tôi có thể giúp bạn:\n\n" + \
+                    "✅ Tìm công việc phù hợp (full-time, part-time, remote, intern...)\n\n" + \
+                    "✅ Tìm công việc ở các địa điểm bạn yêu cầu (Đà Nẵng, Hà Nội, TP.HCM...)\n\n" + \
+                    "✅ Đánh giá CV giúp bạn và đưa lời khuyên cải thiện\n\n" + \
+                    "✅ Hướng dẫn quy trình ứng tuyển\n\n" + \
+                    "✅ Đưa bạn đến trang ứng tuyển và tìm việc một cách nhanh chóng\n\n" + \
+                    "Bạn cần gì? Hãy hỏi tôi! 😊"
+        
+        print("[SUCCESS] Trả lời câu hỏi chung chung")
         return jsonify({"reply": reply})
     
     if is_quytrinh:
@@ -161,12 +221,13 @@ def ai_chatbot():
         
         # Format response dạng text + thêm link riêng biệt
         reply = "**5 BƯỚC ỨNG TUYỂN TẠI BossAIJOB:**\n\n" + \
-                "1. Tìm công việc - Tìm kiếm công việc phù hợp trên website BossAIJOB\n\n" + \
-                "2. Xem chi tiết - Xem yêu cầu công việc, mô tả chi tiết\n\n" + \
-                "3. Truy cập vào mục CV để chuẩn bị CV - [🔗 http://localhost:3000/page-resume ](http://localhost:3000/page-resume)\n\n" + \
-                "4. Bấm Apply - Bấm nút 'Ứng tuyển' trong chi tiết công việc\n\n" + \
-                "5. Chờ phản hồi - Chờ nhà tuyển dụng liên hệ bạn\n\n" + \
-                "📞 Liên hệ: **076-523-3951** nếu cần hỗ trợ gấp!"
+                "1. ✅ Tìm công việc - Tìm kiếm công việc phù hợp trên website BossAIJOB bằng cách Search Job hoặc vào mục Find Job để tìm.\n\n" + \
+                "2. ✅ Xem chi tiết - Xem yêu cầu công việc, mô tả chi tiết\n\n" + \
+                "3. ✅ Truy cập vào mục CV để tạo CV cho quá trình apply hoặc có thể upload Cv sẵn có - [🔗 http://localhost:3000/page-resume ](http://localhost:3000/page-resume)\n\n" + \
+                "4. ✅ Bấm Apply - Bấm nút 'Apply' trong chi tiết công việc sau khi đã tìm hiểu kĩ công việc\n\n" + \
+                "5. ✅ Chờ phản hồi - Chờ nhà tuyển dụng thông báo hoặc liên hệ bạn\n\n" + \
+                "5. ✅ Kiểm tra mail và thông báo - Kiểm tra mail và thông báo từ nhà tuyển dụng\n\n" + \
+                "   📞 Liên hệ: **076-523-3951** nếu cần hỗ trợ gấp!"
         print("[SUCCESS] Trả lời quy trình ứng tuyển (1.5s)")
         return jsonify({"reply": reply})
 
@@ -181,6 +242,15 @@ def ai_chatbot():
 
     import unicodedata
     def remove_accents(input_str):
+        # Thay thế các precomposed characters trước (ví dụ: đ → d, ơ → o, ư → u)
+        replacements = {
+            'đ': 'd', 'Đ': 'D',
+            'ơ': 'o', 'Ơ': 'O',
+            'ư': 'u', 'Ư': 'U',
+        }
+        for old, new in replacements.items():
+            input_str = input_str.replace(old, new)
+        # Sau đó normalize và xóa combining marks
         return ''.join(
             c for c in unicodedata.normalize('NFD', input_str)
             if unicodedata.category(c) != 'Mn'
@@ -190,18 +260,23 @@ def ai_chatbot():
 
     # ✅ Chỉ lấy filter từ message mới nhất của user
     text_norm = remove_accents(last_user_raw.lower().replace('-', ' ').replace('_', ' ')).replace('  ', ' ').strip()
+    print(f"[DEBUG] text_norm: '{text_norm}'")
+    print(f"[DEBUG] last_user_raw: '{last_user_raw}'")
 
     match = re.search(r"công việc (?:nào )?tên là ([^?]+)", text_norm, re.IGNORECASE)
     if match:
         search_title = match.group(1).strip()
 
-    # location
-    if "hà nội" in text_norm or "ha noi" in text_norm:
+    # location (text_norm đã remove_accents nên chỉ cần kiểm tra phiên bản không dấu)
+    if "ha noi" in text_norm:
         search_location = "Hà Nội"
-    if any(k in text_norm for k in ["hồ chí minh", "tp hcm", "tphcm", "hcm", "ho chi minh"]):
+        print(f"[DEBUG] Found location: Hà Nội")
+    if any(k in text_norm for k in ["ho chi minh", "tp hcm", "tphcm", "hcm"]):
         search_location = "hồ chí minh"
-    if "đà nẵng" in text_norm or "da nang" in text_norm:
+        print(f"[DEBUG] Found location: hồ chí minh")
+    if "da nang" in text_norm:
         search_location = "Đà Nẵng"
+        print(f"[DEBUG] Found location: Đà Nẵng")
 
     # job_type
     jobtype_keywords = [
@@ -241,61 +316,62 @@ def ai_chatbot():
     is_quytrinh = any(kw in last_user_text for kw in quytrinh_keywords)
 
     if has_filter and job_related and not is_quytrinh and result and columns:
-        print("[DEBUG] search_jobtype:", search_jobtype)
+        print("[DEBUG] Filters - job_type:", search_jobtype, "location:", search_location)
+        print(f"[DEBUG] has_filter={has_filter}, job_related={job_related}, is_quytrinh={is_quytrinh}")
+        
         for row in result:
             info = {col: str(val) if val not in [None, 'None'] else 'Chưa cập nhật' for col, val in zip(columns, row)}
+            should_match = True
 
-            # Chỉ lọc đúng job_type và location nếu có cả 2 filter
-            if search_jobtype and search_location:
-                jobtype_db = remove_accents(str(info.get('job_type', '')).lower().replace('-', ' ').replace('_', ' ')).replace('  ', ' ').strip()
-                location_db = remove_accents(info.get('location', '').lower())
-                search_jobtype_norm = remove_accents(search_jobtype.lower().replace('-', ' ').replace('_', ' ')).replace('  ', ' ').strip()
-                location_search = remove_accents(search_location.lower())
-                if search_jobtype_norm in jobtype_db and location_search in location_db:
-                    matched.append(info)
-                continue
-
-            # Nếu chỉ có job_type (không có title/location/salary/desc), chỉ lọc theo job_type
-            if search_jobtype and not (search_title or search_location or search_salary or search_desc):
-                jobtype_db = remove_accents(str(info.get('job_type', '')).lower().replace('-', ' ').replace('_', ' ')).replace('  ', ' ').strip()
-                search_jobtype_norm = remove_accents(search_jobtype.lower().replace('-', ' ').replace('_', ' ')).replace('  ', ' ').strip()
-                if search_jobtype_norm in jobtype_db:
-                    matched.append(info)
-                continue
-
-            # Nếu có nhiều filter thì lọc theo tất cả
-            if search_title:
-                title_db = remove_accents(info.get('title', '').lower())
-                title_search = remove_accents(search_title.lower())
-                if title_search not in title_db:
-                    continue
-            if search_location:
-                location_db = remove_accents(info.get('location', '').lower())
-                location_search = remove_accents(search_location.lower())
-                if location_search not in location_db:
-                    continue
+            # Check job_type filter
             if search_jobtype:
                 jobtype_db = remove_accents(str(info.get('job_type', '')).lower().replace('-', ' ').replace('_', ' ')).replace('  ', ' ').strip()
                 search_jobtype_norm = remove_accents(search_jobtype.lower().replace('-', ' ').replace('_', ' ')).replace('  ', ' ').strip()
                 if search_jobtype_norm not in jobtype_db:
-                    continue
-            if search_salary and search_salary not in info.get('salary_range', '').replace('.', ''):
-                continue
-            if search_desc:
-                desc_db = remove_accents(str(info.get('description', '')).lower().replace('-', ' ').replace('_', ' ')).replace('  ', ' ').strip()
-                search_desc_norm = remove_accents(search_desc.lower().replace('-', ' ').replace('_', ' ')).replace('  ', ' ').strip()
-                keywords = [kw for kw in search_desc_norm.split() if len(kw) > 2]
-                if not all(kw in desc_db for kw in keywords):
-                    continue
-            matched.append(info)
+                    should_match = False
 
-        print(f"[DEBUG] matched jobs: {len(matched)}")
+            # Check location filter
+            if search_location and should_match:
+                location_db = remove_accents(info.get('location', '').lower())
+                location_search = remove_accents(search_location.lower())
+                # Split location by "hoặc", "or", "/" to handle multiple locations
+                locations = [loc.strip() for loc in location_db.replace(" hoặc ", ",").replace(" or ", ",").split(",")]
+                if not any(location_search in loc for loc in locations):
+                    should_match = False
+
+            # Check title filter
+            if search_title and should_match:
+                title_db = remove_accents(info.get('title', '').lower())
+                title_search = remove_accents(search_title.lower())
+                if title_search not in title_db:
+                    should_match = False
+
+            # Check salary filter
+            if search_salary and should_match:
+                if search_salary not in info.get('salary_range', '').replace('.', ''):
+                    should_match = False
+
+            # Check description filter
+            if search_desc and should_match:
+                desc_db = remove_accents(str(info.get('description', '')).lower())
+                keywords = [kw for kw in search_desc.lower().split() if len(kw) > 2]
+                if not all(kw in desc_db for kw in keywords):
+                    should_match = False
+
+            if should_match:
+                matched.append(info)
+
+        print(f"[DEBUG] Total matched jobs: {len(matched)}")
         if matched:
-            max_jobs = 15  # Giới hạn số lượng job trả về
+            max_jobs = 15
             reply = f"🎯 **Đã tìm thấy {len(matched)} công việc phù hợp:**\n\n"
-            for info in matched[:max_jobs]:
+            for idx, info in enumerate(matched[:max_jobs], 1):
                 link = f"http://localhost:3000/job-details-2/{info.get('id','')}"
-                reply += f"- [{info.get('title','')} ({info.get('job_type','')}), địa điểm: {info.get('location','')}, lương: {info.get('salary_range','')} VND]({link})\n\n"
+                reply += f"**{idx}. [{info.get('title','')}]({link})**\n"
+                reply += f"   • Loại: {info.get('job_type','')}\n"
+                reply += f"   • Địa điểm: {info.get('location','')}\n"
+                reply += f"   • Lương: {info.get('salary_range','')} VND\n\n"
+                reply += "───────────────────────────\n\n"
             if len(matched) > max_jobs:
                 reply += f"\n... và {len(matched)-max_jobs} công việc khác. Vui lòng lọc thêm để xem chi tiết."
             print("[DEBUG] reply:", reply)
@@ -360,16 +436,17 @@ def ai_chatbot():
         return jsonify({"reply": "Lỗi cấu hình: Thiếu GEMINI_API_KEY trong .env."}), 500
 
     models_to_try = [
-        "gemini-2.5-flash",          # ⭐ Ổn định, nhanh
-        "gemini-flash-latest",       # Backup
-        "gemini-2.0-flash",          # Backup
-        "gemini-1.5-pro",            # Fallback nếu 503
+        "gemini-2.5-flash",        
+        "gemini-flash-latest",      
+        "gemini-2.0-flash-lite",  
+        "gemini-2.0-flash",      
+        "gemini-pro-latest",          # Backup
     ]
 
     parts = [{"text": turn.get("text", "")} for turn in history]
 
     # ===== CHỈ thêm system instruction lần đầu hoặc khi có CV =====
-    should_add_system = (not history or "Bạn là BossAIJOB" not in str(history[0])) or cv_text
+    should_add_system = (not history or "Bạn là BossAIJOB" not in str(history[0])) and not cv_text and not file_part
     
     if should_add_system:
         system_instruction = (
@@ -402,9 +479,9 @@ def ai_chatbot():
             
             # Kiểm tra lỗi 429 (Rate Limit) - thử model tiếp theo
             if resp.status_code == 429:
-                print(f"[WARNING] Rate limit exceeded for {MODEL}, waiting 2s...")
+                print(f"[WARNING] Rate limit exceeded for {MODEL}, waiting 15s...")
                 last_error = "Rate limit exceeded"
-                time.sleep(2)  # Đợi 2 giây trước khi thử model khác
+                time.sleep(15)  # Chờ 15 giây để quota reset
                 continue
             
             # Kiểm tra lỗi 503 (Service Unavailable - hết quota) - thử model tiếp theo
@@ -433,6 +510,15 @@ def ai_chatbot():
     if reply is None:
         app.logger.error(f"All models failed. Last error: {last_error}")
         reply = "Xin lỗi, hệ thống đang gặp sự cố. Vui lòng thử lại sau."
+
+    # ===== Cleanup uploaded files =====
+    for filepath in files_to_cleanup:
+        try:
+            if os.path.exists(filepath):
+                os.remove(filepath)
+                logger.info(f"Cleaned up: {filepath}")
+        except Exception as e:
+            logger.warning(f"Failed to cleanup {filepath}: {e}")
 
     return jsonify({"reply": reply})
 

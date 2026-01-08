@@ -515,7 +515,7 @@ export default function JobChatBot({ isOpen, setIsOpen }: JobChatBotProps) {
                             borderRadius: "18px 18px 18px 4px",
                             alignSelf: "flex-start",
                             padding: "12px 16px",
-                            maxWidth: "85%",
+                            maxWidth: "100%",
                             border: "1px solid #e2e8f0",
                             boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                           }
