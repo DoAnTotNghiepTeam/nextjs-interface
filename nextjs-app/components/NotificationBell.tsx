@@ -244,12 +244,6 @@ export default function NotificationBell() {
                       {!notif.isRead && <span className={styles.newDot}>●</span>}
                     </div>
                     
-                    {notif.companyName && (
-                      <div className={styles.companyName}>
-                        📍 {notif.companyName}
-                      </div>
-                    )}
-                    
                     {notif.jobTitle && (
                       <div className={styles.notifJob}>
                         💼 {notif.jobTitle}
