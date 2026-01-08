@@ -581,8 +581,10 @@ const MultiChatWidget = forwardRef<MultiChatHandle, MultiChatWidgetProps>(({
                     employerId={selectedEmployerId}
                     applicantId={applicantId}
                     applicantName={applicantName}
-                    employerName={selectedEmployerName}
+                    employerName={selectedCompanyName ? `Tuyển dụng ${selectedCompanyName}` : selectedEmployerName}
                     embedded={true}
+                    onBack={handleBackToList}
+                    onClose={() => setIsOpen(false)}
                   />
                 )}
               </div>

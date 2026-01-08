@@ -190,8 +190,8 @@ const hours = Math.floor(minutes / 60);
                       <>
                         <div className="row mt-10">
                           <div className="">
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, width: '100%' }}>
-                              <h3 style={{ margin: 0, fontWeight: 800, fontSize: '2rem', color: '#1d3557', letterSpacing: 0.2 }}>{job.title}</h3>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                              <h3 style={{ margin: 0, fontWeight: 800, fontSize: '2rem', color: '#1d3557', letterSpacing: 0.2, flex: 1, minWidth: 0 }}>{job.title}</h3>
                               {job.postType === 'vip' && (
                                 <span
                                   className="badge-vip"
@@ -210,7 +210,9 @@ const hours = Math.floor(minutes / 60);
                                     letterSpacing: 1,
                                     textShadow: '0 1px 4px rgba(0,0,0,0.08)',
                                     zIndex: 2,
-                                    backdropFilter: 'blur(3px)'
+                                    backdropFilter: 'blur(3px)',
+                                    flexShrink: 0,
+                                    whiteSpace: 'nowrap'
                                   }}
                                 >
                                   <span style={{ fontSize: '1.1em', color: '#fff', marginRight: 3 }}>★</span> VIP
@@ -625,6 +627,9 @@ const hours = Math.floor(minutes / 60);
             ref={chatRef}
             applicantId={session.user.id}
             applicantName={session.user.fullName || session.user.name}
+            iconBottomOffset={240}
+            popupBottomOffset={40}
+            hideIcon={true}
           />
         )}
     </Layout>

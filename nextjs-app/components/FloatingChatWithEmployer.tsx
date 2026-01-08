@@ -180,57 +180,14 @@ const FloatingChatWithEmployer = forwardRef<FloatingChatHandle, FloatingChatWith
               border: "1px solid rgba(0, 0, 0, 0.08)"
             }}
           >
-            <div style={{ 
-              display: "flex", 
-              justifyContent: "space-between", 
-              alignItems: "center", 
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", 
-              color: "#fff", 
-              padding: "16px 20px",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)"
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "20px" }}>💬</span>
-                <span style={{ fontWeight: "600", fontSize: "16px" }}>
-                  {employerName ? `Chat với ${employerName}` : "Chat với nhà tuyển dụng"}
-                </span>
-              </div>
-              <button
-                onClick={handleClose}
-                style={{ 
-                  background: "rgba(255, 255, 255, 0.2)", 
-                  border: "none", 
-                  color: "#fff", 
-                  fontSize: 24, 
-                  cursor: "pointer",
-                  borderRadius: "50%",
-                  width: 32,
-                  height: 32,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "all 0.2s ease",
-                  lineHeight: "1"
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)";
-                  e.currentTarget.style.transform = "rotate(90deg)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
-                  e.currentTarget.style.transform = "rotate(0deg)";
-                }}
-                title="Đóng chat"
-              >
-                ×
-              </button>
-            </div>
-            <div style={{ padding: 16, background: "#f8f9fa" }}>
+            <div style={{ height: 520, position: "relative", overflow: "hidden" }}>
               <ChatWithEmployer
                 employerId={employerId}
                 applicantId={applicantId}
                 applicantName={applicantName}
+                employerName={employerName}
                 embedded={true}
+                onClose={handleClose}
               />
             </div>
           </div>

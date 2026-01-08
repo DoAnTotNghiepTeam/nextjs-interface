@@ -9,6 +9,10 @@ interface ChatWithEmployerProps {
   employerName?: string;
   /** when true, the component is embedded inside a floating wrapper and should not render its own open button */
   embedded?: boolean;
+  /** callback to close/hide the chat window completely */
+  onClose?: () => void;
+  /** callback to go back to chat list (only for back button) */
+  onBack?: () => void;
 }
 
 interface Message {
@@ -27,11 +31,28 @@ type ChatSummary = {
   employerName?: string;
 };
 
-const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applicantId, applicantName, employerName, embedded }) => {
+const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applicantId, applicantName, employerName, embedded, onClose, onBack }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [showChat, setShowChat] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize textarea
+  const adjustTextareaHeight = () => {
+    const textarea = inputRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      const scrollHeight = textarea.scrollHeight;
+      const newHeight = Math.min(Math.max(scrollHeight, 40), 150);
+      textarea.style.height = `${newHeight}px`;
+      textarea.style.overflowY = scrollHeight > 150 ? "auto" : "hidden";
+    }
+  };
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [input]);
 
   // Auto scroll to bottom when new messages arrive
   useEffect(() => {
@@ -209,32 +230,92 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
-          height: "100%",
-          position: "relative"
+          height: embedded ? "100%" : 520,
+          position: embedded ? "absolute" : "relative",
+          inset: embedded ? 0 : "auto",
         }}>
-          {!embedded && (
-            <div style={{ 
-              marginBottom: 0, 
-              fontWeight: "600",
-              fontSize: "16px",
-              padding: "16px 20px",
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-              color: "#fff",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px"
-            }}>
-              <span>💬</span>
-              <span>Chat với nhà tuyển dụng</span>
+          <div style={{ 
+            marginBottom: 0, 
+            fontWeight: "600",
+            fontSize: "16px",
+            padding: "16px 20px",
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "8px",
+            flexShrink: 0
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              {embedded && onBack && (
+                <button
+                  onClick={onBack}
+                  style={{ 
+                    background: "transparent", 
+                    border: "none", 
+                    color: "#fff", 
+                    fontSize: 24, 
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 0.2s ease",
+                    lineHeight: "1",
+                    padding: "4px 8px",
+                    marginRight: "4px"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = "0.8";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = "1";
+                  }}
+                  title="Quay lại"
+                >
+                  ←
+                </button>
+              )}
+              
+              <span style={{ fontSize: "14px" }}>{employerName ? `${employerName}` : "Chat với nhà tuyển dụng"}</span>
             </div>
-          )}
+            {onClose && (
+              <button
+                onClick={onClose}
+                style={{ 
+                  background: "transparent", 
+                  border: "none", 
+                  color: "#fff", 
+                  fontSize: 28, 
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.2s ease",
+                  lineHeight: "1",
+                  padding: "4px 8px"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = "0.8";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = "1";
+                }}
+                title="Đóng chat"
+              >
+                ×
+              </button>
+            )}
+          </div>
           <div style={{ 
             flex: 1,
             overflowY: "auto", 
+            overflowX: "hidden",
             padding: "16px",
-            paddingBottom: "80px",
             background: "linear-gradient(to bottom, #f0f4ff 0%, #f8f9fa 100%)",
-            minHeight: "0"
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column"
           }}>
             {messages.length === 0 && (
               <div style={{ 
@@ -360,24 +441,41 @@ const ChatWithEmployer: React.FC<ChatWithEmployerProps> = ({ employerId, applica
             borderTop: "1px solid rgba(0, 0, 0, 0.08)",
             gap: "8px",
             flexShrink: 0,
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 10
+            position: "relative",
+            zIndex: 10,
+            alignItems: "flex-end"
           }}>
-            <input
+            <textarea
+              ref={inputRef}
               value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyPress={e => e.key === 'Enter' && sendMessage()}
+              onChange={e => {
+                setInput(e.target.value);
+                adjustTextareaHeight();
+              }}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
               style={{ 
+                width: "100%",
                 flex: 1, 
                 padding: "10px 16px", 
                 borderRadius: 24, 
                 border: "1px solid #e0e0e0",
                 fontSize: "14px",
                 outline: "none",
-                transition: "all 0.2s ease"
+                transition: "all 0.2s ease",
+                resize: "none",
+                minHeight: 40,
+                maxHeight: 150,
+                lineHeight: 1.5,
+                fontFamily: "inherit",
+                overflowY: "hidden",
+                overflowX: "hidden",
+                wordBreak: "break-word",
+                boxSizing: "border-box"
               }}
               onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
               onBlur={(e) => e.currentTarget.style.borderColor = "#e0e0e0"}
