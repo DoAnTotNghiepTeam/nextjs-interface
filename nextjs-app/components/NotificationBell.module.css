@@ -22,15 +22,19 @@
 
 .badge {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 2px;
+  right: 2px;
   background: #ef4444;
   color: white;
-  font-size: 10px;
+  font-size: 7px;
   font-weight: 700;
-  padding: 2px 5px;
-  border-radius: 10px;
-  min-width: 18px;
+  padding: 2px 3px;
+  border-radius: 50%;
+  min-width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   animation: pulse 2s infinite;
 }
@@ -85,7 +89,7 @@
 
 .notificationItem {
   display: block;
-  padding: 14px 20px;
+  padding: 10px 16px;
   border-bottom: 1px solid #f3f4f6;
   text-decoration: none;
   color: inherit;
@@ -112,7 +116,7 @@
 .notifContent {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .notifTitle {
@@ -120,7 +124,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .notifTitleText {
@@ -152,19 +156,19 @@
 }
 
 .notifJob {
-  font-size: 13px;
+  font-size: 12px;
   color: #6b7280;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
 .notifMessage {
-  font-size: 13px;
+  font-size: 12px;
   color: #374151;
-  line-height: 1.5;
-  margin-bottom: 8px;
+  line-height: 1.4;
+  margin-bottom: 6px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
